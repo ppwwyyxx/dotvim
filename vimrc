@@ -1,4 +1,4 @@
-" $Date: Sun Jul 07 01:01:30 2013 +0800
+" $Date: Sun Jul 07 20:34:35 2013 +0800
 " Author: WuYuxin <ppwwyyxxc@gmail.com>"
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
@@ -12,7 +12,7 @@ call vundle#rc()
 Bundle 'Color-Scheme-Explorer'
 Bundle 'FuzzyFinder'
 Bundle 'gprof.vim'
-Bundle 'Markdown'
+Bundle 'tpope/vim-markdown'
 Bundle 'MultipleSearch'
 Bundle 'sudo.vim'
 Bundle 'rhysd/accelerated-jk'
@@ -237,7 +237,7 @@ set viminfo+=n$HOME/.vimtmp/viminfo
 "" Basic Maps:
 let mapleader=" "
 let maplocalleader=","
-set timeoutlen=600                     " wait for ambiguous mapping
+set timeoutlen=300                     " wait for ambiguous mapping
 set ttimeoutlen=0                      " wait for xterm key escape
 inoremap <c-\> <Esc>
 vnoremap <c-\> <Esc>
@@ -418,8 +418,10 @@ nnoremap <leader>sch :call Replace_Chn()<cr>
 
 " Fcitx:
 func Fcitx_enter()
-    let l:char = getline('.')[col('.') - 1]
-    if (l:char >= "\x80")
+    if (getline('.')[col('.') - 1] >= "\x80")
+        call system("fcitx-remote -o")
+		return | endif
+    if (getline('.')[col('.') - 2] >= "\x80")
         call system("fcitx-remote -o")
     endif
 endfun
@@ -427,18 +429,13 @@ autocmd InsertLeave * call system("fcitx-remote -c")
 autocmd InsertEnter * call Fcitx_enter()
 
 " ---------------------------------------------------------------------f]]
-" Mkdir And Delete Whitespaces On Saving:
-func Auto_mkdir()
-    let dir = expand("<afile>:p:h")
-    if !isdirectory(dir) | call mkdir(dir, "p") | endif
-endfunc
+" Delete Trailing	 Whitespaces On Saving:
 func DeleteTrailingWhiteSpace()
     normal mZ
     %s/\s\+$//e
     normal `Z
 endfunc
-au FileWritePre * call Auto_mkdir()
-au BufWrite * call DeleteTrailingWhiteSpace()
+au BufWrite * if &ft != 'mkd' | call DeleteTrailingWhiteSpace() | endif
 
 " ---------------------------------------------------------------------
 " Extract And Inline Variable:
@@ -967,6 +964,31 @@ func Tex_Block(label)
     normal kk
     startinsert
 endfunc
+func Tex_Formula_init()
+    inoremap <buffer> <c-f> \dfrac{}{}<Esc>2hi
+    inoremap <buffer> <c-r> \sqrt{}<Left>
+    inoremap <buffer> <c-Left> \Leftrightarrow<Space>
+    inoremap <buffer> <c-Right> \Rightarrow<Space>
+    inoremap <buffer> \left \left<Space>\right<Esc>5hi
+    inoremap <buffer> ... \cdots<Space>
+
+    " Symbol:
+    inoremap <buffer> `a \alpha
+    inoremap <buffer> `b \beta
+    inoremap <buffer> `c ^\circ
+    inoremap <buffer> `D \Delta
+    inoremap <buffer> `d \mathrm{d}
+    inoremap <buffer> `G \Gamma
+    inoremap <buffer> `l \lambda
+    inoremap <buffer> `m \mu
+    inoremap <buffer> `O \Omega
+    inoremap <buffer> `o \omega
+    inoremap <buffer> `p \pi
+    inoremap <buffer> `r \rho
+    inoremap <buffer> `R \mathbb{R}
+    inoremap <buffer> `s \sigma
+    inoremap <buffer> `v \varphi
+endf
 func Tex_init()
     setl nocursorline                                " for performance
     hi clear Conceal
@@ -979,13 +1001,10 @@ func Tex_init()
     inoremap <buffer> $$ $<Space>$<Left>
     inoremap <buffer> " ``''<Left><Left>
     nmap <buffer> <Leader>" xi``<Esc>,f"axi''<Esc>
-    inoremap <buffer> <c-f> \dfrac{}{}<Esc>2hi
-    inoremap <buffer> <c-r> \sqrt{}<Left>
-    inoremap <buffer> <c-Left> \Leftrightarrow<Space>
-    inoremap <buffer> <c-Right> \Rightarrow<Space>
+	call Tex_Formula_init()
+
     inoremap <buffer> \[ \[<Space>\]<Left><Left>
     inoremap <buffer> \{ \{<Space>\}<Left><Left>
-    inoremap <buffer> \left \left<Space>\right<Esc>5hi
     inoremap <buffer> \langle \langle<Space><Space>\rangle<Esc>7hi
     inoremap <buffer> \verb \verb<Bar><Bar><Left>
     inoremap <buffer> \beg \begin{}<Left>
@@ -993,7 +1012,6 @@ func Tex_init()
     inoremap <buffer> \bbt <Esc>:call Tex_Block("t")<CR><Up><End>[H]<Down>\centering<CR>\caption{\label{tab:}}<Esc>k:call Tex_Block("tabular")<CR>
     inoremap <buffer> \bbf <Esc>:call Tex_Block("f")<CR><Up><End>[H]<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
     inoremap <buffer> \bbm <Esc>:call Tex_Block("mp")<CR><Up><End>[b]{0.46\linewidth}<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
-    inoremap <buffer> ... \cdots<Space>
     inoremap <buffer> \bf \textbf{}<Left>
     xmap <buffer> \bbe di\bbe<CR><Tab><Esc>pj
     xmap <buffer> \bbd di\bbd<CR><Tab><Esc>pj
@@ -1021,23 +1039,6 @@ func Tex_init()
     nmap <buffer> <Leader>ce <Plug>LatexChangeEnv
     xmap <buffer> <Leader>tc <Plug>LatexWrapSelection
     xmap <buffer> <Leader>te <Plug>LatexEnvWrapSelection
-
-    " Symbol:
-    inoremap <buffer> `a \alpha
-    inoremap <buffer> `b \beta
-    inoremap <buffer> `c ^\circ
-    inoremap <buffer> `D \Delta
-    inoremap <buffer> `d \mathrm{d}
-    inoremap <buffer> `G \Gamma
-    inoremap <buffer> `l \lambda
-    inoremap <buffer> `m \mu
-    inoremap <buffer> `O \Omega
-    inoremap <buffer> `o \omega
-    inoremap <buffer> `p \pi
-    inoremap <buffer> `r \rho
-    inoremap <buffer> `R \mathbb{R}
-    inoremap <buffer> `s \sigma
-    inoremap <buffer> `v \varphi
 endfunc
 func C_grammar_init()
     inoremap <buffer> while<Space> while<Space>()<Left>
@@ -1100,6 +1101,7 @@ func Js_init()
     call C_grammar_init()
 endfunc
 au FileType tex :call Tex_init()
+au FileType mkd :call Tex_Formula_init()
 au FileType cpp,c,yacc,lex :call C_init()
 au FileType cs :call CS_init()
 au FileType python :call Python_init()
@@ -1117,6 +1119,9 @@ au BufNewFile,BufRead *.json setl ft=json syntax=txt
 au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setl ft=txt syntax=txt   " for vidir
 au BufWritePost,BufWrite __doc__ setl ft=txt
 au BufNewFile,BufRead *.mako setl ft=mako
+au BufNewFile,BufRead *.md,*.markdown setl ft=mkd
+au BufNewFile,BufRead *.jade setl ft=jade
+au BufNewFile,BufRead *.styl setl ft=stylus
 au BufNewFile,BufRead *.ejs setl ft=ejs
 au BufNewFile,BufRead *.gprof setl ft=gprof
 au BufNewFile,BufReadPost *.slim setl ft=slim
