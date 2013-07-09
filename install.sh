@@ -1,6 +1,6 @@
 #!/bin/bash
 # File: install.sh
-# Date: Sat Jul 06 20:51:16 2013 +0800
+# Date: Tue Jul 09 15:59:26 2013 +0800
 # Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 echo "Backup original vimfiles to ~/backup_vim* ..."
 cp ~/.vimrc ~/backup_vimrc -v
@@ -27,12 +27,16 @@ for i in ~/.vim/patch/*; do
 	patch -p0 < $i
 done
 
-echo "Compiling ycm_core ... (please make sure you have libclang.so in your system)"
-BUILD_DIR=/tmp/ycm_build
-mkdir -p BUILD_DIR
-cd BUILD_DIR
-cmake -G "Unix Makefiles" -DUSE_SYSTEM_LIBCLANG=ON . ~/.vim/bundle/YouCompleteMe/cpp
-make ycm_core
-cd && rm BUILD_DIR -rf
+if [[ -f ~/backup_vim/bundle/YouCompleteMe/python/ycm_core.so ]]; then
+	cp ~/backup_vim/bundle/YouCompleteMe/python/*.so ~/.vim/bundle/YouCompleteMe/python
+else
+	echo "Compiling ycm_core ... (please make sure you have libclang.so in your system)"
+	BUILD_DIR=/tmp/ycm_build
+	mkdir -p BUILD_DIR
+	cd BUILD_DIR
+	cmake -G "Unix Makefiles" -DUSE_SYSTEM_LIBCLANG=ON . ~/.vim/bundle/YouCompleteMe/cpp
+	make ycm_core
+	cd && rm BUILD_DIR -rf
+fi
 
 echo "Finish installing ppwwyyxx/dotvim"

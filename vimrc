@@ -1,4 +1,4 @@
-" $Date: Sun Jul 07 20:34:35 2013 +0800
+" $Date: Tue Jul 09 15:54:54 2013 +0800
 " Author: WuYuxin <ppwwyyxxc@gmail.com>"
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
@@ -38,6 +38,7 @@ Bundle 'digitaltoad/vim-jade'
 Bundle 'davidhalter/jedi-vim'
 Bundle 'maksimr/vim-jsbeautify'
 Bundle 'einars/js-beautify'
+Bundle 'pangloss/vim-javascript'
 Bundle 'L9'
 Bundle 'LargeFile'
 Bundle 'LaTeX-Box-Team/LaTeX-Box'
@@ -854,7 +855,7 @@ let g:startify_skiplist = ['COMMIT_EDITMSG', 'doc/.*txt', 'git/index']
 nmap <Leader>ps :call PinyinSearch()<CR>
 nnoremap ? :call PinyinSearch()<CR>
 nmap <Leader>pn :call PinyinNext()<CR>
-let g:PinyinSearch_Dict = $HOME . "/.vim/bundle/PinyinSearch/PinyinSearch.dict"
+let g:PinyinSearch_Dict = $HOME . "/.vim/bundle/vim-PinyinSearch/PinyinSearch.dict"
 
 "let g:syntastic_cpp_compiler         = 'clang++'
 "let g:syntastic_cpp_compiler_options = ' -std=c++11 -fopenmp -Iinclude -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -I/usr/include/ImageMagick-6'
@@ -1122,7 +1123,7 @@ au BufNewFile,BufRead *.mako setl ft=mako
 au BufNewFile,BufRead *.md,*.markdown setl ft=mkd
 au BufNewFile,BufRead *.jade setl ft=jade
 au BufNewFile,BufRead *.styl setl ft=stylus
-au BufNewFile,BufRead *.ejs setl ft=ejs
+au BufNewFile,BufRead *.ejs setl ft=html
 au BufNewFile,BufRead *.gprof setl ft=gprof
 au BufNewFile,BufReadPost *.slim setl ft=slim
 au BufNewFile,BufRead *.txt,*.doc,*.pdf setl ft=txt
@@ -1135,7 +1136,7 @@ au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
 au Filetype coffee,jade setl expandtab
-au Filetype vhdl,php,html,xml,zcml,yaml,json,coffee,jade setl tabstop=2 shiftwidth=2 softtabstop=2
+au Filetype stylus,vhdl,php,html,xml,zcml,yaml,json,coffee,jade,ejs setl tabstop=2 shiftwidth=2 softtabstop=2
 au Filetype txt setl textwidth=200
 let g:tex_flavor = 'latex'                                         " default filetype for tex
 au FileType sh,zsh inoremap ` ``<Left>
