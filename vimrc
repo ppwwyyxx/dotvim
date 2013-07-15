@@ -1,4 +1,4 @@
-" $Date: Sun Jul 14 01:03:31 2013 +0800
+" $Date: Mon Jul 15 23:28:46 2013 +0800
 " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
@@ -62,6 +62,7 @@ Bundle 'vim-ruby/vim-ruby'
 Bundle 'Shougo/neocomplcache'
 Bundle 'Shougo/vimproc'
 Bundle 'Valloric/YouCompleteMe'
+Bundle 'derekwyatt/vim-fswitch'
 
 Bundle 'gprof.vim'
 Bundle 'tpope/vim-markdown'
@@ -138,7 +139,7 @@ endif
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
 hi LineNr ctermfg=134 guifg=#d426ff
-hi VertSplit ctermbg=none ctermfg=55 cterm=none
+hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=purple
 hi CursorLineNr ctermfg=red
 hi Statement ctermfg=3
 hi Visual ctermbg=81 ctermfg=black cterm=none
@@ -881,7 +882,7 @@ func C_init()
     let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
     call C_grammar_init()
     syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr
-    syn keyword cppSTL priority_queue hypot isnormal isfinite isnan shared_ptr make_shared numeric_limits move
+    syn keyword cppSTL priority_queue hypot stringstream isnormal isfinite isnan shared_ptr make_shared numeric_limits move
     syn keyword cppSTLType T
     "setl ofu=ClangComplete
     "inoremap <c-[> <Esc>:python updateSnips()<CR>
@@ -946,19 +947,19 @@ au FileType r :call C_grammar_init()
 " FileType Commands:
 au BufWritePost .Xresources silent !xrdb %
 au BufWritePost .tmux.conf silent !tmux source %
-au BufRead tmux.conf,.tmux* setl ft=tmux
+au BufRead tmux.conf,.tmux* setf tmux
 au BufNewFile,BufRead *.json setl ft=json syntax=txt
-au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setl ft=txt syntax=txt   " for vidir
-au BufWritePost,BufWrite __doc__ setl ft=txt
-au BufNewFile,BufRead *.mako setl ft=mako
-au BufNewFile,BufRead *.ejs setl ft=html
-au BufNewFile,BufRead *.gprof setl ft=gprof
-au BufNewFile,BufRead *.txt,*.doc,*.pdf setl ft=txt
+au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt				   " for vidir
+au BufWritePost,BufWrite __doc__ setf txt
+au BufNewFile,BufRead *.mako setf mako
+au BufNewFile,BufRead *.ejs setf html
+au BufNewFile,BufRead *.gprof setf gprof
+au BufNewFile,BufRead *.txt,*.doc,*.pdf setf txt
 au BufReadPre *.doc,*.class,*.pdf setl ro
 au BufReadPost *.doc silent %!antiword "%"
-au BufRead *.class exe 'silent %!javap -c "%"' | setl ft=java
+au BufRead *.class exe 'silent %!javap -c "%"' | setf java
 au BufReadPost *.pdf silent %!pdftotext -nopgbrk "%" -
-au BufNewFile,BufRead *.lrc setl ft=lrc
+au BufNewFile,BufRead *.lrc setf lrc
 au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
@@ -986,6 +987,14 @@ au BufWritePost *
 " Tyank, Twrite, Tput to use tbone for tmux
 " {count}zS to show highlight
 let g:alternateSearchPath = 'sfr:../src,sfr:../include,sfr:../,sfr:./include'
+
+au BufEnter *.cpp let b:fswitchdst = 'hpp,h' | let b:fswitchlocs = './,./include,../include'
+au BufEnter *.cc let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './include,./,../include'
+au BufEnter *.hh let b:fswitchdst = 'cc,cpp' | let b:fswitchlocs = '../,./'
+au BufEnter *.h let b:fswitchdst = 'cpp,cc' | let b:fswitchlocs = './,../'
+command A FSHere
+command AV FSSplitRight
+
 command Badapple so ~/.vim/badapple/badapple.vim
 let g:EasyMotion_leader_key = ','
 xmap s <Plug>VSurround

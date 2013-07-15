@@ -11,7 +11,6 @@ let g:Powerline#Themes#custom#theme = Pl#Theme#Create(
 		\ , 'fileformat'
 		\ , 'fileencoding'
 		\ , 'filetype'
-		\ , 'filesize'
 		\ , 'lineinfo'
 	\ ),
 	\
