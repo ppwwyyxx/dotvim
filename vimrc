@@ -1,4 +1,4 @@
-" $Date: Mon Jul 15 23:28:46 2013 +0800
+" $Date: Wed Jul 24 22:05:09 2013 +0800
 " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
@@ -50,6 +50,7 @@ Bundle 'scrooloose/nerdcommenter'
 Bundle 'glts/vim-textobj-comment'
 Bundle 'kana/vim-textobj-indent'
 Bundle 'kana/vim-textobj-user'
+Bundle 'AndrewRadev/splitjoin.vim'
 Bundle 'VisIncr'
 
 Bundle 'myhere/vim-nodejs-complete'
@@ -221,12 +222,9 @@ set smarttab
 set autoindent smartindent
 set textwidth=100
 set tabstop=4 softtabstop=4 shiftwidth=4
-set showmatch
-set matchtime=0
+set showmatch matchtime=0
 
-set hlsearch                           " high light search
-set ignorecase smartcase
-set incsearch                          " do incremental searching
+set ignorecase smartcase incsearch hlsearch
 "set magic                              " for regular expressions
 " use /[^\x00-\x7F] to search multibytes
 " ---------------------------------------------------------------------f]]
@@ -609,11 +607,11 @@ let g:ycm_filetype_blacklist = {'markdown' : 1,  'txt' : 1, 'help' : 1}
 let g:ycm_key_detailed_diagnostics = "<Leader>yd"
 let g:ycm_key_invoke_completion = "<F5>"
 let g:ycm_complete_in_comments = 1
-let g:ycm_collect_identifiers_from_tags_files = 1
 let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_autoclose_preview_window_after_insertion = 1
-let g:ycm_key_list_select_completion = ['<TAB>', '<Down>', '<Enter>']
+let g:ycm_key_list_select_completion = ['<TAB>', '<Down>']
+let g:ycm_collect_identifiers_from_tags_files = 0	  " slow
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_cache_omnifunc = 0
 
@@ -625,8 +623,9 @@ func Neo_Toggle(mode)
 endfunc
 nnoremap <Leader>neo :call Neo_Toggle('omni_complete')<CR>
 nnoremap <Leader>ned :call Neo_Toggle('dictionary_complete')<CR>
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+"inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"		" already done by ycm
 inoremap <expr><C-e>  pumvisible() ? neocomplcache#close_popup(). "\<End>" : "\<End>"
+inoremap <expr><CR>  pumvisible() ? neocomplcache#close_popup() : "\<CR>"
 inoremap <expr><BS>  neocomplcache#smart_close_popup()."\<C-h>"
 au CursorMovedI,InsertLeave * if pumvisible() == 0| silent! pclose| endif        " auto close preview window
 let g:neocomplcache_enable_at_startup = 0
@@ -1027,6 +1026,11 @@ if exists("*expand_region#custom_text_objects")
       \ }) | endif
 xmap K <Plug>(expand_region_expand)
 xmap J <Plug>(expand_region_shrink)
+
+let g:splitjoin_split_mapping = ''
+let g:splitjoin_join_mapping = ''
+nmap sj :SplitjoinSplit<cr>
+nmap sk :SplitjoinJoin<cr>
 
 " Use * to Multiple Search word under cusor
 nnoremap <silent> * :execute ':Search \<' . expand('<cword>') . '\>'<cr>
