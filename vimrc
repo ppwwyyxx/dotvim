@@ -1,4 +1,4 @@
-" $Date: Wed Jul 24 22:05:09 2013 +0800
+" $Date: Tue Jul 30 17:49:41 2013 +0800
 " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
@@ -613,13 +613,15 @@ let g:ycm_autoclose_preview_window_after_insertion = 1
 let g:ycm_key_list_select_completion = ['<TAB>', '<Down>']
 let g:ycm_collect_identifiers_from_tags_files = 0	  " slow
 let g:ycm_confirm_extra_conf = 0
-let g:ycm_cache_omnifunc = 0
+let g:ycm_cache_omnifunc = 1
+
+let g:EclimCompletionMethod = 'omnifunc'
 
 func Neo_Toggle(mode)
-    let i = index(g:neocomplcache_disabled_sources_list._, a:mode)
-    if i == -1 | call add(g:neocomplcache_disabled_sources_list._, a:mode)
-    else | call remove(g:neocomplcache_disabled_sources_list._, i)
-    endif
+	let i = index(g:neocomplcache_disabled_sources_list._, a:mode)
+	if i == -1 | call add(g:neocomplcache_disabled_sources_list._, a:mode)
+	else | call remove(g:neocomplcache_disabled_sources_list._, i)
+	endif
 endfunc
 nnoremap <Leader>neo :call Neo_Toggle('omni_complete')<CR>
 nnoremap <Leader>ned :call Neo_Toggle('dictionary_complete')<CR>

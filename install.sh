@@ -1,37 +1,41 @@
 #!/bin/bash -e
 # File: install.sh
-# Date: Mon Jul 15 23:33:56 2013 +0800
+# Date: Tue Jul 30 17:59:24 2013 +0800
 # Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 #echo "Backup original vimfiles to ~/backup_vim* ..."
 #cp ~/.vimrc ~/backup_vimrc -v
 #cp ~/.vim ~/backup_vim -rf
 
-#echo "Copying files..."
-#cp vimrc ~/.vimrc
-#rm ~/.vim -rvf && cp vim ~/.vim -rvf
+LINE="---------------------------------------------------------------------"
+ECLIM="http://superb-dca2.dl.sourceforge.net/project/eclim/eclim/2.3.1/eclim_2.3.1.jar"
 
-#echo "Installing Bundles ..."
-#mkdir -p ~/.vim/bundle/vundle
-#git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
-#vim +BundleInstall +qall
+echo "Copying files..."
+cp vimrc ~/.vimrc
+rm ~/.vim -rvf && cp vim ~/.vim -rvf
 
-#mkdir -p ~/.vimtmp/undo
-#mkdir -p ~/.vimtmp/vim-fuf-data
-#mkdir -p ~/.vimtmp/neocomplcache
+echo "Installing Bundles ..."
+mkdir -p ~/.vim/bundle/vundle
+git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+vim +BundleInstall +qall
 
-#for i in ~/.vim/patch/*; do
-	#filename=`basename $i`
-	#bundle="${filename%.*}"
-	#echo "Patching $bundle ..."
-	#cd ~/.vim/bundle/$bundle
-	#patch -p0 < $i
-#done
+mkdir -p ~/.vimtmp/undo
+mkdir -p ~/.vimtmp/vim-fuf-data
+mkdir -p ~/.vimtmp/neocomplcache
+
+for i in ~/.vim/patch/*; do
+       filename=`basename $i`
+       bundle="${filename%.*}"
+       echo "Patching $bundle ..."
+       cd ~/.vim/bundle/$bundle
+       patch -p0 < $i
+done
 
 YCM_PYTHON_DIR="bundle/YouCompleteMe/python"
 if [[ -f ~/backup_vim/$YCM_PYTHON_DIR/ycm_core.so ]]; then
 	cp ~/backup_vim/$YCM_PYTHON_DIR/*.so ~/.vim/$YCM_PYTHON_DIR
 else
 	echo "Compiling ycm_core ... (please make sure you have libclang.so in your system)"
+	echo $LINE
 	BUILD_DIR=/tmp/ycm_build
 	mkdir -p BUILD_DIR
 	cd BUILD_DIR
@@ -45,8 +49,11 @@ if [[ -f ~/backup_vim/$VIMPROC_DIR/vimproc_unix.so ]]; then
 	cp ~/backup_vim/$VIMPROC_DIR/*.so ~/.vim/$VIMPROC_DIR
 else
 	echo "Compiling vimproc..."
+	echo $LINE
 	cd ~/.vim/$VIMPROC_DIR/..
 	make -f make_unix.mak
 fi
+
+pacaur -S eclim
 
 echo "Finish installing ppwwyyxx/dotvim"
