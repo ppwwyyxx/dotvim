@@ -1,4 +1,4 @@
-" $Date: Tue Jul 30 17:49:41 2013 +0800
+" $Date: Wed Jul 31 16:50:54 2013 +0800
 " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
@@ -161,7 +161,7 @@ func HighlightFunctionsAndClasses()
 	hi def link cCustomFunc      Function
 	hi def link cCustomClass     Function
 endfunction
-au Syntax * call HighlightFunctionsAndClasses()
+"au Syntax * call HighlightFunctionsAndClasses()
 
 " Spell Check:
 hi clear SpellBad
@@ -614,6 +614,9 @@ let g:ycm_key_list_select_completion = ['<TAB>', '<Down>']
 let g:ycm_collect_identifiers_from_tags_files = 0	  " slow
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_cache_omnifunc = 1
+let g:ycm_semantic_triggers =  {'c' : ['->', '.'], 'objc' : ['->', '.'],
+\   'ocaml' : ['.', '#'], 'cpp,objcpp' : ['->', '.', '::'], 'php' : ['->', '::'],
+\   'cs,java,javascript,vim,coffee,python,scala,go' : ['.'], 'ruby' : ['.', '::']}
 
 let g:EclimCompletionMethod = 'omnifunc'
 
@@ -953,6 +956,7 @@ au BufNewFile,BufRead *.json setl ft=json syntax=txt
 au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt				   " for vidir
 au BufWritePost,BufWrite __doc__ setf txt
 au BufNewFile,BufRead *.mako setf mako
+au BufNewFile,BufRead *.g setf antlr3
 au BufNewFile,BufRead *.ejs setf html
 au BufNewFile,BufRead *.gprof setf gprof
 au BufNewFile,BufRead *.txt,*.doc,*.pdf setf txt
@@ -1026,8 +1030,8 @@ if exists("*expand_region#custom_text_objects")
       \ 'ii' :0, 'ai' :0,
       \ 'ic' :0, 'ac' :0,
       \ }) | endif
-xmap K <Plug>(expand_region_expand)
-xmap J <Plug>(expand_region_shrink)
+xmap L <Plug>(expand_region_expand)
+xmap H <Plug>(expand_region_shrink)
 
 let g:splitjoin_split_mapping = ''
 let g:splitjoin_join_mapping = ''

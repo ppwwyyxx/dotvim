@@ -1,6 +1,6 @@
 #!/bin/bash -e
 # File: install.sh
-# Date: Tue Jul 30 17:59:24 2013 +0800
+# Date: Wed Jul 31 16:54:12 2013 +0800
 # Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 #echo "Backup original vimfiles to ~/backup_vim* ..."
 #cp ~/.vimrc ~/backup_vimrc -v
@@ -37,11 +37,11 @@ else
 	echo "Compiling ycm_core ... (please make sure you have libclang.so in your system)"
 	echo $LINE
 	BUILD_DIR=/tmp/ycm_build
-	mkdir -p BUILD_DIR
-	cd BUILD_DIR
+	mkdir -p $BUILD_DIR
+	cd $BUILD_DIR
 	cmake -G "Unix Makefiles" -DUSE_SYSTEM_LIBCLANG=ON . ~/.vim/bundle/YouCompleteMe/cpp
 	make ycm_core
-	cd && rm BUILD_DIR -rf
+	cd && rm $BUILD_DIR -rf
 fi
 
 VIMPROC_DIR="bundle/vimproc/autoload"
