@@ -1,4 +1,4 @@
-" $Date: Wed Jul 31 16:50:54 2013 +0800
+" $Date: Thu Aug 01 15:41:56 2013 +0800
 " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
@@ -92,10 +92,10 @@ filetype plugin indent on
 " Environment:
 if &term =~ '^screen'                 " fix keymap under screen
     " tmux will send xterm-style keys when its xterm-keys option is on
-    "exec "set <xUp>=\e[1;*A"
-    "exec "set <xDown>=\e[1;*B"
-    "exec "set <xRight>=\e[1;*C"
-    "exec "set <xLeft>=\e[1;*D"
+    exec "set <xUp>=\e[1;*A"
+    exec "set <xDown>=\e[1;*B"
+    exec "set <xRight>=\e[1;*C"
+    exec "set <xLeft>=\e[1;*D"
     "map [F $
     "imap [F $
     "map [H g0
@@ -160,7 +160,7 @@ func HighlightFunctionsAndClasses()
 	syn match cCustomClass     "\w\+\s*\(::\)\@="
 	hi def link cCustomFunc      Function
 	hi def link cCustomClass     Function
-endfunction
+endfunc
 "au Syntax * call HighlightFunctionsAndClasses()
 
 " Spell Check:
@@ -226,6 +226,10 @@ set showmatch matchtime=0
 
 set ignorecase smartcase incsearch hlsearch
 "set magic                              " for regular expressions
+" very magic:
+nnoremap / /\v
+vnoremap / /\v
+xmap / <Esc>/\%V
 " use /[^\x00-\x7F] to search multibytes
 " ---------------------------------------------------------------------f]]
 " History:
@@ -257,10 +261,6 @@ command -bang -nargs=* -complete=file Wq wq<bang> <args>
 command -bang -nargs=* -complete=file WQ wq<bang> <args>
 nnoremap <Tab> i<Tab><Esc>
 nnoremap <S-Tab> ^i<Tab><Esc>
-" very magic:
-nnoremap / /\v
-vnoremap / /\v
-xmap / <Esc>/\%V
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
 cmap cd. lcd %:p:h
 cmap w!! SudoWrite %
@@ -703,7 +703,9 @@ func SetTitle()
         normal G
     elseif &ft == 'cpp'
         call GenerateHead(0)
-        call append(line("$"), ["#include <iostream>","#include <cstdlib>","#include <cstring>","#include <cstdio>", "using namespace std;"," "])
+		call append(line("$"), ["#include <iostream>","#include <cstdlib>","#include <cstring>","#include <cstdio>", "using namespace std;",
+					\ "#define REP(x, y) for (int x = 0; x < (y); x ++)", "#define REPL(x, y, z) for (int x = y; x < (z); x ++)",
+					\ "#define REPD(x, y, z) for (int x = y; x >= (z); x --)", "#define P(a) std::cout << (a) << std::endl" ])
         normal G
     elseif &ft == 'python'
         0put=\"#!/usr/bin/env python2\<nl># -*- coding: UTF-8 -*-\"
@@ -956,7 +958,7 @@ au BufNewFile,BufRead *.json setl ft=json syntax=txt
 au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt				   " for vidir
 au BufWritePost,BufWrite __doc__ setf txt
 au BufNewFile,BufRead *.mako setf mako
-au BufNewFile,BufRead *.g setf antlr3
+au BufNewFile,BufRead *.g setl syntax=antlr3
 au BufNewFile,BufRead *.ejs setf html
 au BufNewFile,BufRead *.gprof setf gprof
 au BufNewFile,BufRead *.txt,*.doc,*.pdf setf txt
@@ -1178,4 +1180,3 @@ let g:ScreenImpl = 'Tmux'
 let g:ScreenShellHeight = 20
 let g:ScreenShellTerminal = g:my_term
 nnoremap <LocalLeader>se :ScreenSend<CR>
-
