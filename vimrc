@@ -1,8 +1,8 @@
-" $Date: Thu Aug 01 15:41:56 2013 +0800
 " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
 syntax on
+" Bundle: f[[
 filetype off						" for vundle
 set rtp+=~/.vim/bundle/vundle
 call vundle#rc()
@@ -38,6 +38,7 @@ Bundle 'tomtom/tmru_vim'
 Bundle 'winmanager'
 Bundle 'airblade/vim-gitgutter'
 
+Bundle 'qstrahl/vim-matchmaker'
 Bundle 'rhysd/accelerated-jk'
 Bundle 'yonchu/accelerated-smooth-scroll'
 Bundle 'tsaleh/vim-align'
@@ -63,6 +64,7 @@ Bundle 'vim-ruby/vim-ruby'
 Bundle 'Shougo/neocomplcache'
 Bundle 'Shougo/vimproc'
 Bundle 'Valloric/YouCompleteMe'
+Bundle 'othree/html5.vim'
 Bundle 'derekwyatt/vim-fswitch'
 
 Bundle 'gprof.vim'
@@ -87,8 +89,8 @@ Bundle 'Vladimiroff/vim-sparkup'
 Bundle 'wavded/vim-stylus'
 Bundle 'ppwwyyxx/vim-SugarCpp'
 filetype plugin indent on
+" --------------------------------------------------------------------- f]]
 
-" ---------------------------------------------------------------------
 " Environment:
 if &term =~ '^screen'                 " fix keymap under screen
     " tmux will send xterm-style keys when its xterm-keys option is on
@@ -119,6 +121,7 @@ set viewoptions=folds,options,cursor,slash,unix
 set virtualedit=onemore
 scriptencoding utf-8
 set ttyfast
+"let g:html_dynamic_folds = 1
 "set lazyredraw
 
 " ---------------------------------------------------------------------
@@ -136,9 +139,11 @@ if has("gui_running")                  " for gvim
     "colo molokai
     colo bocau
     hi CursorColumn guibg=Green
+	hi Matchmaker guibg=#333
 endif
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
+hi Search guibg=#8ca509
 hi LineNr ctermfg=134 guifg=#d426ff
 hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=purple
 hi CursorLineNr ctermfg=red
@@ -161,7 +166,7 @@ func HighlightFunctionsAndClasses()
 	hi def link cCustomFunc      Function
 	hi def link cCustomClass     Function
 endfunc
-"au Syntax * call HighlightFunctionsAndClasses()
+au Syntax * call HighlightFunctionsAndClasses()
 
 " Spell Check:
 hi clear SpellBad
@@ -269,6 +274,16 @@ nnoremap "gf <C-W>gf
 nnoremap Q <Esc>
 nnoremap <F1> :echo<CR>
 inoremap <F1> <C-o>:echo<CR>
+
+vnoremap <expr> I ForceBlockwiseVisual('I')
+vnoremap <expr> A ForceBlockwiseVisual('A')
+func ForceBlockwiseVisual(key)
+  if mode () == 'v'
+    return "\<C-v>". a:key
+  elseif mode () == 'V'
+    return "\<C-v>0o$". a:key
+  else | return a:key | endif
+endfunc
 " ---------------------------------------------------------------------
 " Clipboard:                           " + register may be wrong under xterm
 nnoremap Y y$
@@ -508,8 +523,8 @@ fun LastMod()
     let l:line = line(".")                            " save cursor position
     let l:col = col(".")
     let l = min([line("$"), 8])
-    exec '1,' . l . 'substitute/' . '^\(.*Date:\).*$' . '/\1 ' . strftime('%a %b %d %H:%M:%S %Y %z') . '/e'
-    exec '1,' . l . 'substitute/' . '^\(.*File:\).*$' . '/\1 ' . expand('<afile>:t') . '/e'
+    exec '1,' . l . 'substitute/' . '^\(.*File:\)[^\*]*\(.*\)$' . '/\1 ' . expand('<afile>:t') . '\2/e'
+    exec '1,' . l . 'substitute/' . '^\(.*Date:\)[^\*]*\(.*\)$' . '/\1 ' . strftime('%a %b %d %H:%M:%S %Y %z') . '\2/e'
     call cursor(l:line, l:col)
 endfun
 au BufWritePre,FileWritePre * call LastMod()
@@ -603,7 +618,7 @@ set tags=.tags
 nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <CR><CR> :TlistUpdate <CR>:NeoComplCacheCachingTags<CR>
 
 let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
-let g:ycm_filetype_blacklist = {'markdown' : 1,  'txt' : 1, 'help' : 1}
+let g:ycm_filetype_blacklist = {'markdown' : 1,  'txt' : 1, 'help' : 1, 'vim' : 1}
 let g:ycm_key_detailed_diagnostics = "<Leader>yd"
 let g:ycm_key_invoke_completion = "<F5>"
 let g:ycm_complete_in_comments = 1
@@ -633,11 +648,10 @@ inoremap <expr><C-e>  pumvisible() ? neocomplcache#close_popup(). "\<End>" : "\<
 inoremap <expr><CR>  pumvisible() ? neocomplcache#close_popup() : "\<CR>"
 inoremap <expr><BS>  neocomplcache#smart_close_popup()."\<C-h>"
 au CursorMovedI,InsertLeave * if pumvisible() == 0| silent! pclose| endif        " auto close preview window
-let g:neocomplcache_enable_at_startup = 0
+let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_use_vimproc = 4
 let g:neocomplcache_disable_auto_complete = 0
 let g:neocomplcache_enable_auto_select = 0
-let g:neocomplcache_sources_list = {'_' : '_'}
 let g:neocomplcache_disabled_sources_list = {"_" : ['dictionary_complete'], "txt": [] }
 let g:neocomplcache_dictionary_filetype_lists = {'_' : $HOME . "/.vim/static/english_dict"}
 let g:neocomplcache_auto_completion_start_length = 2
@@ -659,17 +673,6 @@ let g:neocomplcache_omni_functions.r = 'rcomplete#CompleteR'
 let g:neocomplcache_omni_patterns.java = '\h\w*\%(\.)\h\w*'
 let g:neocomplcache_force_omni_patterns = {}
 
-" These are useless since clang_complete are integrated in YCM
-"let g:neocomplcache_force_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w+'
-"let g:neocomplcache_omni_patterns.cpp = g:neocomplcache_force_omni_patterns.cpp
-"let g:clang_close_preview = 1
-"let g:clang_user_options = '-std=c++11 -Iinclude -include include/*.*'          " the last is necessary to complete class member
-"let g:clang_complete_macros = 1
-"let g:clang_complete_copen = 1
-"let g:clang_debug  = 1
-"let g:clang_snippets = 1
-"let g:clang_trailing_placeholder = 1
-
 let g:jedi#use_tabs_not_buffers = 0
 let g:jedi#rename_command = "<Leader>rn"
 
@@ -683,11 +686,12 @@ let g:rubycomplete_rails = 1
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
+func PrintComment(line)
+	return printf(&commentstring, a:line)
+endfunc
 func GenerateHead(line)
-    let Comment   = {"cpp": "\//","sh": "#", "python": "#", "tex": "%","c": "\//", "ruby": "#", "java": "\//"}
     let AuthorStr = "Author: Yuxin Wu <ppwwyyxxc@gmail.com>"
-    let ft        = &filetype
-    let Head_List = [Comment[ft]. " File:",Comment[ft]. " Date:",Comment[ft]. " ".AuthorStr]
+    let Head_List = [PrintComment("File:"), PrintComment("Date:"), PrintComment(AuthorStr)]
     call append(a:line, Head_List)
 endfunc
 func SetTitle()
@@ -715,21 +719,21 @@ func SetTitle()
         0put=\"#!/usr/bin/env ruby\<nl># coding: utf-8\"
         call GenerateHead(2)
         normal G
-    elseif &ft == 'tex'
-        call GenerateHead(0)
-        normal G
     elseif &ft == 'html'
         call setline(1, "html:5")
         normal $
         call feedkeys("\<C-z>")                                " call sparkup
     elseif &ft == 'java'
         call GenerateHead(0)
-        call append(line("$"), ["public class ". file_head . "{", "\tpublic static void main(){", "\t}", "}"])
+        call append(line("$"), ["public class ". file_head . " {", "\tpublic static void main(String[] args) {", "\t}", "}"])
         normal jjj
+	elseif &ft == 'tex' || &ft == 'javascript' || &ft == 'coffee'
+		call GenerateHead(0)
+		normal G
     endif
 endfunc
 au BufNewFile *.* call SetTitle()
-au BufNewFile Makefile exec ":r ~/programming/cpp/Makefiles/Makefile"
+au BufNewFile Makefile exec ":r ~/Work/programming/cpp/Makefiles/Makefile"
 
 " ---------------------------------------------------------------------f]]
 " Make For Programming: f[[
@@ -745,7 +749,6 @@ func Make()                        " silent make with quickfix window popup
         endif
     endif
     make
-    " silent make ?
     redraw!
     for i in getqflist()
         if i['valid']
@@ -783,7 +786,7 @@ nnoremap <Leader>rr :call InstantRun() <CR>
 nnoremap <Leader>mk :call Make()<CR>
 nnoremap <Leader>mr :!make run <CR>
 nnoremap <Leader>make :call FindMakefile()<CR>
-" ---------------------------------------------------------------------
+" --------------------------------------------------------------------- f]]
 
 " Mapping For Programming: (These should've been moved to ftplugin) f[[
 func Tex_Block(label)
@@ -819,6 +822,9 @@ func Tex_Formula_init()
     inoremap <buffer> `v \varphi
 endf
 func Tex_init()
+	" pdf auto refresh preview
+	au BufWritePost *.tex call system("zsh -c 'make; killall -SIGHUP mupdf-x11 > /dev/null 2 >&1' &")
+
     setl nocursorline                                " for performance
     hi clear Conceal
     let &conceallevel=has("gui_running") ? 1: 2        " conceal problem for gvim
@@ -913,7 +919,7 @@ func Ruby_init()
 endfunc
 func Java_init()
     let &makeprg="javac %"
-    syn keyword javaType String Integer Double Pair Collection Collections List Boolean Triple ArrayList Entry LinkedList Map HashMap Set HashSet TreeSet TreeMap Iterator Iterable Comparator Arrays ListIterator
+    syn keyword javaType String Integer Double Pair Collection Collections List Boolean Triple ArrayList Entry LinkedList Map HashMap Set HashSet TreeSet TreeMap Iterator Iterable Comparator Arrays ListIterator Vector
     let java_comment_strings = 1
     let java_mark_braces_in_parens_as_errors= 1
     let java_ignore_javadoc = 1
@@ -940,7 +946,7 @@ func MarkDown_init()
 	xmap <Leader>e s*gvs*
 endfunc
 au FileType tex :call Tex_init()
-au FileType mkd :call MarkDown_init()
+au FileType markdown :call MarkDown_init()
 au FileType cpp,c,yacc,lex :call C_init()
 au FileType cs :call CS_init()
 au FileType python :call Python_init()
@@ -954,12 +960,13 @@ au FileType r :call C_grammar_init()
 au BufWritePost .Xresources silent !xrdb %
 au BufWritePost .tmux.conf silent !tmux source %
 au BufRead tmux.conf,.tmux* setf tmux
+au BufNewFile,BufRead config.fish set ft=sh						   " syntax for fish config file
 au BufNewFile,BufRead *.json setl ft=json syntax=txt
-au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt				   " for vidir
+au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt				   " for vidir / vimv
 au BufWritePost,BufWrite __doc__ setf txt
 au BufNewFile,BufRead *.mako setf mako
-au BufNewFile,BufRead *.g setl syntax=antlr3
-au BufNewFile,BufRead *.ejs setf html
+au BufNewFile,BufRead *.g,*.y,*.ypp setl syntax=antlr3			   " syntax for CFG
+au BufNewFile,BufRead *.ejs set syntax=html ft=html
 au BufNewFile,BufRead *.gprof setf gprof
 au BufNewFile,BufRead *.txt,*.doc,*.pdf setf txt
 au BufReadPre *.doc,*.class,*.pdf setl ro
@@ -1096,6 +1103,8 @@ let g:DoxygenToolkit_paramTag_pre = "@Param "
 let g:DoxygenToolkit_returnTag    = "@Returns   "
 let g:DoxygenToolkit_blockHeader  = "--------------------------------------------------------------------------"
 let g:DoxygenToolkit_blockFooter  = "----------------------------------------------------------------------------"
+
+let g:matchmaker_enable_startup = 1
 
 if ! has('gui_running')            " to cooperate with gvim_color_css
     let g:rbpt_max            = 16
