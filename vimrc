@@ -161,10 +161,10 @@ let g:zenburn_high_Contrast = 1
 
 " Highlight Class and Function names
 func HighlightFunctionsAndClasses()
-	syn match cCustomFunc      "\w\+\s*\((\)\@="
+	" syn match cCustomFunc      "\w\+\s*\((\)\@="
+	" hi def link cCustomFunc      Function
 	syn match cCustomClass     "\w\+\s*\(::\)\@="
-	hi def link cCustomFunc      Function
-	hi def link cCustomClass     Function
+	hi def link cCustomClass     cppType
 endfunc
 au Syntax * call HighlightFunctionsAndClasses()
 
@@ -629,6 +629,8 @@ let g:ycm_key_list_select_completion = ['<TAB>', '<Down>']
 let g:ycm_collect_identifiers_from_tags_files = 0	  " slow
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_cache_omnifunc = 1
+let g:ycm_min_num_of_chars_for_completion = 1
+let g:ycm_min_num_identifier_candidate_chars = 3
 let g:ycm_semantic_triggers =  {'c' : ['->', '.'], 'objc' : ['->', '.'],
 \   'ocaml' : ['.', '#'], 'cpp,objcpp' : ['->', '.', '::'], 'php' : ['->', '::'],
 \   'cs,java,javascript,vim,coffee,python,scala,go' : ['.'], 'ruby' : ['.', '::']}
@@ -670,7 +672,7 @@ let g:neocomplcache_omni_functions= {}
 let g:neocomplcache_omni_patterns.coffee = '[^. \t]\.\%(\h\w*\)\?'               " for nodejscomplete working in coffee
 let g:neocomplcache_omni_patterns.r = '[[:alnum:].\\]\+'
 let g:neocomplcache_omni_functions.r = 'rcomplete#CompleteR'
-let g:neocomplcache_omni_patterns.java = '\h\w*\%(\.)\h\w*'
+" let g:neocomplcache_omni_patterns.java = '\h\w*\%(\.)\h\w*'
 let g:neocomplcache_force_omni_patterns = {}
 
 let g:jedi#use_tabs_not_buffers = 0
@@ -686,19 +688,18 @@ let g:rubycomplete_rails = 1
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
-func PrintComment(line)
-	return printf(&commentstring, a:line)
-endfunc
 func GenerateHead(line)
-    let AuthorStr = "Author: Yuxin Wu <ppwwyyxxc@gmail.com>"
-    let Head_List = [PrintComment("File:"), PrintComment("Date:"), PrintComment(AuthorStr)]
+    let Head_List = [" File:", " Date:", " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"]
     call append(a:line, Head_List)
+	" comment
+	normal ggVG cl
+	silent! exec "%s/^ \\+//g"
 endfunc
 func SetTitle()
     let file_name = expand("%:t")
     let file_head = expand("%:t:r")
     if &ft == 'sh'
-        call setline(1, "#!/bin/bash -e")
+        call setline(1, "!/bin/bash -e")
         call GenerateHead(1)
         normal G
     elseif file_name =~ "^[^.]*\.hh*[px]*$"
@@ -712,11 +713,11 @@ func SetTitle()
 					\ "#define REPD(x, y, z) for (int x = y; x >= (z); x --)", "#define P(a) std::cout << (a) << std::endl" ])
         normal G
     elseif &ft == 'python'
-        0put=\"#!/usr/bin/env python2\<nl># -*- coding: UTF-8 -*-\"
+        0put=\"!/usr/bin/env python2\<nl> -*- coding: UTF-8 -*-\"
         call GenerateHead(2)
         normal G
     elseif &ft == 'ruby'
-        0put=\"#!/usr/bin/env ruby\<nl># coding: utf-8\"
+        0put=\"!/usr/bin/env ruby\<nl> coding: utf-8\"
         call GenerateHead(2)
         normal G
     elseif &ft == 'html'
@@ -919,7 +920,7 @@ func Ruby_init()
 endfunc
 func Java_init()
     let &makeprg="javac %"
-    syn keyword javaType String Integer Double Pair Collection Collections List Boolean Triple ArrayList Entry LinkedList Map HashMap Set HashSet TreeSet TreeMap Iterator Iterable Comparator Arrays ListIterator Vector
+    syn keyword javaType String Integer Double Pair Collection Collections List Boolean Triple ArrayList Entry LinkedList Map HashMap Set HashSet TreeSet TreeMap Iterator Iterable Comparator Arrays ListIterator Vector File Character
     let java_comment_strings = 1
     let java_mark_braces_in_parens_as_errors= 1
     let java_ignore_javadoc = 1
@@ -1069,7 +1070,7 @@ let g:fuf_dataDir                   = '~/.vimtmp/vim-fuf-data'
 let g:fuf_coveragefile_prompt       = '>Project[]>'
 let g:fuf_coveragefile_globPatterns = ['**/.*', '**/*', '../*', '../.*']
 let g:fuf_file_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
-let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])|node_modules.*'
+let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])|node_modules.*|output'
 nmap <Leader>ff :FufFile<CR>
 nmap <Leader>fp :FufCoverageFile<CR>
 nmap <Leader>ft :FufTag<CR>
