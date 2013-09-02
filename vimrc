@@ -92,7 +92,9 @@ filetype plugin indent on
 " --------------------------------------------------------------------- f]]
 
 " Environment:
-if &term =~ '^screen'                 " fix keymap under screen
+if exists('$TMUX')                 " fix keymap under screen
+	"let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+	"let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
     " tmux will send xterm-style keys when its xterm-keys option is on
     exec "set <xUp>=\e[1;*A"
     exec "set <xDown>=\e[1;*B"
@@ -102,6 +104,13 @@ if &term =~ '^screen'                 " fix keymap under screen
     "imap [F $
     "map [H g0
     "imap [H g0
+"else
+    "let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+    "let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+endif
+if &term =~ "xterm\\|rxvt"
+	let &t_SI = "\033]12;green\007"
+	let &t_EI = "\033]12;white\007"
 endif
 if ! has("gui_running")                " fix alt key under terminal
     for i in range(48, 57) + range(65, 90) + range(97, 122)
@@ -882,6 +891,7 @@ func C_grammar_init()
     inoremap <buffer> { {}<Left><CR><CR><Up><Tab>
     inoremap <buffer> if<Space> if<Space>()<Left>
     inoremap <buffer> for<Space> for<Space>()<Left>
+	command INDENT :!indent -linux -l80 %
 endfunc
 func C_init()
     "call textobj#user#plugin('cif', { 'code': {
@@ -891,6 +901,7 @@ func C_init()
     set tags+=~/.vim/static/cpp                        " core in cpp
     set tags+=/home/cpp_lib_tags                    " all libs
     abbr #i #include
+    abbr #I #include
     set syntax=cpp11.doxygen
     let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
     call C_grammar_init()
@@ -920,7 +931,8 @@ func Ruby_init()
 endfunc
 func Java_init()
     let &makeprg="javac %"
-    syn keyword javaType String Integer Double Pair Collection Collections List Boolean Triple ArrayList Entry LinkedList Map HashMap Set HashSet TreeSet TreeMap Iterator Iterable Comparator Arrays ListIterator Vector File Character
+    syn keyword javaType String Integer Double Pair Collection Collections List Boolean Triple ArrayList Entry LinkedList Map HashMap Set HashSet TreeSet TreeMap Iterator Iterable Comparator Arrays ListIterator Vector File Character Object Exception Random
+	" TODO match java class name with regex
     let java_comment_strings = 1
     let java_mark_braces_in_parens_as_errors= 1
     let java_ignore_javadoc = 1
