@@ -6,8 +6,8 @@ syntax on
 filetype off						" for vundle
 set rtp+=~/.vim/bundle/vundle
 call vundle#rc()
-Bundle 'sudo.vim'
 Bundle 'gmarik/vundle'
+Bundle 'sudo.vim'
 Bundle 'Color-Scheme-Explorer'
 Bundle 'DrawIt'
 Bundle 'Rykka/colorv.vim'
@@ -88,6 +88,7 @@ Bundle 'slim-template/vim-slim'
 Bundle 'Vladimiroff/vim-sparkup'
 Bundle 'wavded/vim-stylus'
 Bundle 'ppwwyyxx/vim-SugarCpp'
+Bundle 'jeroenbourgois/vim-actionscript'
 filetype plugin indent on
 " --------------------------------------------------------------------- f]]
 
@@ -113,9 +114,9 @@ if &term =~ "xterm\\|rxvt"
 	let &t_EI = "\033]12;white\007"
 endif
 if ! has("gui_running")                " fix alt key under terminal
-    for i in range(48, 57) + range(65, 90) + range(97, 122)
-        exe "set <A-" . nr2char(i) . ">=" . nr2char(i)
-    endfor
+	for i in range(48, 57) + range(65, 90) + range(97, 122)
+		exe "set <A-" . nr2char(i) . ">=" . nr2char(i)
+	endfor
 endif
 set shell=zsh\ -f
 let g:my_term = 'urxvt'                " for plugins to open window
@@ -242,8 +243,7 @@ set ignorecase smartcase incsearch hlsearch
 "set magic                              " for regular expressions
 " very magic:
 nnoremap / /\v
-vnoremap / /\v
-xmap / <Esc>/\%V
+xnoremap / <Esc>/\%V
 " use /[^\x00-\x7F] to search multibytes
 " ---------------------------------------------------------------------f]]
 " History:
@@ -267,6 +267,7 @@ set timeoutlen=300                     " wait for ambiguous mapping
 set ttimeoutlen=0                      " wait for xterm key escape
 inoremap <c-\> <Esc>
 vnoremap <c-\> <Esc>
+"inoremap <Esc> <Esc>
 inoremap jj <ESC>
 nnoremap ; :
 command -bang -nargs=* Q q<bang>
@@ -342,12 +343,12 @@ imap <c-l> <Right>
 imap <c-e> <End>
 imap <c-d> <Home>
 inoremap <c-b> <S-Left>
-inoremap <a-f> <S-Right>
-inoremap <a-b> <S-Left>
+inoremap <a-f> <Esc>lwi
+inoremap <a-b> <Esc>bi
 cmap <c-j> <Down>
 cmap <c-k> <Up>
-cmap <c-h> <Left>
-cmap <c-l> <Right>
+"cmap <c-h> <Left>
+"cmap <c-l> <Right>
 cmap <a-f> <S-Right>
 cmap <c-b> <S-Left>
 cmap <a-b> <S-Left>
@@ -400,16 +401,27 @@ au CursorHold,CursorHoldI,BufLeave,WinLeave * call HintCursorLine(0)
 nmap <LocalLeader>c :call ToggleColorColumn(0)<CR>
 
 " ---------------------------------------------------------------------f]]
-" Auto Fill Brackets:                  " probably you won't like this
+" Auto Fill Brackets:
+func AutoPair(open, close)
+  let line = getline('.')
+  if col('.') > strlen(line) || index([' ', ']', ')', '}'], line[col('.') - 1]) > 0
+    return a:open . a:close . "\<ESC>i"
+  else
+    return a:open
+  endif
+endf
+func ClosePair(char)
+  return (getline('.')[col('.') - 1] == a:char ? "\<Right>" : a:char)
+endf
+inoremap <expr> ( AutoPair('(', ')')
+inoremap <expr> ) ClosePair(')')
+inoremap <expr> [ AutoPair('[', ']')
+inoremap <expr> ] ClosePair(']')
+inoremap <expr> { AutoPair('{', '}')
+inoremap <expr> } ClosePair('}')
 inoremap " ""<Left>
 inoremap ' ''<Left>
 au Filetype mkd,tex,txt,lrc silent! iunmap '
-inoremap ( ()<Left>
-inoremap { {}<Left>
-inoremap [ []<Left>
-inoremap () ()
-inoremap {} {}
-inoremap [] []
 au Filetype vim silent! iunmap "
 au Filetype vim silent! iunmap ""
 " ---------------------------------------------------------------------
@@ -463,12 +475,9 @@ nnoremap <leader>sch :call Replace_Chn()<cr>
 
 " Fcitx:
 func Fcitx_enter()
-    if (getline('.')[col('.') - 1] >= "\x80")
+    if (getline('.')[col('.') - 1] >= "\x80" || getline('.')[col('.') - 2] >= "\x80")
         call system("fcitx-remote -o")
-		return | endif
-    if (getline('.')[col('.') - 2] >= "\x80")
-        call system("fcitx-remote -o")
-    endif
+	endif
 endfun
 autocmd InsertLeave * call system("fcitx-remote -c")
 autocmd InsertEnter * call Fcitx_enter()
@@ -627,7 +636,8 @@ set tags=.tags
 nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <CR><CR> :TlistUpdate <CR>:NeoComplCacheCachingTags<CR>
 
 let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
-let g:ycm_filetype_blacklist = {'markdown' : 1,  'txt' : 1, 'help' : 1, 'vim' : 1}
+"let g:ycm_filetype_blacklist = {'markdown' : 1,  'txt' : 1, 'help' : 1, 'vim' : 1}
+let g:ycm_filetype_whitelist = {'cpp' : 1, 'c' : 1, 'python': 1, 'ruby' : 1}
 let g:ycm_key_detailed_diagnostics = "<Leader>yd"
 let g:ycm_key_invoke_completion = "<F5>"
 let g:ycm_complete_in_comments = 1
@@ -891,7 +901,7 @@ func C_grammar_init()
     inoremap <buffer> { {}<Left><CR><CR><Up><Tab>
     inoremap <buffer> if<Space> if<Space>()<Left>
     inoremap <buffer> for<Space> for<Space>()<Left>
-	command INDENT :!indent -linux -l80 %
+	command! INDENT :!indent -linux -l80 %
 endfunc
 func C_init()
     "call textobj#user#plugin('cif', { 'code': {
@@ -906,7 +916,6 @@ func C_init()
     let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
     call C_grammar_init()
     syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr
-    syn keyword cppSTL priority_queue hypot stringstream isnormal isfinite isnan shared_ptr make_shared numeric_limits move
     syn keyword cppSTLType T
     "setl ofu=ClangComplete
     "inoremap <c-[> <Esc>:python updateSnips()<CR>
@@ -1093,6 +1102,16 @@ nmap <Leader>fl :FufLine<CR>
 nmap <Leader>fj :FufJumpList<CR>
 nmap <Leader>fc :FufChangeList<CR>
 nmap <Leader>fw [I:let nr = input("Which one: ")<Bar>exe "normal " . nr ."[\t"<CR>
+
+func RangerChooser()
+	let arg0 = has('gui_running') ? "urxvt -e " : " "
+	exec "silent !" . arg0 . " ranger --choosefile=/tmp/chosenfile " . expand("%:p:h")
+    if filereadable('/tmp/chosenfile')
+        exec 'edit ' . system('cat /tmp/chosenfile')
+        call system('rm /tmp/chosenfile')
+    endif
+    redraw!
+endfunc
 
 " Use SSave, SLoad SDelete to restore session
 let g:startify_session_dir = '~/.vimtmp/startify'
