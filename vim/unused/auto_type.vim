@@ -1,7 +1,7 @@
 python <<EOF
 import os
 fptr = None
-fname = os.getenv("HOME") + '/.vim/plugin/auto_type.vim'
+fname = os.getenv("HOME") + '/package'
 def append_char():
 	import vim
 	global fptr

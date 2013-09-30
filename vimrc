@@ -10,7 +10,6 @@ Bundle 'gmarik/vundle'
 Bundle 'sudo.vim'
 Bundle 'Color-Scheme-Explorer'
 Bundle 'DrawIt'
-Bundle 'Rykka/colorv.vim'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Yggdroot/indentLine'
 Bundle 'uguu-org/vim-matrix-screensaver'
@@ -34,7 +33,6 @@ Bundle 'taglist.vim'
 Bundle 'mhinz/vim-startify'
 Bundle 'scrooloose/nerdtree'
 Bundle 'tomtom/tlib_vim'
-Bundle 'tomtom/tmru_vim'
 Bundle 'winmanager'
 Bundle 'airblade/vim-gitgutter'
 
@@ -60,7 +58,6 @@ Bundle 'nvie/vim-flake8'
 Bundle 'davidhalter/jedi-vim'
 Bundle 'LaTeX-Box-Team/LaTeX-Box'
 Bundle 'tpope/vim-rails'
-Bundle 'vim-ruby/vim-ruby'
 Bundle 'Shougo/neocomplcache'
 Bundle 'Shougo/vimproc'
 Bundle 'Valloric/YouCompleteMe'
@@ -669,7 +666,7 @@ inoremap <expr><C-e>  pumvisible() ? neocomplcache#close_popup(). "\<End>" : "\<
 inoremap <expr><CR>  pumvisible() ? neocomplcache#close_popup() : "\<CR>"
 inoremap <expr><BS>  neocomplcache#smart_close_popup()."\<C-h>"
 au CursorMovedI,InsertLeave * if pumvisible() == 0| silent! pclose| endif        " auto close preview window
-let g:neocomplcache_enable_at_startup = 1
+let g:neocomplcache_enable_at_startup = 0
 let g:neocomplcache_use_vimproc = 4
 let g:neocomplcache_disable_auto_complete = 0
 let g:neocomplcache_enable_auto_select = 0
@@ -796,7 +793,7 @@ func InstantRun()
 		endif
     elseif &ft == 'ruby' | :!ruby %
     elseif &ft == 'sh' | :!bash %
-    elseif &ft == 'cpp' | :!gdb -tui %<
+    elseif &ft == 'cpp' | :!gdb %<
     elseif &ft == 'java' | :! java %<
     elseif &ft == 'javascript' | :! node %
     elseif &ft == 'coffee' | :! coffee %
@@ -1074,9 +1071,6 @@ nnoremap <silent> * :execute ':Search \<' . expand('<cword>') . '\>'<cr>
 nnoremap <Leader>/ :Search<Space>
 let g:MultipleSearchMaxColors = 16
 
-let g:tmru_file = $HOME . "/.vimtmp/tmru_file"
-nmap <Leader>ru :TRecentlyUsedFiles<CR>
-
 nnoremap <Leader>gr :Regrep <CR><CR><CR><CR>
 let Grep_Skip_Files = '.tags tags'
 let Grep_Skip_Dirs  = 'node_modules build'
@@ -1084,6 +1078,7 @@ let Grep_Skip_Dirs  = 'node_modules build'
 let g:fuf_keyOpenVsplit             = "<C-l>"
 let g:fuf_keyOpenTabpage            = "<C-t>"
 let g:fuf_buffer_keyDelete          = "<C-d>"
+let g:fuf_keyNextMode				= ""	" originally conflicted with keyOpenTabapage
 let g:fuf_autoPreview               = 1
 let g:fuf_mrufile_maxItem           = 200
 let g:fuf_modesDisable              = ['mrucmd', 'bookmarkfile', 'bookmarkdir', 'buffertag', 'help', 'dir']
