@@ -1,13 +1,12 @@
 #!/bin/bash -e
 # File: install.sh
-# Date: Wed Jul 31 16:54:12 2013 +0800
+# Date: Sat Oct 26 23:01:49 2013 +0800
 # Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 #echo "Backup original vimfiles to ~/backup_vim* ..."
 #cp ~/.vimrc ~/backup_vimrc -v
 #cp ~/.vim ~/backup_vim -rf
 
 LINE="---------------------------------------------------------------------"
-ECLIM="http://superb-dca2.dl.sourceforge.net/project/eclim/eclim/2.3.1/eclim_2.3.1.jar"
 
 echo "Copying files..."
 cp vimrc ~/.vimrc

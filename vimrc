@@ -30,7 +30,6 @@ Bundle 'FuzzyFinder'
 Bundle 'L9'
 Bundle 'majutsushi/tagbar'
 Bundle 'taglist.vim'
-Bundle 'mhinz/vim-startify'
 Bundle 'scrooloose/nerdtree'
 Bundle 'tomtom/tlib_vim'
 Bundle 'winmanager'
@@ -47,6 +46,7 @@ Bundle 'MultipleSearch'
 Bundle 'terryma/vim-multiple-cursors'
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'glts/vim-textobj-comment'
+Bundle 'lucapette/vim-textobj-underscore'
 Bundle 'kana/vim-textobj-indent'
 Bundle 'kana/vim-textobj-user'
 Bundle 'AndrewRadev/splitjoin.vim'
@@ -167,13 +167,11 @@ hi DiffText ctermbg=none ctermfg=55
 let g:zenburn_high_Contrast = 1
 
 " Highlight Class and Function names
-func HighlightFunctionsAndClasses()
-	" syn match cCustomFunc      "\w\+\s*\((\)\@="
-	" hi def link cCustomFunc      Function
+func! HighlightClasses()
 	syn match cCustomClass     "\w\+\s*\(::\)\@="
 	hi def link cCustomClass     cppType
 endfunc
-au Syntax * call HighlightFunctionsAndClasses()
+au syntax * call HighlightClasses()
 
 " Spell Check:
 hi clear SpellBad
@@ -210,10 +208,12 @@ let g:Powerline_mode_n = 'N'
 let g:Powerline_mode_i = 'I'
 let g:Powerline_mode_v = 'V'
 let g:Powerline_mode_V = 'VL'
-let g:Powerline_mode_cv = 'VB'
+let g:Powerline_mode_cv= 'VB'
+let g:Powerline_mode_R = 'R'
 let g:Powerline_mode_s = 'S'
 let g:Powerline_mode_S = 'SL'
-let g:Powerline_mode_cs = 'SB'
+let g:Powerline_mode_cs= 'SB'
+set noshowmode
 
 set scrolljump=5                       " lines to scroll with cursor
 set scrolloff=5                        " minimum lines to keep at border
@@ -237,9 +237,7 @@ set tabstop=4 softtabstop=4 shiftwidth=4
 set showmatch matchtime=0
 
 set ignorecase smartcase incsearch hlsearch
-"set magic                              " for regular expressions
-" very magic:
-nnoremap / /\v
+set magic                              " for regular expressions
 xnoremap / <Esc>/\%V
 " use /[^\x00-\x7F] to search multibytes
 " ---------------------------------------------------------------------f]]
@@ -267,10 +265,10 @@ vnoremap <c-\> <Esc>
 "inoremap <Esc> <Esc>
 inoremap jj <ESC>
 nnoremap ; :
-command -bang -nargs=* Q q<bang>
-command -bang -nargs=* -complete=file W w<bang> <args>
-command -bang -nargs=* -complete=file Wq wq<bang> <args>
-command -bang -nargs=* -complete=file WQ wq<bang> <args>
+command! -bang -nargs=* Q q<bang>
+command! -bang -nargs=* -complete=file W w<bang> <args>
+command! -bang -nargs=* -complete=file Wq wq<bang> <args>
+command! -bang -nargs=* -complete=file WQ wq<bang> <args>
 nnoremap <Tab> i<Tab><Esc>
 nnoremap <S-Tab> ^i<Tab><Esc>
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
@@ -284,7 +282,7 @@ inoremap <F1> <C-o>:echo<CR>
 
 vnoremap <expr> I ForceBlockwiseVisual('I')
 vnoremap <expr> A ForceBlockwiseVisual('A')
-func ForceBlockwiseVisual(key)
+func! ForceBlockwiseVisual(key)
   if mode () == 'v'
     return "\<C-v>". a:key
   elseif mode () == 'V'
@@ -296,7 +294,7 @@ endfunc
 nnoremap Y y$
 set pastetoggle=<F12>                  " toggle paste insert mode
 xnoremap <c-c> "+y
-inoremap <c-v> <Esc>:set paste<CR>"+p:set nopaste<CR>i
+inoremap <c-v> <Esc>:set paste<CR>"+p:set nopaste<CR>a
 " insert word of the line above
 inoremap <C-Y> <C-C>:let @z = @"<CR>mz
            \:exec 'normal!' (col('.')==1 && col('$')==1 ? 'k' : 'kl')<CR>
@@ -331,12 +329,11 @@ let g:accelerated_jk_acceleration_table = [10, 20, 30, 35, 40, 45, 50]
 
 nnoremap n nzzzv
 nnoremap N Nzzzv
-nnoremap <c-l> $
-nnoremap <c-h> 0
-imap <c-h> <Left>
-imap <c-j> <Down>
-imap <c-k> <Up>
-imap <c-l> <Right>
+nnoremap <c-e> $
+inoremap <c-h> <Left>
+inoremap <c-j> <Down>
+inoremap <c-k> <Up>
+inoremap <c-l> <Right>
 imap <c-e> <End>
 imap <c-d> <Home>
 inoremap <c-b> <S-Left>
@@ -344,8 +341,6 @@ inoremap <a-f> <Esc>lwi
 inoremap <a-b> <Esc>bi
 cmap <c-j> <Down>
 cmap <c-k> <Up>
-"cmap <c-h> <Left>
-"cmap <c-l> <Right>
 cmap <a-f> <S-Right>
 cmap <c-b> <S-Left>
 cmap <a-b> <S-Left>
@@ -362,7 +357,7 @@ au BufReadPost *
            \   exe "normal g`\"" |
            \ endif
 " Hint On Moving Cursor:
-func HintCursorLine(opr)
+func! HintCursorLine(opr)
     if a:opr == 0            " clear cursorline
         set nocursorline
         if exists("&cc") | set cc= | endif
@@ -383,7 +378,7 @@ func HintCursorLine(opr)
     let g:last_win  = winnr()
 endfunc
 " Highlight Chosen Columns:
-func ToggleColorColumn(col)
+func! ToggleColorColumn(col)
     let col_num = (a:col == 0) ? virtcol(".") : a:col
     let cc_list = split(&cc, ',')
     if count(cc_list, string(col_num)) <= 0
@@ -397,9 +392,45 @@ hi ColorColumn ctermbg=red
 au CursorHold,CursorHoldI,BufLeave,WinLeave * call HintCursorLine(0)
 nmap <LocalLeader>c :call ToggleColorColumn(0)<CR>
 
+" ---------------------------------------------------------------------
+" Window:
+nmap <c-w><Right> 4<c-w>>
+nmap <c-w><Left> 4<c-w><
+nmap <c-w><Down> 4<c-w>+
+nmap <c-w><Up> 4<c-w>-
+nmap <Left> <c-w>h
+nmap <Right> <c-w>l
+nmap <c-h> <c-w>h
+nmap <c-l> <c-w>l
+nmap <Down> <c-w>j
+nmap <Up> <c-w>k
+imap <Left> <Esc><Left>
+imap <Right> <Esc><Right>
+imap <Down> <Esc><Down>
+imap <Up> <Esc><Up>
+au vimResized * exe "normal! \<c-w>="
+
+func! QuickfixToggle()
+    for i in range(1, winnr('$'))
+        if getbufvar(winbufnr(i), '&buftype') == 'quickfix'
+            cclose | lclose
+            return
+        endif
+    endfor
+    copen
+endfunc
+nnoremap <Leader>q :call QuickfixToggle()<CR>
+" ---------------------------------------------------------------------
+" Buffer:
+nnoremap <a-Down> :bn! <CR>
+nnoremap <a-Up> :bp! <CR>
+inoremap <a-Down> <ESC>:bn! <CR>
+inoremap <a-Up> <ESC>:bp! <CR>
+nnoremap <a-k> :bd<CR>
+
 " ---------------------------------------------------------------------f]]
 " Auto Fill Brackets:
-func AutoPair(open, close)
+func! AutoPair(open, close)
   let line = getline('.')
   if col('.') > strlen(line) || index([' ', ']', ')', '}'], line[col('.') - 1]) > 0
     return a:open . a:close . "\<ESC>i"
@@ -407,7 +438,7 @@ func AutoPair(open, close)
     return a:open
   endif
 endf
-func ClosePair(char)
+func! ClosePair(char)
   return (getline('.')[col('.') - 1] == a:char ? "\<Right>" : a:char)
 endf
 inoremap <expr> ( AutoPair('(', ')')
@@ -421,22 +452,6 @@ inoremap ' ''<Left>
 au Filetype mkd,tex,txt,lrc silent! iunmap '
 au Filetype vim silent! iunmap "
 au Filetype vim silent! iunmap ""
-" ---------------------------------------------------------------------
-" Multi Window:
-nmap <c-w><Right> 4<c-w>>
-nmap <c-w><Left> 4<c-w><
-nmap <c-w><Down> 4<c-w>+
-nmap <c-w><Up> 4<c-w>-
-nmap <c-h> <c-w>h
-nmap <c-l> <c-w>l
-nmap <c-j> <c-w>j
-nmap <c-k> <c-w>k
-" ---------------------------------------------------------------------
-" Switch Buffer:
-nnoremap <a-Down> :bn! <CR>
-nnoremap <a-Up> :bp! <CR>
-inoremap <a-Down> <ESC>:bn! <CR>
-inoremap <a-Up> <ESC>:bp! <CR>
 " ---------------------------------------------------------------------
 " About Chinese: f[[
 " punctuations auto changing has unexpected problems
@@ -462,7 +477,7 @@ imap 、 /
 imap ￥ $
 map ： :
 
-func Replace_Chn()                     " for writing latex
+func! Replace_Chn()                     " for writing latex
     let chinese={"（" : "(" , "）" : ")" , "，" : ",", "；" : ";", "：" : ":", "？" : "?", "！" : "!", "“" : "\"", "’" : "'" ,"”" : "\"", "℃" : "\\\\textcelsius", "μ" : "$\\\\mu$"}
     for i in keys(chinese)
         silent! exec '%substitute/' . i . '/'. chinese[i] . '/g'
@@ -471,7 +486,7 @@ endfunc
 nnoremap <leader>sch :call Replace_Chn()<cr>
 
 " Fcitx:
-func Fcitx_enter()
+func! Fcitx_enter()
     if (getline('.')[col('.') - 1] >= "\x80" || getline('.')[col('.') - 2] >= "\x80")
         call system("fcitx-remote -o")
 	endif
@@ -486,7 +501,7 @@ let g:PinyinSearch_Dict = $HOME . "/.vim/bundle/vim-PinyinSearch/PinyinSearch.di
 
 " ---------------------------------------------------------------------f]]
 " Delete Trailing Whitespaces On Saving:
-func DeleteTrailingWhiteSpace()
+func! DeleteTrailingWhiteSpace()
     normal mZ
     %s/\s\+$//e
     normal `Z
@@ -495,7 +510,7 @@ au BufWrite * if &ft != 'mkd' | call DeleteTrailingWhiteSpace() | endif
 
 " ---------------------------------------------------------------------
 " Extract And Inline Variable:
-func ExtractVariable()
+func! ExtractVariable()
     let name = input("Variable name: ")
     if name == '' | return | endif
     " Enter visual mode (not sure why this is needed since we're already in visual mode anyway)
@@ -505,7 +520,7 @@ func ExtractVariable()
     exec "normal! O" . name . " = "
     normal! $p
 endfunction
-func InlineVariable()
+func! InlineVariable()
     " Copy the variable under the cursor into the 'a' register
     exec "normal \"zyiw"
     normal 2daW
@@ -523,7 +538,7 @@ nnoremap <leader>ri :call InlineVariable()<cr>
 
 " ---------------------------------------------------------------------
 " Log For Debugging Vimscript:
-func ToggleVerbose()
+func! ToggleVerbose()
     if !&verbose
         exe "!rm /tmp/vimlog"
         set verbosefile=/tmp/vimlog
@@ -534,7 +549,7 @@ nmap <Leader>tv :call ToggleVerbose()<CR>
 
 " ---------------------------------------------------------------------
 " Head Update:
-fun LastMod()
+func! LastMod()
     let l:line = line(".")                            " save cursor position
     let l:col = col(".")
     let l = min([line("$"), 8])
@@ -546,7 +561,7 @@ au BufWritePre,FileWritePre * call LastMod()
 
 " ---------------------------------------------------------------------
 " Toggle Hex Mode:
-func ToggleHex()
+func! ToggleHex()
     let l:modified=&mod | let l:oldreadonly=&readonly
     setl ro
     let l:oldmodifiable=&modifiable | let &modifiable=1
@@ -567,19 +582,19 @@ nmap <Leader>hex :call ToggleHex()
 
 " ---------------------------------------------------------------------
 " Diff Current Buffer With Correspondent Saved File:
-func DiffWithSaved()
+func! DiffWithSaved()
     let ft=&filetype
     diffthis
     vnew | r # | normal! 1Gdd
     diffthis
     exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . ft
 endfunc
-com DiffSaved call DiffWithSaved()
+command! DiffSaved call DiffWithSaved()
 nnoremap <Leader>df :call DiffWithSaved()<CR>
 
 " ---------------------------------------------------------------------f]]
 " Open Browser:
-func Browser ()
+func! Browser ()
     let line0 = getline (".")
     let line  = matchstr (line0, "http[^ ,;\t)]*")
     if line==""
@@ -634,7 +649,7 @@ nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <
 
 let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
 "let g:ycm_filetype_blacklist = {'markdown' : 1,  'txt' : 1, 'help' : 1, 'vim' : 1}
-let g:ycm_filetype_whitelist = {'cpp' : 1, 'c' : 1, 'python': 1, 'ruby' : 1}
+let g:ycm_filetype_whitelist = {'cpp' : 1, 'c' : 1, 'python': 1, 'ruby' : 1, 'java': 1}
 let g:ycm_key_detailed_diagnostics = "<Leader>yd"
 let g:ycm_key_invoke_completion = "<F5>"
 let g:ycm_complete_in_comments = 1
@@ -653,7 +668,7 @@ let g:ycm_semantic_triggers =  {'c' : ['->', '.'], 'objc' : ['->', '.'],
 
 let g:EclimCompletionMethod = 'omnifunc'
 
-func Neo_Toggle(mode)
+func! Neo_Toggle(mode)
 	let i = index(g:neocomplcache_disabled_sources_list._, a:mode)
 	if i == -1 | call add(g:neocomplcache_disabled_sources_list._, a:mode)
 	else | call remove(g:neocomplcache_disabled_sources_list._, i)
@@ -704,14 +719,14 @@ let g:rubycomplete_rails = 1
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
-func GenerateHead(line)
+func! GenerateHead(line)
     let Head_List = [" File:", " Date:", " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"]
     call append(a:line, Head_List)
 	" comment
 	normal ggVG cl
 	silent! exec "%s/^ \\+//g"
 endfunc
-func SetTitle()
+func! SetTitle()
     let file_name = expand("%:t")
     let file_head = expand("%:t:r")
     if &ft == 'sh'
@@ -755,9 +770,9 @@ au BufNewFile Makefile exec ":r ~/Work/programming/cpp/Makefiles/Makefile"
 " ---------------------------------------------------------------------f]]
 " Make For Programming: f[[
 "for gprof
-command -nargs=* Makepg call Make_arg("g++ % -o %:r -pg -Wall -std=c++11", <f-args>)
+command! -nargs=* Makepg call Make_arg("g++ % -o %:r -pg -Wall -std=c++11", <f-args>)
 
-func Make()                        " silent make with quickfix window popup
+func! Make()                        " silent make with quickfix window popup
     if &ft == 'cpp'
         if filereadable(getcwd() . "/Makefile")
             let &makeprg="make"
@@ -774,7 +789,7 @@ func Make()                        " silent make with quickfix window popup
     endfor
 endfunc
 
-func FindMakefile()
+func! FindMakefile()
     exec "cd " . expand ("%:p:h")
     while ! filereadable(getcwd() . "/Makefile") && getcwd () != "/"
         cd ..
@@ -785,7 +800,7 @@ au Filetype gnuplot let &makeprg="gnuplot % ; feh ./*"
 au Filetype dot let &makeprg="dot -Tpng -O -v % ; feh %.png"
 au Filetype php let &makeprg="php %"
 au Filetype r let &makeprg="R <% --vanilla"
-func InstantRun()
+func! InstantRun()
     if &ft == 'python'
         if matchstr(getline(1), 'python2') == ""
             :!python %
@@ -806,7 +821,7 @@ nnoremap <Leader>make :call FindMakefile()<CR>
 " --------------------------------------------------------------------- f]]
 
 " Mapping For Programming: (These should've been moved to ftplugin) f[[
-func Tex_Block(label)
+func! Tex_Block(label)
     let Blk_Dict={"e": "enumerate","d": "description", "m": "matrix", "c": "cases",
                 \ "f": "figure", "t": "table", "tt": "tabular", "eq": "equation*", "mp": "minipage"}
 	let blk_text = (has_key(Blk_Dict, a:label)) ? Blk_Dict[a:label ] : a:label
@@ -814,7 +829,7 @@ func Tex_Block(label)
     normal kk
     startinsert
 endfunc
-func Tex_Formula_init()
+func! Tex_Formula_init()
     inoremap <buffer> <c-f> \dfrac{}{}<Esc>2hi
     inoremap <buffer> <c-r> \sqrt{}<Left>
     inoremap <buffer> <c-Left> \Leftrightarrow<Space>
@@ -838,9 +853,9 @@ func Tex_Formula_init()
     inoremap <buffer> `s \sigma
     inoremap <buffer> `v \varphi
 endf
-func Tex_init()
+func! Tex_init()
 	" pdf auto refresh preview
-	au BufWritePost *.tex call system("zsh -c 'make; killall -SIGHUP mupdf-x11 > /dev/null 2 >&1' &")
+	au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make; killall -SIGHUP mupdf > /dev/null 2 >&1' &")
 
     setl nocursorline                                " for performance
     hi clear Conceal
@@ -893,14 +908,14 @@ func Tex_init()
     xmap <buffer> <Leader>tc <Plug>LatexWrapSelection
     xmap <buffer> <Leader>te <Plug>LatexEnvWrapSelection
 endfunc
-func C_grammar_init()
+func! C_grammar_init()
     inoremap <buffer> while<Space> while<Space>()<Left>
     inoremap <buffer> { {}<Left><CR><CR><Up><Tab>
     inoremap <buffer> if<Space> if<Space>()<Left>
     inoremap <buffer> for<Space> for<Space>()<Left>
 	command! INDENT :!indent -linux -l80 %
 endfunc
-func C_init()
+func! C_init()
     "call textobj#user#plugin('cif', { 'code': {
     "\     'pattern': ['if ', '$'],
     "\     'select-i': 'if',
@@ -917,7 +932,7 @@ func C_init()
     "setl ofu=ClangComplete
     "inoremap <c-[> <Esc>:python updateSnips()<CR>
 endfunc
-func Python_init()
+func! Python_init()
     let &makeprg="pylint --reports=n --output-format=parseable %"
     setl expandtab
     setl ts=4 sw=4 sts=4
@@ -929,13 +944,13 @@ func Python_init()
     setl ofu=jedi#complete switchbuf=useopen
     inoremap <buffer> . .<C-X><C-O><C-P>
 endfunc
-func Ruby_init()
+func! Ruby_init()
     let &makeprg="ruby -c %"
     imap <C-CR> <CR><CR>end<Esc>-cc
     setl expandtab
     setl ts=2 sw=2 sts=2
 endfunc
-func Java_init()
+func! Java_init()
     let &makeprg="javac %"
     syn keyword javaType String Integer Double Pair Collection Collections List Boolean Triple ArrayList Entry LinkedList Map HashMap Set HashSet TreeSet TreeMap Iterator Iterable Comparator Arrays ListIterator Vector File Character Object Exception Random
 	" TODO match java class name with regex
@@ -945,28 +960,28 @@ func Java_init()
     let java_minlines = 150
     call C_grammar_init()
 endfunc
-func CS_init()
+func! CS_init()
     call C_grammar_init()
     syn keyword csType var
 endfunc
-func Js_init()
+func! Js_init()
     let &makeprg="node %"
     setl ts=2 sw=2 sts=2
     call C_grammar_init()
 endfunc
-func MarkDown_init()
+func! MarkDown_init()
 	call Tex_Formula_init()
 	set ofu=
 	set nofoldenable
-	inoremap {% {%   %}<Left><Left><Left>
+	inoremap {% {%  %}<Left><Left>
 	inoremap ``` ```<CR>```<Up><End><Esc>
 	abbr more <!-- more -->
-	xmap <Leader>l s]%a(
+	xmap <Leader>l s]%a()
 	xmap <Leader>e s*gvs*
 endfunc
 au FileType tex :call Tex_init()
 au FileType markdown :call MarkDown_init()
-au FileType cpp,c,yacc,lex :call C_init()
+au FileType cpp,c :call C_init()
 au FileType cs :call CS_init()
 au FileType python :call Python_init()
 au FileType ruby :call Ruby_init()
@@ -978,7 +993,9 @@ au FileType r :call C_grammar_init()
 " FileType Commands:
 au BufWritePost .Xresources silent !xrdb %
 au BufWritePost .tmux.conf silent !tmux source %
+au BufWritePost .vimrc source ~/.vimrc
 au BufRead tmux.conf,.tmux* setf tmux
+au BufRead SConstruct setf python
 au BufNewFile,BufRead config.fish set ft=sh						   " syntax for fish config file
 au BufNewFile,BufRead *.json setl ft=json syntax=txt
 au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt				   " for vidir / vimv
@@ -995,9 +1012,11 @@ au BufReadPost *.pdf silent %!pdftotext -nopgbrk "%" -
 au BufNewFile,BufRead *.lrc setf lrc
 au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
+au BufNewFile,BufRead *.decaf setf cpp
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
 au Filetype coffee,jade,stylus setl expandtab
 au Filetype stylus,vhdl,php,html,xml,zcml,yaml,json,coffee,jade,ejs setl tabstop=2 shiftwidth=2 softtabstop=2
+au FileType json setl foldmethod=syntax
 au Filetype txt setl textwidth=200
 let g:tex_flavor = 'latex'                                         " default filetype for tex
 au FileType sh,zsh inoremap ` ``<Left>
@@ -1025,15 +1044,15 @@ au BufEnter *.cpp let b:fswitchdst = 'hpp,h' | let b:fswitchlocs = './,./include
 au BufEnter *.cc let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './include,./,../include'
 au BufEnter *.hh let b:fswitchdst = 'cc,cpp' | let b:fswitchlocs = '../,./'
 au BufEnter *.h let b:fswitchdst = 'cpp,cc' | let b:fswitchlocs = './,../'
-command A FSHere
-command AV FSSplitRight
+command! A FSHere
+command! AV FSSplitRight
 
-command Badapple so ~/.vim/badapple/badapple.vim
+command! Badapple so ~/.vim/badapple/badapple.vim
 let g:EasyMotion_leader_key = ','
 xmap s <Plug>VSurround
 let g:html_indent_inctags = "body,head,tbody"
 
-command NOTE EvervimNotebookList
+command! NOTE EvervimNotebookList
 if filereadable($HOME . "/.evervim/secret.vim") | source ~/.evervim/secret.vim | endif
 
 " <Leader>cv to use ColorV
@@ -1086,7 +1105,7 @@ let g:fuf_dataDir                   = '~/.vimtmp/vim-fuf-data'
 let g:fuf_coveragefile_prompt       = '>Project[]>'
 let g:fuf_coveragefile_globPatterns = ['**/.*', '**/*', '../*', '../.*']
 let g:fuf_file_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
-let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])|node_modules.*|output'
+let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d|so|os)$|(^|[/\\])\.(hg|git.*|bzr)($|[/\\])|node_modules.*|output'
 nmap <Leader>ff :FufFile<CR>
 nmap <Leader>fp :FufCoverageFile<CR>
 nmap <Leader>ft :FufTag<CR>
@@ -1098,7 +1117,7 @@ nmap <Leader>fj :FufJumpList<CR>
 nmap <Leader>fc :FufChangeList<CR>
 nmap <Leader>fw [I:let nr = input("Which one: ")<Bar>exe "normal " . nr ."[\t"<CR>
 
-func RangerChooser()
+func! RangerChooser()
 	let arg0 = has('gui_running') ? "urxvt -e " : " "
 	exec "silent !" . arg0 . " ranger --choosefile=/tmp/chosenfile " . expand("%:p:h")
     if filereadable('/tmp/chosenfile')
@@ -1107,11 +1126,6 @@ func RangerChooser()
     endif
     redraw!
 endfunc
-
-" Use SSave, SLoad SDelete to restore session
-let g:startify_session_dir = '~/.vimtmp/startify'
-let g:startify_bookmarks = [ '~/.vimrc', '~/.zshrc', '~/.aliasrc']
-let g:startify_skiplist = ['COMMIT_EDITMSG', 'doc/.*txt', 'git/index']
 
 "let g:syntastic_cpp_compiler         = 'clang++'
 "let g:syntastic_cpp_compiler_options = ' -std=c++11 -fopenmp -Iinclude -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -I/usr/include/ImageMagick-6'
@@ -1185,10 +1199,10 @@ let g:winManagerWidth        = g:win_width
 let g:persistentBehaviour    = 0
 let g:winManagerWindowLayout = 'NERDTree|TagList'
 let g:NERDTree_title         = "[NERDTree]"
-func NERDTree_Start()
+func! NERDTree_Start()
     exe 'NERDTree'
 endfunc
-func NERDTree_IsValid()
+func! NERDTree_IsValid()
     return 1
 endfunc
 
