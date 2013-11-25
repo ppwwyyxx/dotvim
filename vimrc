@@ -21,6 +21,7 @@ Bundle 'ppwwyyxx/vim-PinyinSearch'
 Bundle 'sjl/clam.vim'
 Bundle 'basepi/vim-conque'
 Bundle 'ervandew/screen'
+" to learn
 Bundle 'tpope/vim-tbone'
 Bundle 'spolu/dwm.vim'
 Bundle 'grep.vim'
@@ -78,8 +79,8 @@ Bundle 'groenewege/vim-less'
 Bundle 'Mathematica-Syntax-File'
 Bundle 'evanmiller/nginx-vim-syntax'
 Bundle 'fs111/pydoc.vim'
-Bundle 'python_match.vim'
 Bundle 'ujihisa/rdoc.vim'
+" to learn
 Bundle 'tpope/vim-scriptease'
 Bundle 'slim-template/vim-slim'
 Bundle 'Vladimiroff/vim-sparkup'
@@ -89,7 +90,7 @@ Bundle 'jeroenbourgois/vim-actionscript'
 filetype plugin indent on
 " --------------------------------------------------------------------- f]]
 
-" Environment:
+" Environment: f[[
 if exists('$TMUX')                 " fix keymap under screen
 	"let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
 	"let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
@@ -106,10 +107,31 @@ if exists('$TMUX')                 " fix keymap under screen
     "let &t_SI = "\<Esc>]50;CursorShape=1\x7"
     "let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 endif
-if &term =~ "xterm\\|rxvt"
-	let &t_SI = "\033]12;green\007"
-	let &t_EI = "\033]12;white\007"
+
+" Note: xterm color names: http://mkaz.com/solog/system/xterm-colors.html
+let color_normal = 'HotPink'
+let color_insert = 'RoyalBlue1'
+let color_exit = 'green'
+if &term =~ 'xterm\|rxvt'
+	exe 'silent !echo -ne "\e]12;"' . shellescape(color_normal, 1) . '"\007"'
+	let &t_SI="\e]12;" . color_insert . "\007"
+	let &t_EI="\e]12;" . color_normal . "\007"
+"	exe 'autocmd VimLeave * :!echo -ne "\e]12;"' . shellescape(color_exit, 1) . '"\007"'
+elseif &term =~ "screen"
+	if exists('$TMUX')
+		exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
+		let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
+		let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
+"		exe 'autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
+	else
+		exe 'silent !echo -ne "\033P\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
+		let &t_SI="\033P\e]12;" . color_insert . "\007\033\\"
+		let &t_EI="\033P\e]12;" . color_normal . "\007\033\\"
+"		exe 'autocmd VimLeave * :!echo -ne "\033P\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
+	endif
 endif
+unlet color_normal | unlet color_insert | unlet color_exit
+
 if ! has("gui_running")                " fix alt key under terminal
 	for i in range(48, 57) + range(65, 90) + range(97, 122)
 		exe "set <A-" . nr2char(i) . ">=" . nr2char(i)
@@ -131,21 +153,21 @@ set ttyfast
 "let g:html_dynamic_folds = 1
 "set lazyredraw
 
-" ---------------------------------------------------------------------
+" --------------------------------------------------------------------- f]]
 " UI: f[[
 set background=light
 if has("gui_running")                  " for gvim
-    set antialias                      " font antialias
-    set guifont=inconsolata\ 13
-    "set guifont=Monospace\ 12
-    set guifontwide=WenQuanYi\ Micro\ Hei\ 13
-    set guioptions=aegi                " cleaner gui
-    set linespace=3
-    set background=dark
-    "colo wombat256
-    "colo molokai
-    colo bocau
-    hi CursorColumn guibg=Green
+	set antialias                      " font antialias
+	set guifont=inconsolata\ 13
+	"set guifont=Monospace\ 12
+	set guifontwide=WenQuanYi\ Micro\ Hei\ 13
+	set guioptions=aegi                " cleaner gui
+	set linespace=3
+	set background=dark
+	"colo wombat256
+	"colo molokai
+	colo bocau
+	hi CursorColumn guibg=Green
 	hi Matchmaker guibg=#333
 endif
 set t_Co=256
@@ -224,9 +246,9 @@ set whichwrap=b,s,<,>,[,]
 "set listchars=nbsp:¬,eol:¶,tab:>-,extends:»,precedes:«,trail:•
 set fillchars=vert:*,fold:-,diff:-
 if v:version > 703 || has("patch541")
-    set formatoptions+=nMjm            " m: linebreak for Chinese
+	set formatoptions+=nMjm            " m: linebreak for Chinese
 else
-    set formatoptions+=nMm
+	set formatoptions+=nMm
 endif
 set splitright splitbelow
 set backspace=indent,eol,start         " allow backspace over everything
@@ -245,9 +267,9 @@ xnoremap / <Esc>/\%V
 set nobackup noswapfile
 set history=200                        " command line history
 if has('persistent_undo')
-    set undofile                       " keep an undo record separately for every file
-    set undolevels=200
-    set undodir=~/.vimtmp/undo
+	set undofile                       " keep an undo record separately for every file
+	set undolevels=200
+	set undodir=~/.vimtmp/undo
 endif
 set viminfo+=n$HOME/.vimtmp/viminfo
 au CursorHold,CursorHoldI,BufEnter,WinEnter * checktime
@@ -283,11 +305,11 @@ inoremap <F1> <C-o>:echo<CR>
 vnoremap <expr> I ForceBlockwiseVisual('I')
 vnoremap <expr> A ForceBlockwiseVisual('A')
 func! ForceBlockwiseVisual(key)
-  if mode () == 'v'
-    return "\<C-v>". a:key
-  elseif mode () == 'V'
-    return "\<C-v>0o$". a:key
-  else | return a:key | endif
+	if mode () == 'v'
+		return "\<C-v>". a:key
+	elseif mode () == 'V'
+		return "\<C-v>0o$". a:key
+	else | return a:key | endif
 endfunc
 " ---------------------------------------------------------------------
 " Clipboard:                           " + register may be wrong under xterm
@@ -295,11 +317,12 @@ nnoremap Y y$
 set pastetoggle=<F12>                  " toggle paste insert mode
 xnoremap <c-c> "+y
 inoremap <c-v> <Esc>:set paste<CR>"+p:set nopaste<CR>a
+inoremap <Leader><c-v> <Esc>:r !xsel -o -p<CR>
 " insert word of the line above
 inoremap <C-Y> <C-C>:let @z = @"<CR>mz
-           \:exec 'normal!' (col('.')==1 && col('$')==1 ? 'k' : 'kl')<CR>
-           \:exec (col('.')==col('$') - 1 ? 'let @" = @_' : 'normal! yw')<CR>
-           \`zp:let @" = @z<CR>a
+			\:exec 'normal!' (col('.')==1 && col('$')==1 ? 'k' : 'kl')<CR>
+			\:exec (col('.')==col('$') - 1 ? 'let @" = @_' : 'normal! yw')<CR>
+			\`zp:let @" = @z<CR>a
 " delete to blackhole register
 nnoremap <Del> "_x
 xnoremap <Del> "_d
@@ -317,12 +340,22 @@ nnoremap zo zO
 " ---------------------------------------------------------------------
 " QuickFix:
 set switchbuf=split
+func! QuickfixToggle()
+	for i in range(1, winnr('$'))
+		if getbufvar(winbufnr(i), '&buftype') == 'quickfix'
+			cclose | lclose
+			return
+		endif
+	endfor
+	copen
+endfunc
+nnoremap <Leader>q :call QuickfixToggle()<CR>
 
 " ---------------------------------------------------------------------
 " Cursor Movement: f[[
 if isdirectory($HOME . "/.vim/bundle/accelerated-jk")        " a variable not assigned
-    nmap j <Plug>(accelerated_jk_gj)
-    nmap k <Plug>(accelerated_jk_gk)
+	nmap j <Plug>(accelerated_jk_gj)
+	nmap k <Plug>(accelerated_jk_gk)
 endif
 let g:accelerated_jk_acceleration_limit = 500
 let g:accelerated_jk_acceleration_table = [10, 20, 30, 35, 40, 45, 50]
@@ -353,39 +386,39 @@ inoremap <c-w> <c-g>u<c-w>
 "vnoremap >> >gv>gv
 " Save Cursor Position:
 au BufReadPost *
-           \ if line("'\"") > 0 && line("'\"") <= line("$") |
-           \   exe "normal g`\"" |
-           \ endif
+			\ if line("'\"") > 0 && line("'\"") <= line("$") |
+			\   exe "normal g`\"" |
+			\ endif
 " Hint On Moving Cursor:
 func! HintCursorLine(opr)
-    if a:opr == 0            " clear cursorline
-        set nocursorline
-        if exists("&cc") | set cc= | endif
-        return
-    endif
+	if a:opr == 0            " clear cursorline
+		set nocursorline
+		if exists("&cc") | set cc= | endif
+		return
+	endif
 
-    if ! exists('g:last_line') | let g:last_line = -1 | end
-    if ! exists('g:last_pos')  | let g:last_pos  = -1 | end
-    if ! exists('g:last_win')  | let g:last_win  = -1 | end
-    let cur_pos  = winline()
-    let cur_line = line(".")
-    let diff = max([ abs(g:last_line - cur_line), abs(g:last_pos - cur_pos) ])
-    if g:last_win != winnr() || diff > 3
-        set cursorline
-    endif
-    let g:last_pos  = cur_pos
-    let g:last_line = cur_line
-    let g:last_win  = winnr()
+	if ! exists('g:last_line') | let g:last_line = -1 | end
+	if ! exists('g:last_pos')  | let g:last_pos  = -1 | end
+	if ! exists('g:last_win')  | let g:last_win  = -1 | end
+	let cur_pos  = winline()
+	let cur_line = line(".")
+	let diff = max([ abs(g:last_line - cur_line), abs(g:last_pos - cur_pos) ])
+	if g:last_win != winnr() || diff > 3
+		set cursorline
+	endif
+	let g:last_pos  = cur_pos
+	let g:last_line = cur_line
+	let g:last_win  = winnr()
 endfunc
 " Highlight Chosen Columns:
 func! ToggleColorColumn(col)
-    let col_num = (a:col == 0) ? virtcol(".") : a:col
-    let cc_list = split(&cc, ',')
-    if count(cc_list, string(col_num)) <= 0
-        exec "set cc+=".col_num
-    else
-        exec "set cc-=".col_num
-    endif
+	let col_num = (a:col == 0) ? virtcol(".") : a:col
+	let cc_list = split(&cc, ',')
+	if count(cc_list, string(col_num)) <= 0
+		exec "set cc+=".col_num
+	else
+		exec "set cc-=".col_num
+	endif
 endfunc
 hi ColorColumn ctermbg=red
 "au CursorMoved,BufWinEnter * call HintCursorLine(1)		" this greatly affects performance ...
@@ -402,24 +435,14 @@ nmap <Left> <c-w>h
 nmap <Right> <c-w>l
 nmap <c-h> <c-w>h
 nmap <c-l> <c-w>l
-nmap <Down> <c-w>j
-nmap <Up> <c-w>k
+nmap <c-k> <c-w>k
+nmap <c-j> <c-w>j
 imap <Left> <Esc><Left>
 imap <Right> <Esc><Right>
 imap <Down> <Esc><Down>
 imap <Up> <Esc><Up>
 au vimResized * exe "normal! \<c-w>="
 
-func! QuickfixToggle()
-    for i in range(1, winnr('$'))
-        if getbufvar(winbufnr(i), '&buftype') == 'quickfix'
-            cclose | lclose
-            return
-        endif
-    endfor
-    copen
-endfunc
-nnoremap <Leader>q :call QuickfixToggle()<CR>
 " ---------------------------------------------------------------------
 " Buffer:
 nnoremap <a-Down> :bn! <CR>
@@ -431,16 +454,16 @@ nnoremap <a-k> :bd<CR>
 " ---------------------------------------------------------------------f]]
 " Auto Fill Brackets:
 func! AutoPair(open, close)
-  let line = getline('.')
-  if col('.') > strlen(line) || index([' ', ']', ')', '}'], line[col('.') - 1]) > 0
-    return a:open . a:close . "\<ESC>i"
-  else
-    return a:open
-  endif
-endf
+	let line = getline('.')
+	if col('.') > strlen(line) || index([' ', ']', ')', '}'], line[col('.') - 1]) > 0
+		return a:open . a:close . "\<ESC>i"
+	else
+		return a:open
+	endif
+endfunc
 func! ClosePair(char)
-  return (getline('.')[col('.') - 1] == a:char ? "\<Right>" : a:char)
-endf
+	return (getline('.')[col('.') - 1] == a:char ? "\<Right>" : a:char)
+endfunc
 inoremap <expr> ( AutoPair('(', ')')
 inoremap <expr> ) ClosePair(')')
 inoremap <expr> [ AutoPair('[', ']')
@@ -478,17 +501,17 @@ imap ￥ $
 map ： :
 
 func! Replace_Chn()                     " for writing latex
-    let chinese={"（" : "(" , "）" : ")" , "，" : ",", "；" : ";", "：" : ":", "？" : "?", "！" : "!", "“" : "\"", "’" : "'" ,"”" : "\"", "℃" : "\\\\textcelsius", "μ" : "$\\\\mu$"}
-    for i in keys(chinese)
-        silent! exec '%substitute/' . i . '/'. chinese[i] . '/g'
-    endfor
+	let chinese={"（" : "(" , "）" : ")" , "，" : ",", "；" : ";", "：" : ":", "？" : "?", "！" : "!", "“" : "\"", "’" : "'" ,"”" : "\"", "℃" : "\\\\textcelsius", "μ" : "$\\\\mu$"}
+	for i in keys(chinese)
+		silent! exec '%substitute/' . i . '/'. chinese[i] . '/g'
+	endfor
 endfunc
 nnoremap <leader>sch :call Replace_Chn()<cr>
 
 " Fcitx:
 func! Fcitx_enter()
-    if (getline('.')[col('.') - 1] >= "\x80" || getline('.')[col('.') - 2] >= "\x80")
-        call system("fcitx-remote -o")
+	if (getline('.')[col('.') - 1] >= "\x80" || getline('.')[col('.') - 2] >= "\x80")
+		call system("fcitx-remote -o")
 	endif
 endfun
 autocmd InsertLeave * call system("fcitx-remote -c")
@@ -502,92 +525,92 @@ let g:PinyinSearch_Dict = $HOME . "/.vim/bundle/vim-PinyinSearch/PinyinSearch.di
 " ---------------------------------------------------------------------f]]
 " Delete Trailing Whitespaces On Saving:
 func! DeleteTrailingWhiteSpace()
-    normal mZ
-    %s/\s\+$//e
-    normal `Z
+	normal mZ
+	%s/\s\+$//e
+	normal `Z
 endfunc
 au BufWrite * if &ft != 'mkd' | call DeleteTrailingWhiteSpace() | endif
 
 " ---------------------------------------------------------------------
 " Extract And Inline Variable:
 func! ExtractVariable()
-    let name = input("Variable name: ")
-    if name == '' | return | endif
-    " Enter visual mode (not sure why this is needed since we're already in visual mode anyway)
-    normal! gv
+	let name = input("Variable name: ")
+	if name == '' | return | endif
+	" Enter visual mode (not sure why this is needed since we're already in visual mode anyway)
+	normal! gv
 
-    exec "normal c" . name
-    exec "normal! O" . name . " = "
-    normal! $p
-endfunction
+	exec "normal c" . name
+	exec "normal! O" . name . " = "
+	normal! $p
+endfunc
 func! InlineVariable()
-    " Copy the variable under the cursor into the 'a' register
-    exec "normal \"zyiw"
-    normal 2daW
-    exec "normal \"xd$"
-    normal dd
-    " Go to the end of the previous line so we can start our search for the
-    " usage of the variable to replace. Doing '0' instead of 'k$' doesn't
-    " work; I'm not sure why.
-    normal k$
-    exec '/\<' . @z . '\>'
-    exec ':.s/\<' . @z . '\>/' . @x
-endfunction
+	" Copy the variable under the cursor into the 'a' register
+	exec "normal \"zyiw"
+	normal 2daW
+	exec "normal \"xd$"
+	normal dd
+	" Go to the end of the previous line so we can start our search for the
+	" usage of the variable to replace. Doing '0' instead of 'k$' doesn't
+	" work; I'm not sure why.
+	normal k$
+	exec '/\<' . @z . '\>'
+	exec ':.s/\<' . @z . '\>/' . @x
+endfunc
 xnoremap <leader>rv :call ExtractVariable()<cr>
 nnoremap <leader>ri :call InlineVariable()<cr>
 
 " ---------------------------------------------------------------------
 " Log For Debugging Vimscript:
 func! ToggleVerbose()
-    if !&verbose
-        exe "!rm /tmp/vimlog"
-        set verbosefile=/tmp/vimlog
-        set verbose=10
-    else | set verbose=0 | set verbosefile= | endif
+	if !&verbose
+		exe "!rm /tmp/vimlog"
+		set verbosefile=/tmp/vimlog
+		set verbose=10
+	else | set verbose=0 | set verbosefile= | endif
 endfunc
 nmap <Leader>tv :call ToggleVerbose()<CR>
 
 " ---------------------------------------------------------------------
 " Head Update:
 func! LastMod()
-    let l:line = line(".")                            " save cursor position
-    let l:col = col(".")
-    let l = min([line("$"), 8])
-    exec '1,' . l . 'substitute/' . '^\(.*File:\)[^\*]*\(.*\)$' . '/\1 ' . expand('<afile>:t') . '\2/e'
-    exec '1,' . l . 'substitute/' . '^\(.*Date:\)[^\*]*\(.*\)$' . '/\1 ' . strftime('%a %b %d %H:%M:%S %Y %z') . '\2/e'
-    call cursor(l:line, l:col)
+	let l:line = line(".")                            " save cursor position
+	let l:col = col(".")
+	let l = min([line("$"), 8])
+	exec '1,' . l . 'substitute/' . '^\(.*File:\)[^\*]*\(.*\)$' . '/\1 ' . expand('<afile>:t') . '\2/e'
+	exec '1,' . l . 'substitute/' . '^\(.*Date:\)[^\*]*\(.*\)$' . '/\1 ' . strftime('%a %b %d %H:%M:%S %Y %z') . '\2/e'
+	call cursor(l:line, l:col)
 endfun
 au BufWritePre,FileWritePre * call LastMod()
 
 " ---------------------------------------------------------------------
 " Toggle Hex Mode:
 func! ToggleHex()
-    let l:modified=&mod | let l:oldreadonly=&readonly
-    setl ro
-    let l:oldmodifiable=&modifiable | let &modifiable=1
-    if ! exists("b:editHex") || !b:editHex
-        let b:oldft=&ft | let b:oldbin=&bin
-        setl binary
-        let &ft="xxd" | let b:editHex=1
-        %!xxd
-    else
-        let &ft=b:oldft | let b:editHex=0
-        if !b:oldbin | setl nobinary | endif
-        %!xxd -r
-    endif
-    " restore values for modified and read only state
-    let &mod=l:modified | let &readonly=l:oldreadonly | let &modifiable=l:oldmodifiable
+	let l:modified=&mod | let l:oldreadonly=&readonly
+	setl ro
+	let l:oldmodifiable=&modifiable | let &modifiable=1
+	if ! exists("b:editHex") || !b:editHex
+		let b:oldft=&ft | let b:oldbin=&bin
+		setl binary
+		let &ft="xxd" | let b:editHex=1
+		%!xxd
+	else
+		let &ft=b:oldft | let b:editHex=0
+		if !b:oldbin | setl nobinary | endif
+		%!xxd -r
+	endif
+	" restore values for modified and read only state
+	let &mod=l:modified | let &readonly=l:oldreadonly | let &modifiable=l:oldmodifiable
 endfunc
 nmap <Leader>hex :call ToggleHex()
 
 " ---------------------------------------------------------------------
 " Diff Current Buffer With Correspondent Saved File:
 func! DiffWithSaved()
-    let ft=&filetype
-    diffthis
-    vnew | r # | normal! 1Gdd
-    diffthis
-    exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . ft
+	let ft=&filetype
+	diffthis
+	vnew | r # | normal! 1Gdd
+	diffthis
+	exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . ft
 endfunc
 command! DiffSaved call DiffWithSaved()
 nnoremap <Leader>df :call DiffWithSaved()<CR>
@@ -595,16 +618,16 @@ nnoremap <Leader>df :call DiffWithSaved()<CR>
 " ---------------------------------------------------------------------f]]
 " Open Browser:
 func! Browser ()
-    let line0 = getline (".")
-    let line  = matchstr (line0, "http[^ ,;\t)]*")
-    if line==""
-        let line = matchstr (line0, "ftp[^ ,;\t)]*")
-    endif
-    if line==""
-        let line = matchstr (line0, "www\.[^ ,;\t)]*")
-    endif
-    exec "!chromium ".line
-    " TODO chrome cannot be run as root
+	let line0 = getline (".")
+	let line  = matchstr (line0, "http[^ ,;\t)]*")
+	if line==""
+		let line = matchstr (line0, "ftp[^ ,;\t)]*")
+	endif
+	if line==""
+		let line = matchstr (line0, "www\.[^ ,;\t)]*")
+	endif
+	exec "!chromium ".line
+	" TODO chrome cannot be run as root
 endfunc
 nnoremap <Leader>ch :call Browser ()<CR>
 
@@ -626,8 +649,8 @@ nmap <Leader>syn :vsplit<bar>wincmd l<bar>exe "norm! Ljz<c-v><cr>"<cr>:set scb<c
 nnoremap <Leader>-- o<C-R>=printf('%s%s', printf(&commentstring, ' '), repeat('-', 90))<CR><Home><Esc>
 
 nnoremap <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-    \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-    \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+			\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+			\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
 " ---------------------------------------------------------------------f]]
 " Completetion And Tags: f[[
@@ -649,7 +672,7 @@ nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <
 
 let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
 "let g:ycm_filetype_blacklist = {'markdown' : 1,  'txt' : 1, 'help' : 1, 'vim' : 1}
-let g:ycm_filetype_whitelist = {'cpp' : 1, 'c' : 1, 'python': 1, 'ruby' : 1, 'java': 1}
+let g:ycm_filetype_whitelist = {'cpp' : 1, 'c' : 1, 'python': 1, 'java': 1, 'javascript': 1}
 let g:ycm_key_detailed_diagnostics = "<Leader>yd"
 let g:ycm_key_invoke_completion = "<F5>"
 let g:ycm_complete_in_comments = 1
@@ -663,8 +686,8 @@ let g:ycm_cache_omnifunc = 1
 let g:ycm_min_num_of_chars_for_completion = 1
 let g:ycm_min_num_identifier_candidate_chars = 3
 let g:ycm_semantic_triggers =  {'c' : ['->', '.'], 'objc' : ['->', '.'],
-\   'ocaml' : ['.', '#'], 'cpp,objcpp' : ['->', '.', '::'], 'php' : ['->', '::'],
-\   'cs,java,javascript,vim,coffee,python,scala,go' : ['.'], 'ruby' : ['.', '::']}
+			\   'ocaml' : ['.', '#'], 'cpp,objcpp' : ['->', '.', '::'], 'php' : ['->', '::'],
+			\   'cs,java,javascript,vim,coffee,python,scala,go' : ['.'], 'ruby' : ['.', '::']}
 
 let g:EclimCompletionMethod = 'omnifunc'
 
@@ -681,7 +704,8 @@ inoremap <expr><C-e>  pumvisible() ? neocomplcache#close_popup(). "\<End>" : "\<
 inoremap <expr><CR>  pumvisible() ? neocomplcache#close_popup() : "\<CR>"
 inoremap <expr><BS>  neocomplcache#smart_close_popup()."\<C-h>"
 au CursorMovedI,InsertLeave * if pumvisible() == 0| silent! pclose| endif        " auto close preview window
-let g:neocomplcache_enable_at_startup = 0
+let g:neocomplcache_enable_at_startup = 1
+au Filetype cpp,c,python,java,javascript let g:neocomplcache_enable_at_startup = 0
 let g:neocomplcache_use_vimproc = 4
 let g:neocomplcache_disable_auto_complete = 0
 let g:neocomplcache_enable_auto_select = 0
@@ -720,49 +744,49 @@ let g:rubycomplete_rails = 1
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
 func! GenerateHead(line)
-    let Head_List = [" File:", " Date:", " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"]
-    call append(a:line, Head_List)
+	let Head_List = [" File:", " Date:", " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"]
+	call append(a:line, Head_List)
 	" comment
 	normal ggVG cl
 	silent! exec "%s/^ \\+//g"
 endfunc
 func! SetTitle()
-    let file_name = expand("%:t")
-    let file_head = expand("%:t:r")
-    if &ft == 'sh'
-        call setline(1, "!/bin/bash -e")
-        call GenerateHead(1)
-        normal G
-    elseif file_name =~ "^[^.]*\.hh*[px]*$"
-        call GenerateHead(0)
-        call append(line("$"), ["#pragma once", ""])
-        normal G
-    elseif &ft == 'cpp'
-        call GenerateHead(0)
+	let file_name = expand("%:t")
+	let file_head = expand("%:t:r")
+	if &ft == 'sh'
+		call setline(1, "!/bin/bash -e")
+		call GenerateHead(1)
+		normal G
+	elseif file_name =~ "^[^.]*\.hh*[px]*$"
+		call GenerateHead(0)
+		call append(line("$"), ["#pragma once", ""])
+		normal G
+	elseif &ft == 'cpp'
+		call GenerateHead(0)
 		call append(line("$"), ["#include <iostream>","#include <cstdlib>","#include <cstring>","#include <cstdio>", "using namespace std;",
 					\ "#define REP(x, y) for (int x = 0; x < (y); x ++)", "#define REPL(x, y, z) for (int x = y; x < (z); x ++)",
 					\ "#define REPD(x, y, z) for (int x = y; x >= (z); x --)", "#define P(a) std::cout << (a) << std::endl" ])
-        normal G
-    elseif &ft == 'python'
-        0put=\"!/usr/bin/env python2\<nl> -*- coding: UTF-8 -*-\"
-        call GenerateHead(2)
-        normal G
-    elseif &ft == 'ruby'
-        0put=\"!/usr/bin/env ruby\<nl> coding: utf-8\"
-        call GenerateHead(2)
-        normal G
-    elseif &ft == 'html'
-        call setline(1, "html:5")
-        normal $
-        call feedkeys("\<C-z>")                                " call sparkup
-    elseif &ft == 'java'
-        call GenerateHead(0)
-        call append(line("$"), ["public class ". file_head . " {", "\tpublic static void main(String[] args) {", "\t}", "}"])
-        normal jjj
+		normal G
+	elseif &ft == 'python'
+		0put=\"!/usr/bin/env python2\<nl> -*- coding: UTF-8 -*-\"
+		call GenerateHead(2)
+		normal G
+	elseif &ft == 'ruby'
+		0put=\"!/usr/bin/env ruby\<nl> coding: utf-8\"
+		call GenerateHead(2)
+		normal G
+	elseif &ft == 'html'
+		call setline(1, "html:5")
+		normal $
+		call feedkeys("\<C-z>")                                " call sparkup
+	elseif &ft == 'java'
+		call GenerateHead(0)
+		call append(line("$"), ["public class ". file_head . " {", "\tpublic static void main(String[] args) {", "\t}", "}"])
+		normal jjj
 	elseif &ft == 'tex' || &ft == 'javascript' || &ft == 'coffee'
 		call GenerateHead(0)
 		normal G
-    endif
+	endif
 endfunc
 au BufNewFile *.* call SetTitle()
 au BufNewFile Makefile exec ":r ~/Work/programming/cpp/Makefiles/Makefile"
@@ -773,45 +797,45 @@ au BufNewFile Makefile exec ":r ~/Work/programming/cpp/Makefiles/Makefile"
 command! -nargs=* Makepg call Make_arg("g++ % -o %:r -pg -Wall -std=c++11", <f-args>)
 
 func! Make()                        " silent make with quickfix window popup
-    if &ft == 'cpp'
-        if filereadable(getcwd() . "/Makefile")
-            let &makeprg="make"
-        elseif  filereadable(getcwd() . "/../Makefile")
-            let &makeprg="make -C .."
-        endif
-    endif
-    make
-    redraw!
-    for i in getqflist()
-        if i['valid']
-            cwin | winc p | return
-        endif
-    endfor
+	if &ft == 'cpp'
+		if filereadable(getcwd() . "/Makefile")
+			let &makeprg="make"
+		elseif  filereadable(getcwd() . "/../Makefile")
+			let &makeprg="make -C .."
+		endif
+	endif
+	make
+	redraw!
+	for i in getqflist()
+		if i['valid']
+			cwin | winc p | return
+		endif
+	endfor
 endfunc
 
 func! FindMakefile()
-    exec "cd " . expand ("%:p:h")
-    while ! filereadable(getcwd() . "/Makefile") && getcwd () != "/"
-        cd ..
-    endw
-    :!make
+	exec "cd " . expand ("%:p:h")
+	while ! filereadable(getcwd() . "/Makefile") && getcwd () != "/"
+		cd ..
+	endw
+	:!make
 endfunc
 au Filetype gnuplot let &makeprg="gnuplot % ; feh ./*"
 au Filetype dot let &makeprg="dot -Tpng -O -v % ; feh %.png"
 au Filetype php let &makeprg="php %"
 au Filetype r let &makeprg="R <% --vanilla"
 func! InstantRun()
-    if &ft == 'python'
-        if matchstr(getline(1), 'python2') == ""
-            :!python %
-        else | :!python2 %
+	if &ft == 'python'
+		if matchstr(getline(1), 'python2') == ""
+			:!python %
+		else | :!python2 %
 		endif
-    elseif &ft == 'ruby' | :!ruby %
-    elseif &ft == 'sh' | :!bash %
-    elseif &ft == 'cpp' | :!gdb %<
-    elseif &ft == 'java' | :! java %<
-    elseif &ft == 'javascript' | :! node %
-    elseif &ft == 'coffee' | :! coffee %
+	elseif &ft == 'ruby' | :!ruby %
+	elseif &ft == 'sh' | :!bash %
+	elseif &ft == 'cpp' | :!gdb %<
+	elseif &ft == 'java' | :! java %<
+	elseif &ft == 'javascript' | :! node %
+	elseif &ft == 'coffee' | :! coffee %
 	else | call Make() | endif
 endfunc
 nnoremap <Leader>rr :call InstantRun() <CR>
@@ -822,152 +846,149 @@ nnoremap <Leader>make :call FindMakefile()<CR>
 
 " Mapping For Programming: (These should've been moved to ftplugin) f[[
 func! Tex_Block(label)
-    let Blk_Dict={"e": "enumerate","d": "description", "m": "matrix", "c": "cases",
-                \ "f": "figure", "t": "table", "tt": "tabular", "eq": "equation*", "mp": "minipage"}
+	let Blk_Dict={"e": "enumerate","d": "description", "m": "matrix", "c": "cases",
+				\ "f": "figure", "t": "table", "tt": "tabular", "eq": "equation*", "mp": "minipage"}
 	let blk_text = (has_key(Blk_Dict, a:label)) ? Blk_Dict[a:label ] : a:label
-    call append(line('.') - 1,["\\begin{". blk_text ."}","","\\end{". blk_text ."}"])
-    normal kk
-    startinsert
+	call append(line('.') - 1,["\\begin{". blk_text ."}","","\\end{". blk_text ."}"])
+	normal kk
+	startinsert
 endfunc
 func! Tex_Formula_init()
-    inoremap <buffer> <c-f> \dfrac{}{}<Esc>2hi
-    inoremap <buffer> <c-r> \sqrt{}<Left>
-    inoremap <buffer> <c-Left> \Leftrightarrow<Space>
-    inoremap <buffer> <c-Right> \Rightarrow<Space>
-    inoremap <buffer> \left \left<Space>\right<Esc>5hi
+	inoremap <buffer> <c-f> \dfrac{}{}<Esc>2hi
+	inoremap <buffer> <c-r> \sqrt{}<Left>
+	inoremap <buffer> <c-Left> \Leftrightarrow<Space>
+	inoremap <buffer> <c-Right> \Rightarrow<Space>
+	inoremap <buffer> \left \left<Space>\right<Esc>5hi
 
-    " Symbol:
-    inoremap <buffer> `a \alpha
-    inoremap <buffer> `b \beta
-    inoremap <buffer> `c ^\circ
-    inoremap <buffer> `D \Delta
-    inoremap <buffer> `d \mathrm{d}
-    inoremap <buffer> `G \Gamma
-    inoremap <buffer> `l \lambda
-    inoremap <buffer> `m \mu
-    inoremap <buffer> `O \Omega
-    inoremap <buffer> `o \omega
-    inoremap <buffer> `p \pi
-    inoremap <buffer> `r \rho
-    inoremap <buffer> `R \mathbb{R}
-    inoremap <buffer> `s \sigma
-    inoremap <buffer> `v \varphi
-endf
+	" Symbol:
+	inoremap <buffer> `a \alpha
+	inoremap <buffer> `b \beta
+	inoremap <buffer> `c ^\circ
+	inoremap <buffer> `D \Delta
+	inoremap <buffer> `d \mathrm{d}
+	inoremap <buffer> `G \Gamma
+	inoremap <buffer> `l \lambda
+	inoremap <buffer> `m \mu
+	inoremap <buffer> `O \Omega
+	inoremap <buffer> `o \omega
+	inoremap <buffer> `p \pi
+	inoremap <buffer> `r \rho
+	inoremap <buffer> `R \mathbb{R}
+	inoremap <buffer> `s \sigma
+	inoremap <buffer> `v \varphi
+endfunc
 func! Tex_init()
 	" pdf auto refresh preview
 	au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make; killall -SIGHUP mupdf > /dev/null 2 >&1' &")
 
-    setl nocursorline                                " for performance
-    hi clear Conceal
-    let &conceallevel=has("gui_running") ? 1: 2        " conceal problem for gvim
-    setl concealcursor=
-    setl sw=2 sts=2 expandtab
-    setl textwidth=150
-    setl errorformat=aaaaaaa                        " disable quickfix
+	setl nocursorline                                " for performance
+	hi clear Conceal
+	let &conceallevel=has("gui_running") ? 1: 2        " conceal problem for gvim
+	setl concealcursor=
+	setl sw=2 sts=2 expandtab
+	setl textwidth=150
+	setl errorformat=aaaaaaa                        " disable quickfix
 
-    inoremap <buffer> $$ $<Space>$<Left>
-    inoremap <buffer> " ``''<Left><Left>
-    nmap <buffer> <Leader>" xi``<Esc>,f"axi''<Esc>
-    inoremap <buffer> ... \cdots<Space>
+	inoremap <buffer> $$ $<Space>$<Left>
+	inoremap <buffer> " ``''<Left><Left>
+	nmap <buffer> <Leader>" xi``<Esc>,f"axi''<Esc>
+	inoremap <buffer> ... \cdots<Space>
 	call Tex_Formula_init()
 
-    inoremap <buffer> \[ \[<Space>\]<Left><Left>
-    inoremap <buffer> \{ \{<Space>\}<Left><Left>
-    inoremap <buffer> \langle \langle<Space><Space>\rangle<Esc>7hi
-    inoremap <buffer> \verb \verb<Bar><Bar><Left>
-    inoremap <buffer> \beg \begin{}<Left>
-    inoremap <buffer> \bb <Esc>:call Tex_Block("")<Left><Left>
-    inoremap <buffer> \bbt <Esc>:call Tex_Block("t")<CR><Up><End>[H]<Down>\centering<CR>\caption{\label{tab:}}<Esc>k:call Tex_Block("tabular")<CR>
-    inoremap <buffer> \bbf <Esc>:call Tex_Block("f")<CR><Up><End>[H]<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
-    inoremap <buffer> \bbm <Esc>:call Tex_Block("mp")<CR><Up><End>[b]{0.46\linewidth}<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
-    inoremap <buffer> \bf \textbf{}<Left>
-    xmap <buffer> \bbe di\bbe<CR><Tab><Esc>pj
-    xmap <buffer> \bbd di\bbd<CR><Tab><Esc>pj
-    xmap <buffer> \bf s}i\textbf<Esc>
-    xmap <buffer> \em s}i\emph<Esc>
-    xmap <buffer> <Leader>tab :s/\s\+/ \&/g<CR>gv:s/$/\\\\/g<CR>gv<Space>tt
+	inoremap <buffer> \[ \[<Space>\]<Left><Left>
+	inoremap <buffer> \{ \{<Space>\}<Left><Left>
+	inoremap <buffer> \langle \langle<Space><Space>\rangle<Esc>7hi
+	inoremap <buffer> \verb \verb<Bar><Bar><Left>
+	inoremap <buffer> \beg \begin{}<Left>
+	inoremap <buffer> \bb <Esc>:call Tex_Block("")<Left><Left>
+	inoremap <buffer> \bbt <Esc>:call Tex_Block("t")<CR><Up><End>[H]<Down>\centering<CR>\caption{\label{tab:}}<Esc>k:call Tex_Block("tabular")<CR>
+	inoremap <buffer> \bbf <Esc>:call Tex_Block("f")<CR><Up><End>[H]<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
+	inoremap <buffer> \bbm <Esc>:call Tex_Block("mp")<CR><Up><End>[b]{0.46\linewidth}<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
+	inoremap <buffer> \bf \textbf{}<Left>
+	xmap <buffer> \bbe di\bbe<CR><Tab><Esc>pj
+	xmap <buffer> \bbd di\bbd<CR><Tab><Esc>pj
+	xmap <buffer> \bf s}i\textbf<Esc>
+	xmap <buffer> \em s}i\emph<Esc>
+	xmap <buffer> <Leader>tab :s/\s\+/ \&/g<CR>gv:s/$/\\\\/g<CR>gv<Space>tt
 
-    " Plugin: LaTeX-Box
-    let g:LatexBox_no_mappings = 1
-    inoremap <buffer> [[ \begin{}<Left>
-    imap <buffer> ]] <Plug>LatexCloseCurEnv
-    inoremap <buffer> <C-n> <Esc><Right>:call LatexBox_JumpToNextBraces(0)<CR>i
-    nmap <buffer> P l:call LatexBox_JumpToNextBraces(0)<CR>
-    nmap <buffer> Q :call LatexBox_JumpToNextBraces(1)<CR>
+	" Plugin: LaTeX-Box
+	let g:LatexBox_no_mappings = 1
+	inoremap <buffer> [[ \begin{}<Left>
+	imap <buffer> ]] <Plug>LatexCloseCurEnv
+	inoremap <buffer> <C-n> <Esc><Right>:call LatexBox_JumpToNextBraces(0)<CR>i
+	nmap <buffer> P l:call LatexBox_JumpToNextBraces(0)<CR>
+	nmap <buffer> Q :call LatexBox_JumpToNextBraces(1)<CR>
 
-    xmap <buffer> ie <Plug>LatexBox_SelectCurrentEnvInner
-    xmap <buffer> ae <Plug>LatexBox_SelectCurrentEnvOuter
-    omap <buffer> ie :normal vie<CR>
-    omap <buffer> ae :normal vae<CR>
-    xmap <buffer> im <Plug>LatexBox_SelectInlineMathInner
-    xmap <buffer> am <Plug>LatexBox_SelectInlineMathOuter
-    omap <buffer> im :normal vim<CR>
-    omap <buffer> am :normal vam<CR>
+	xmap <buffer> ie <Plug>LatexBox_SelectCurrentEnvInner
+	xmap <buffer> ae <Plug>LatexBox_SelectCurrentEnvOuter
+	omap <buffer> ie :normal vie<CR>
+	omap <buffer> ae :normal vae<CR>
+	xmap <buffer> im <Plug>LatexBox_SelectInlineMathInner
+	xmap <buffer> am <Plug>LatexBox_SelectInlineMathOuter
+	omap <buffer> im :normal vim<CR>
+	omap <buffer> am :normal vam<CR>
 
-    nmap <buffer> <Leader>ce <Plug>LatexChangeEnv
-    xmap <buffer> <Leader>tc <Plug>LatexWrapSelection
-    xmap <buffer> <Leader>te <Plug>LatexEnvWrapSelection
+	nmap <buffer> <Leader>ce <Plug>LatexChangeEnv
+	xmap <buffer> <Leader>tc <Plug>LatexWrapSelection
+	xmap <buffer> <Leader>te <Plug>LatexEnvWrapSelection
 endfunc
 func! C_grammar_init()
-    inoremap <buffer> while<Space> while<Space>()<Left>
-    inoremap <buffer> { {}<Left><CR><CR><Up><Tab>
-    inoremap <buffer> if<Space> if<Space>()<Left>
-    inoremap <buffer> for<Space> for<Space>()<Left>
+	inoremap <buffer> while<Space> while<Space>()<Left>
+	inoremap <buffer> if<Space> if<Space>()<Left>
+	inoremap <buffer> for<Space> for<Space>()<Left>
 	command! INDENT :!indent -linux -l80 %
 endfunc
 func! C_init()
-    "call textobj#user#plugin('cif', { 'code': {
-    "\     'pattern': ['if ', '$'],
-    "\     'select-i': 'if',
-    "\   }})
-    set tags+=~/.vim/static/cpp                        " core in cpp
-    set tags+=/home/cpp_lib_tags                    " all libs
-    abbr #i #include
-    abbr #I #include
-    set syntax=cpp11.doxygen
-    let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
-    call C_grammar_init()
-    syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr
-    syn keyword cppSTLType T
-    "setl ofu=ClangComplete
-    "inoremap <c-[> <Esc>:python updateSnips()<CR>
+	"call textobj#user#plugin('cif', { 'code': {
+	"\     'pattern': ['if ', '$'],
+	"\     'select-i': 'if',
+	"\   }})
+	set tags+=~/.vim/static/cpp                        " core in cpp
+	set tags+=/home/cpp_lib_tags                    " all libs
+	abbr #i #include
+	abbr #I #include
+	set syntax=cpp11.doxygen
+	let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
+	call C_grammar_init()
+	syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr
+	syn keyword cppSTLType T
 endfunc
 func! Python_init()
-    let &makeprg="pylint --reports=n --output-format=parseable %"
-    setl expandtab
-    setl ts=4 sw=4 sts=4
-    setl textwidth=78
-    syn keyword pythonDecorator self
-    nmap <buffer> <F8> :call Flake8()<CR>
+	let &makeprg="pylint --reports=n --output-format=parseable %"
+	setl expandtab
+	setl ts=4 sw=4 sts=4
+	setl textwidth=78
+	syn keyword pythonDecorator self
+	nmap <buffer> <F8> :call Flake8()<CR>
 
-    " Jedi work with neo:
-    setl ofu=jedi#complete switchbuf=useopen
-    inoremap <buffer> . .<C-X><C-O><C-P>
+	" Jedi work with neo:
+	setl ofu=jedi#complete switchbuf=useopen
+	inoremap <buffer> . .<C-X><C-O><C-P>
 endfunc
 func! Ruby_init()
-    let &makeprg="ruby -c %"
-    imap <C-CR> <CR><CR>end<Esc>-cc
-    setl expandtab
-    setl ts=2 sw=2 sts=2
+	let &makeprg="ruby -c %"
+	imap <C-CR> <CR><CR>end<Esc>-cc
+	setl expandtab
+	setl ts=2 sw=2 sts=2
 endfunc
 func! Java_init()
-    let &makeprg="javac %"
-    syn keyword javaType String Integer Double Pair Collection Collections List Boolean Triple ArrayList Entry LinkedList Map HashMap Set HashSet TreeSet TreeMap Iterator Iterable Comparator Arrays ListIterator Vector File Character Object Exception Random
+	let &makeprg="javac %"
+	syn keyword javaType String Integer Double Pair Collection Collections List Boolean Triple ArrayList Entry LinkedList Map HashMap Set HashSet TreeSet TreeMap Iterator Iterable Comparator Arrays ListIterator Vector File Character Object Exception Random
 	" TODO match java class name with regex
-    let java_comment_strings = 1
-    let java_mark_braces_in_parens_as_errors= 1
-    let java_ignore_javadoc = 1
-    let java_minlines = 150
-    call C_grammar_init()
+	let java_comment_strings = 1
+	let java_mark_braces_in_parens_as_errors= 1
+	let java_ignore_javadoc = 1
+	let java_minlines = 150
+	call C_grammar_init()
 endfunc
 func! CS_init()
-    call C_grammar_init()
-    syn keyword csType var
+	call C_grammar_init()
+	syn keyword csType var
 endfunc
 func! Js_init()
-    let &makeprg="node %"
-    setl ts=2 sw=2 sts=2
-    call C_grammar_init()
+	let &makeprg="node %"
+	setl ts=2 sw=2 sts=2
+	call C_grammar_init()
 endfunc
 func! MarkDown_init()
 	call Tex_Formula_init()
@@ -995,6 +1016,7 @@ au BufWritePost .Xresources silent !xrdb %
 au BufWritePost .tmux.conf silent !tmux source %
 au BufWritePost .vimrc source ~/.vimrc
 au BufRead tmux.conf,.tmux* setf tmux
+au BufRead /usr/include/* setf cpp
 au BufRead SConstruct setf python
 au BufNewFile,BufRead config.fish set ft=sh						   " syntax for fish config file
 au BufNewFile,BufRead *.json setl ft=json syntax=txt
@@ -1015,15 +1037,15 @@ au Filetype lrc setl textwidth=45                                  " for display
 au BufNewFile,BufRead *.decaf setf cpp
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
 au Filetype coffee,jade,stylus setl expandtab
-au Filetype stylus,vhdl,php,html,xml,zcml,yaml,json,coffee,jade,ejs setl tabstop=2 shiftwidth=2 softtabstop=2
+au Filetype verilog,stylus,vhdl,php,html,xml,zcml,yaml,json,coffee,jade,ejs setl tabstop=2 shiftwidth=2 softtabstop=2
 au FileType json setl foldmethod=syntax
 au Filetype txt setl textwidth=200
 let g:tex_flavor = 'latex'                                         " default filetype for tex
 au FileType sh,zsh inoremap ` ``<Left>
 au BufWritePost *
-            \ if getline(1) =~ "^#!/bin/[a-z]*sh" |
-            \   exe "silent !chmod a+x <afile>" |
-            \ endif
+			\ if getline(1) =~ "^#!/bin/[a-z]*sh" |
+			\   exe "silent !chmod a+x <afile>" |
+			\ endif
 
 " ---------------------------------------------------------------------
 " Misc Plugins: f[[
@@ -1038,11 +1060,9 @@ au BufWritePost *
 " <Leader>z/Z/iz to fold/restore/reverse_fold search result
 " Tyank, Twrite, Tput to use tbone for tmux
 " {count}zS to show highlight
-let g:alternateSearchPath = 'sfr:../src,sfr:../include,sfr:../,sfr:./include'
-
-au BufEnter *.cpp let b:fswitchdst = 'hpp,h' | let b:fswitchlocs = './,./include,../include'
+au BufEnter *.cpp let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './,./include,../include'
 au BufEnter *.cc let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './include,./,../include'
-au BufEnter *.hh let b:fswitchdst = 'cc,cpp' | let b:fswitchlocs = '../,./'
+au BufEnter *.hh let b:fswitchdst = 'cpp,cc' | let b:fswitchlocs = '../,./'
 au BufEnter *.h let b:fswitchdst = 'cpp,cc' | let b:fswitchlocs = './,../'
 command! A FSHere
 command! AV FSSplitRight
@@ -1071,12 +1091,12 @@ let g:gitgutter_enabled = 0
 nnoremap <Leader>gs :GitGutterEnable<CR>
 
 if exists("*expand_region#custom_text_objects")
-    call expand_region#custom_text_objects({
-      \ "\/\\n\\n\<CR>": 1,
-      \ 'a]' :1, 'ab' :1, 'aB' :1, 'a"' :1, 'a''': 1,
-      \ 'ii' :0, 'ai' :0,
-      \ 'ic' :0, 'ac' :0,
-      \ }) | endif
+	call expand_region#custom_text_objects({
+				\ "\/\\n\\n\<CR>": 1,
+				\ 'a]' :1, 'ab' :1, 'aB' :1, 'a"' :1, 'a''': 1,
+				\ 'ii' :0, 'ai' :0,
+				\ 'ic' :0, 'ac' :0, })
+endif
 xmap L <Plug>(expand_region_expand)
 xmap H <Plug>(expand_region_shrink)
 
@@ -1092,7 +1112,7 @@ let g:MultipleSearchMaxColors = 16
 
 nnoremap <Leader>gr :Regrep <CR><CR><CR><CR>
 let Grep_Skip_Files = '.tags tags'
-let Grep_Skip_Dirs  = 'node_modules build'
+let Grep_Skip_Dirs  = 'node_modules build output'
 
 let g:fuf_keyOpenVsplit             = "<C-l>"
 let g:fuf_keyOpenTabpage            = "<C-t>"
@@ -1105,7 +1125,7 @@ let g:fuf_dataDir                   = '~/.vimtmp/vim-fuf-data'
 let g:fuf_coveragefile_prompt       = '>Project[]>'
 let g:fuf_coveragefile_globPatterns = ['**/.*', '**/*', '../*', '../.*']
 let g:fuf_file_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
-let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d|so|os)$|(^|[/\\])\.(hg|git.*|bzr)($|[/\\])|node_modules.*|output'
+let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d|so|os)$|(^|[/\\])\.(hg|git.*|bzr)($|[/\\])|node_modules.*|output|build'
 nmap <Leader>ff :FufFile<CR>
 nmap <Leader>fp :FufCoverageFile<CR>
 nmap <Leader>ft :FufTag<CR>
@@ -1120,11 +1140,11 @@ nmap <Leader>fw [I:let nr = input("Which one: ")<Bar>exe "normal " . nr ."[\t"<C
 func! RangerChooser()
 	let arg0 = has('gui_running') ? "urxvt -e " : " "
 	exec "silent !" . arg0 . " ranger --choosefile=/tmp/chosenfile " . expand("%:p:h")
-    if filereadable('/tmp/chosenfile')
-        exec 'edit ' . system('cat /tmp/chosenfile')
-        call system('rm /tmp/chosenfile')
-    endif
-    redraw!
+	if filereadable('/tmp/chosenfile')
+		exec 'edit ' . system('cat /tmp/chosenfile')
+		call system('rm /tmp/chosenfile')
+	endif
+	redraw!
 endfunc
 
 "let g:syntastic_cpp_compiler         = 'clang++'
@@ -1145,21 +1165,22 @@ let g:DoxygenToolkit_returnTag    = "@Returns   "
 let g:DoxygenToolkit_blockHeader  = "--------------------------------------------------------------------------"
 let g:DoxygenToolkit_blockFooter  = "----------------------------------------------------------------------------"
 
+" highlight words under cursor
 let g:matchmaker_enable_startup = 1
 
 if ! has('gui_running')            " to cooperate with gvim_color_css
-    let g:rbpt_max            = 16
-    let g:rbpt_loadcmd_toggle = 0
-    au VimEnter * silent! RainbowParenthesesToggle
-    au Syntax * silent! RainbowParenthesesLoadRound
-    au Syntax * silent! RainbowParenthesesLoadSquare
-    " to work with css3-syntax
-    au Syntax * if &ft != "css" | silent! RainbowParenthesesLoadBraces | endif
-    let g:rbpt_colorpairs = [['brown', 'RoyalBlue3'], ['Darkblue', 'SeaGreen3'],
-    \ ['darkgray', 'DarkOrchid3'], ['darkgreen', 'firebrick3'], ['darkcyan', 'RoyalBlue3'],
-    \ ['darkred', 'SeaGreen3'], ['darkmagenta', 'DarkOrchid3'], ['brown', 'firebrick3'],
-    \ ['gray', 'RoyalBlue3'], ['darkmagenta', 'DarkOrchid3'], ['darkred', 'DarkOrchid3'],
-    \ ['Darkblue', 'firebrick3'], ['darkgreen', 'RoyalBlue3'], ['darkcyan', 'SeaGreen3']]
+	let g:rbpt_max            = 16
+	let g:rbpt_loadcmd_toggle = 0
+	au VimEnter * silent! RainbowParenthesesToggle
+	au Syntax * silent! RainbowParenthesesLoadRound
+	au Syntax * silent! RainbowParenthesesLoadSquare
+	" to work with css3-syntax
+	au Syntax * if &ft != "css" | silent! RainbowParenthesesLoadBraces | endif
+	let g:rbpt_colorpairs = [['brown', 'RoyalBlue3'], ['Darkblue', 'SeaGreen3'],
+				\ ['darkgray', 'DarkOrchid3'], ['darkgreen', 'firebrick3'], ['darkcyan', 'RoyalBlue3'],
+				\ ['darkred', 'SeaGreen3'], ['darkmagenta', 'DarkOrchid3'], ['brown', 'firebrick3'],
+				\ ['gray', 'RoyalBlue3'], ['darkmagenta', 'DarkOrchid3'], ['darkred', 'DarkOrchid3'],
+				\ ['Darkblue', 'firebrick3'], ['darkgreen', 'RoyalBlue3'], ['darkcyan', 'SeaGreen3']]
 endif
 
 nmap <Leader>xml :%s/></>\r</g<CR>gg=G
@@ -1200,10 +1221,10 @@ let g:persistentBehaviour    = 0
 let g:winManagerWindowLayout = 'NERDTree|TagList'
 let g:NERDTree_title         = "[NERDTree]"
 func! NERDTree_Start()
-    exe 'NERDTree'
+	exe 'NERDTree'
 endfunc
 func! NERDTree_IsValid()
-    return 1
+	return 1
 endfunc
 
 nmap <Leader>ut :GundoToggle<CR>
@@ -1230,3 +1251,13 @@ let g:ScreenImpl = 'Tmux'
 let g:ScreenShellHeight = 20
 let g:ScreenShellTerminal = g:my_term
 nnoremap <LocalLeader>se :ScreenSend<CR>
+
+
+" local vimrc overwrite the global one
+if filereadable(getcwd() . "/.vimrc.local")
+	so .vimrc.local
+else
+	if filereadable(getcwd() . "/../.vimrc.local")
+		so ../.vimrc.local
+	endif
+endif

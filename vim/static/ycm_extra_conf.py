@@ -38,10 +38,13 @@ flags = [
 '-Wall',
 '-Wextra',
 '-Werror',
+'-Wc++98-compat',
 '-Wno-long-long',
 '-Wno-variadic-macros',
 '-fexceptions',
 '-DNDEBUG',
+# You 100% do NOT need -DUSE_CLANG_COMPLETER in your flags; only the YCM
+# source code needs it.
 '-DUSE_CLANG_COMPLETER',
 # THIS IS IMPORTANT! Without a "-std=<something>" flag, clang won't know which
 # language to use when compiling headers. So it will guess. Badly. So C++
@@ -56,7 +59,6 @@ flags = [
 # For a C project, you would set this to 'c' instead of 'c++'.
 '-x',
 'c++',
-'-Iinclude'
 ]
 
 # Set this to the absolute path to the folder (NOT the file!) containing the
@@ -106,7 +108,7 @@ def MakeRelativePathsInFlagsAbsolute( flags, working_directory ):
   return new_flags
 
 
-def FlagsForFile( filename ):
+def FlagsForFile( filename, **kwargs ):
   if database:
     # Bear in mind that compilation_info.compiler_flags_ does NOT return a
     # python list, but a "list-like" StringVec object
@@ -128,5 +130,5 @@ def FlagsForFile( filename ):
 
   return {
     'flags': final_flags,
-    'do_cache': True
+    'do_cache': False
   }

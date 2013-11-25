@@ -1,10 +1,10 @@
 #!/bin/bash -e
 # File: install.sh
-# Date: Sat Oct 26 23:01:49 2013 +0800
+# Date: Mon Nov 25 11:01:34 2013 +0800
 # Author: Yuxin Wu <ppwwyyxxc@gmail.com>
-#echo "Backup original vimfiles to ~/backup_vim* ..."
-#cp ~/.vimrc ~/backup_vimrc -v
-#cp ~/.vim ~/backup_vim -rf
+echo "Backup original vimfiles to ~/backup_vim* ..."
+mv ~/.vimrc ~/backup_vimrc -v
+mv ~/.vim ~/backup_vim
 
 LINE="---------------------------------------------------------------------"
 
@@ -39,7 +39,7 @@ else
 	mkdir -p $BUILD_DIR
 	cd $BUILD_DIR
 	cmake -G "Unix Makefiles" -DUSE_SYSTEM_LIBCLANG=ON . ~/.vim/bundle/YouCompleteMe/cpp
-	make ycm_core
+	make ycm_support_libs
 	cd && rm $BUILD_DIR -rf
 fi
 
