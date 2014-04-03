@@ -1,10 +1,10 @@
 #!/bin/bash -e
 # File: install.sh
-# Date: Mon Nov 25 11:01:34 2013 +0800
+# Date: Mon Mar 31 20:08:58 2014 +0800
 # Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 echo "Backup original vimfiles to ~/backup_vim* ..."
-mv ~/.vimrc ~/backup_vimrc -v
-mv ~/.vim ~/backup_vim
+[[ -f ~/.vimrc ]] && mv ~/.vimrc ~/backup_vimrc -v
+[[ -d ~/.vim ]] && mv ~/.vim ~/backup_vim
 
 LINE="---------------------------------------------------------------------"
 
@@ -22,11 +22,11 @@ mkdir -p ~/.vimtmp/vim-fuf-data
 mkdir -p ~/.vimtmp/neocomplcache
 
 for i in ~/.vim/patch/*; do
-       filename=`basename $i`
-       bundle="${filename%.*}"
-       echo "Patching $bundle ..."
-       cd ~/.vim/bundle/$bundle
-       patch -p0 < $i
+   filename=`basename $i`
+   bundle="${filename%.*}"
+   echo "Patching $bundle ..."
+   cd ~/.vim/bundle/$bundle
+   patch -p0 < $i
 done
 
 YCM_PYTHON_DIR="bundle/YouCompleteMe/python"
@@ -53,6 +53,7 @@ else
 	make -f make_unix.mak
 fi
 
+# install eclim
 pacaur -S eclim
 
 echo "Finish installing ppwwyyxx/dotvim"

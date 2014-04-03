@@ -8,22 +8,22 @@ set rtp+=~/.vim/bundle/vundle
 call vundle#rc()
 Bundle 'gmarik/vundle'
 Bundle 'sudo.vim'
+" UI And Basic:
 Bundle 'Color-Scheme-Explorer'
-Bundle 'DrawIt'
 Bundle 'Lokaltog/vim-powerline'
 Bundle 'Yggdroot/indentLine'
 Bundle 'uguu-org/vim-matrix-screensaver'
 Bundle 'kien/rainbow_parentheses.vim'
 Bundle 'searchfold.vim'
+Bundle 'MultipleSearch'
 Bundle 'LargeFile'
 Bundle 'ppwwyyxx/vim-PinyinSearch'
 
 Bundle 'sjl/clam.vim'
 Bundle 'basepi/vim-conque'
 Bundle 'ervandew/screen'
-" to learn
+" Window Tools:
 Bundle 'tpope/vim-tbone'
-Bundle 'spolu/dwm.vim'
 Bundle 'grep.vim'
 Bundle 'sjl/gundo.vim'
 Bundle 'kakkyz81/evervim'
@@ -35,24 +35,25 @@ Bundle 'scrooloose/nerdtree'
 Bundle 'tomtom/tlib_vim'
 Bundle 'winmanager'
 Bundle 'airblade/vim-gitgutter'
-
+" Tools:
 Bundle 'qstrahl/vim-matchmaker'
 Bundle 'rhysd/accelerated-jk'
 Bundle 'yonchu/accelerated-smooth-scroll'
 Bundle 'tsaleh/vim-align'
 Bundle 'tpope/vim-surround'
 Bundle 'Lokaltog/vim-easymotion'
+Bundle 'jayflo/vim-skip'
 Bundle 'terryma/vim-expand-region'
-Bundle 'MultipleSearch'
 Bundle 'terryma/vim-multiple-cursors'
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'glts/vim-textobj-comment'
 Bundle 'lucapette/vim-textobj-underscore'
 Bundle 'kana/vim-textobj-indent'
 Bundle 'kana/vim-textobj-user'
+Bundle 'kana/vim-operator-user'
 Bundle 'AndrewRadev/splitjoin.vim'
 Bundle 'VisIncr'
-
+" FileTypes:
 Bundle 'myhere/vim-nodejs-complete'
 Bundle 'spf13/PIV'
 Bundle 'nvie/vim-flake8'
@@ -64,7 +65,7 @@ Bundle 'Shougo/vimproc'
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'othree/html5.vim'
 Bundle 'derekwyatt/vim-fswitch'
-
+" Syntax:
 Bundle 'gprof.vim'
 Bundle 'tpope/vim-markdown'
 Bundle 'smilekzs/vim-coffee-script'
@@ -87,13 +88,12 @@ Bundle 'Vladimiroff/vim-sparkup'
 Bundle 'wavded/vim-stylus'
 Bundle 'ppwwyyxx/vim-SugarCpp'
 Bundle 'jeroenbourgois/vim-actionscript'
+Bundle 'gilligan/vim-lldb'
 filetype plugin indent on
 " --------------------------------------------------------------------- f]]
 
 " Environment: f[[
 if exists('$TMUX')                 " fix keymap under screen
-	"let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-	"let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
     " tmux will send xterm-style keys when its xterm-keys option is on
     exec "set <xUp>=\e[1;*A"
     exec "set <xDown>=\e[1;*B"
@@ -109,28 +109,28 @@ if exists('$TMUX')                 " fix keymap under screen
 endif
 
 " Note: xterm color names: http://mkaz.com/solog/system/xterm-colors.html
-let color_normal = 'HotPink'
-let color_insert = 'RoyalBlue1'
-let color_exit = 'green'
-if &term =~ 'xterm\|rxvt'
-	exe 'silent !echo -ne "\e]12;"' . shellescape(color_normal, 1) . '"\007"'
-	let &t_SI="\e]12;" . color_insert . "\007"
-	let &t_EI="\e]12;" . color_normal . "\007"
-"	exe 'autocmd VimLeave * :!echo -ne "\e]12;"' . shellescape(color_exit, 1) . '"\007"'
-elseif &term =~ "screen"
-	if exists('$TMUX')
-		exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
-		let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
-		let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
-"		exe 'autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
-	else
-		exe 'silent !echo -ne "\033P\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
-		let &t_SI="\033P\e]12;" . color_insert . "\007\033\\"
-		let &t_EI="\033P\e]12;" . color_normal . "\007\033\\"
-"		exe 'autocmd VimLeave * :!echo -ne "\033P\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
-	endif
-endif
-unlet color_normal | unlet color_insert | unlet color_exit
+"let color_normal = 'HotPink'
+"let color_insert = 'RoyalBlue1'
+"let color_exit = 'green'
+"if &term =~ 'xterm\|rxvt'
+	"exe 'silent !echo -ne "\e]12;"' . shellescape(color_normal, 1) . '"\007"'
+	"let &t_SI="\e]12;" . color_insert . "\007"
+	"let &t_EI="\e]12;" . color_normal . "\007"
+""	exe 'autocmd VimLeave * :!echo -ne "\e]12;"' . shellescape(color_exit, 1) . '"\007"'
+"elseif &term =~ "screen"
+	"if exists('$TMUX')
+		"exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
+		"let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
+		"let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
+""		exe 'autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
+	"else
+		"exe 'silent !echo -ne "\033P\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
+		"let &t_SI="\033P\e]12;" . color_insert . "\007\033\\"
+		"let &t_EI="\033P\e]12;" . color_normal . "\007\033\\"
+""		exe 'autocmd VimLeave * :!echo -ne "\033P\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
+	"endif
+"endif
+"unlet color_normal | unlet color_insert | unlet color_exit
 
 if ! has("gui_running")                " fix alt key under terminal
 	for i in range(48, 57) + range(65, 90) + range(97, 122)
@@ -165,8 +165,8 @@ if has("gui_running")                  " for gvim
 	set linespace=3
 	set background=dark
 	"colo wombat256
-	"colo molokai
-	colo bocau
+	colo molokai
+	"colo bocau
 	hi CursorColumn guibg=Green
 	hi Matchmaker guibg=#333
 endif
@@ -196,14 +196,15 @@ endfunc
 au syntax * call HighlightClasses()
 
 " Spell Check:
+set spellfile=~/.vim/static/spell.utf-8.add
 hi clear SpellBad
-hi SpellBad term=standout term=underline cterm=italic ctermfg=none ctermbg=black
+hi SpellBad term=standout term=underline cterm=italic ctermfg=none ctermbg=black guifg=red
 hi clear SpellCap
-hi SpellCap term=standout term=underline cterm=italic ctermfg=Blue
+hi SpellCap term=standout term=underline cterm=italic ctermfg=blue guifg=blue
 hi clear SpellLocal
-hi SpellLocal term=standout term=underline cterm=italic ctermfg=Blue
+hi SpellLocal term=standout term=underline cterm=italic ctermfg=blue guifg=blue
 hi clear SpellRare
-hi SpellRare term=standout term=underline cterm=italic ctermfg=Blue
+hi SpellRare term=standout term=underline cterm=italic ctermfg=Blue guifg=blue
 " Statusline Highlight:
 au InsertEnter * hi StatusLine term=reverse ctermbg=5 gui=undercurl guisp=Magenta
 au InsertLeave * hi StatusLine term=reverse ctermfg=0 ctermbg=2 gui=bold,reverse
@@ -212,7 +213,8 @@ let g:tex_conceal='adgmb'
 set mouse=a
 set showcmd                            " display incomplete commands right_bottom
 set numberwidth=1
-au InsertEnter * set number
+set relativenumber
+set number
 set ruler
 set rulerformat=%35(%=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %m\ %l/%L%)
 "let &statusline="%<[%{substitute(getcwd(), expand(\"$HOME\"), '~', 'g')}]\ %f\ %=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %l/%L"
@@ -254,6 +256,7 @@ set splitright splitbelow
 set backspace=indent,eol,start         " allow backspace over everything
 set smarttab
 set autoindent smartindent
+command! INDENT :pyf ~/.vim/static/clang-format.py
 set textwidth=100
 set tabstop=4 softtabstop=4 shiftwidth=4
 set showmatch matchtime=0
@@ -294,7 +297,7 @@ command! -bang -nargs=* -complete=file WQ wq<bang> <args>
 nnoremap <Tab> i<Tab><Esc>
 nnoremap <S-Tab> ^i<Tab><Esc>
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
-cmap cd. lcd %:p:h
+cnoremap cd. lcd %:p:h
 cmap w!! SudoWrite %
 nnoremap "gf <C-W>gf
 " disable ex mode and help
@@ -498,6 +501,8 @@ imap 》 >
 imap 《 <
 imap 、 /
 imap ￥ $
+imap 》 >
+imap 《 <
 map ： :
 
 func! Replace_Chn()                     " for writing latex
@@ -514,7 +519,7 @@ func! Fcitx_enter()
 		call system("fcitx-remote -o")
 	endif
 endfun
-autocmd InsertLeave * call system("fcitx-remote -c")
+"autocmd InsertLeave * call system("fcitx-remote -c")
 autocmd InsertEnter * call Fcitx_enter()
 
 nmap <Leader>ps :call PinyinSearch()<CR>
@@ -741,6 +746,20 @@ let g:rubycomplete_buffer_loading = 0	" TODO
 let g:rubycomplete_classes_in_global = 1
 let g:rubycomplete_rails = 1
 
+let g:clang_format#code_style = 'google'
+let g:clang_format#style_options = {
+			\ "IndentWidth": "4",
+			\ "TabWidth": "4",
+			\ "ContinuationIndentWidth": "2",
+			\ "BinPackParameters": "false",
+			\ "IndentCaseLabels": "true",
+			\ "PenaltyExcessCharacter": "1000",
+			\ "PenaltyReturnTypeOnItsOwnLine": "10",
+			\ "Cpp11BracedListStyle": "true",
+            \ "AllowShortIfStatementsOnASingleLine" : "true",
+            \ "AllowShortLoopOnASingleLine" : "true",
+            \ "Standard" : "C++11" }
+
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
 func! GenerateHead(line)
@@ -763,9 +782,16 @@ func! SetTitle()
 		normal G
 	elseif &ft == 'cpp'
 		call GenerateHead(0)
-		call append(line("$"), ["#include <iostream>","#include <cstdlib>","#include <cstring>","#include <cstdio>", "using namespace std;",
-					\ "#define REP(x, y) for (int x = 0; x < (y); x ++)", "#define REPL(x, y, z) for (int x = y; x < (z); x ++)",
-					\ "#define REPD(x, y, z) for (int x = y; x >= (z); x --)", "#define P(a) std::cout << (a) << std::endl" ])
+		call append(line("$"), ["#include <iostream>","#include <cstdlib>","#include <cstring>","#include <cstdio>","#include <limits>","using namespace std;",
+					\ "#define REP(x, y) for (auto x = decltype(y){0}; x < (y); x ++)",
+					\ "#define REPL(x, y, z) for (auto x = decltype(z){y}; x < (z); x ++)",
+					\ "#define REPD(x, y, z) for (auto x = decltype(z){y}; x >= (z); x --)",
+					\ "#define P(a) std::cout << (a) << std::endl",
+					\ "#define PP(a) std::cout << #a << \": \" << (a) << std::endl",
+					\ "#define PA(arr) \\", "	do { \\", "		std::cout << #arr << \": \"; \\",
+					\ "		std::copy(begin(arr), end(arr), std::ostream_iterator<std::remove_reference<decltype(arr)>::type::value_type>(std::cout, \" \")); \\",
+					\ "		std::cout << std::endl;  \\",
+					\ "	} while (0)" ])
 		normal G
 	elseif &ft == 'python'
 		0put=\"!/usr/bin/env python2\<nl> -*- coding: UTF-8 -*-\"
@@ -879,15 +905,16 @@ func! Tex_Formula_init()
 endfunc
 func! Tex_init()
 	" pdf auto refresh preview
-	au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make; killall -SIGHUP mupdf > /dev/null 2 >&1' &")
+"	au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make; killall -SIGHUP mupdf > /dev/null 2 >&1' &")
+	au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make > /dev/null 2>&1;' &")
 
 	setl nocursorline                                " for performance
 	hi clear Conceal
 	let &conceallevel=has("gui_running") ? 1: 2        " conceal problem for gvim
-	setl concealcursor=
+	set concealcursor=
 	setl sw=2 sts=2 expandtab
 	setl textwidth=150
-	setl errorformat=aaaaaaa                        " disable quickfix
+	set makeef=/dev/null
 
 	inoremap <buffer> $$ $<Space>$<Left>
 	inoremap <buffer> " ``''<Left><Left>
@@ -905,6 +932,7 @@ func! Tex_init()
 	inoremap <buffer> \bbf <Esc>:call Tex_Block("f")<CR><Up><End>[H]<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
 	inoremap <buffer> \bbm <Esc>:call Tex_Block("mp")<CR><Up><End>[b]{0.46\linewidth}<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
 	inoremap <buffer> \bf \textbf{}<Left>
+	xmap <buffer> \ve s\|i\verb<BS><Del><Esc>
 	xmap <buffer> \bbe di\bbe<CR><Tab><Esc>pj
 	xmap <buffer> \bbd di\bbd<CR><Tab><Esc>pj
 	xmap <buffer> \bf s}i\textbf<Esc>
@@ -934,9 +962,11 @@ func! Tex_init()
 endfunc
 func! C_grammar_init()
 	inoremap <buffer> while<Space> while<Space>()<Left>
+	inoremap <buffer> {{ {}<Left><CR><CR><Up><Tab>
 	inoremap <buffer> if<Space> if<Space>()<Left>
 	inoremap <buffer> for<Space> for<Space>()<Left>
-	command! INDENT :!indent -linux -l80 %
+	"command! INDENT :!indent -linux -l80 -brf %
+	nnoremap <Leader>id :w<CR>:INDENT<CR><CR>:e<CR>
 endfunc
 func! C_init()
 	"call textobj#user#plugin('cif', { 'code': {
@@ -950,7 +980,7 @@ func! C_init()
 	set syntax=cpp11.doxygen
 	let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
 	call C_grammar_init()
-	syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr
+	syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr PII PDB PDD PDI PID
 	syn keyword cppSTLType T
 endfunc
 func! Python_init()
@@ -962,7 +992,7 @@ func! Python_init()
 	nmap <buffer> <F8> :call Flake8()<CR>
 
 	" Jedi work with neo:
-	setl ofu=jedi#complete switchbuf=useopen
+	setl switchbuf=useopen
 	inoremap <buffer> . .<C-X><C-O><C-P>
 endfunc
 func! Ruby_init()
@@ -1000,6 +1030,12 @@ func! MarkDown_init()
 	xmap <Leader>l s]%a()
 	xmap <Leader>e s*gvs*
 endfunc
+func! Lua_init()
+	set makeef=/dev/null
+	let &makeprg="lua %"
+	setl expandtab
+	setl ts=4 sw=4 sts=4
+endfunc
 au FileType tex :call Tex_init()
 au FileType markdown :call MarkDown_init()
 au FileType cpp,c :call C_init()
@@ -1009,12 +1045,13 @@ au FileType ruby :call Ruby_init()
 au FileType java :call Java_init()
 au FileType javascript :call Js_init()
 au FileType r :call C_grammar_init()
+au FileType lua :call Lua_init()
 
 " ---------------------------------------------------------------------f]]
 " FileType Commands:
+au BufRead pip.conf setf conf
 au BufWritePost .Xresources silent !xrdb %
 au BufWritePost .tmux.conf silent !tmux source %
-au BufWritePost .vimrc source ~/.vimrc
 au BufRead tmux.conf,.tmux* setf tmux
 au BufRead /usr/include/* setf cpp
 au BufRead SConstruct setf python
@@ -1046,6 +1083,7 @@ au BufWritePost *
 			\ if getline(1) =~ "^#!/bin/[a-z]*sh" |
 			\   exe "silent !chmod a+x <afile>" |
 			\ endif
+
 
 " ---------------------------------------------------------------------
 " Misc Plugins: f[[
@@ -1102,8 +1140,8 @@ xmap H <Plug>(expand_region_shrink)
 
 let g:splitjoin_split_mapping = ''
 let g:splitjoin_join_mapping = ''
-nmap sj :SplitjoinSplit<cr>
-nmap sk :SplitjoinJoin<cr>
+nmap <Leader>sj :SplitjoinSplit<cr>
+nmap <Leader>sk :SplitjoinJoin<cr>
 
 " Use * to Multiple Search word under cusor
 nnoremap <silent> * :execute ':Search \<' . expand('<cword>') . '\>'<cr>
@@ -1125,7 +1163,7 @@ let g:fuf_dataDir                   = '~/.vimtmp/vim-fuf-data'
 let g:fuf_coveragefile_prompt       = '>Project[]>'
 let g:fuf_coveragefile_globPatterns = ['**/.*', '**/*', '../*', '../.*']
 let g:fuf_file_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
-let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d|so|os)$|(^|[/\\])\.(hg|git.*|bzr)($|[/\\])|node_modules.*|output|build'
+let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d|so|os)$|(^|[/\\])\.(hg|git.*|bzr)($|[/\\])|node_modules.*|output|build|.env'
 nmap <Leader>ff :FufFile<CR>
 nmap <Leader>fp :FufCoverageFile<CR>
 nmap <Leader>ft :FufTag<CR>
@@ -1243,9 +1281,6 @@ nnoremap <Leader>ip :ConqueTermVSplit ipython2<CR>
 nnoremap ! :Clam<space>
 vnoremap ! :ClamVisual<space>
 
-let g:dwm_map_keys = 0
-nmap <Leader>fo :call DWM_Focus()<CR>
-
 " Use `:ScreenShell ipython` to open a parallel python shell
 let g:ScreenImpl = 'Tmux'
 let g:ScreenShellHeight = 20
@@ -1261,3 +1296,5 @@ else
 		so ../.vimrc.local
 	endif
 endif
+
+colo molokai
