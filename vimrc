@@ -34,7 +34,6 @@ Bundle 'taglist.vim'
 Bundle 'scrooloose/nerdtree'
 Bundle 'tomtom/tlib_vim'
 Bundle 'winmanager'
-Bundle 'airblade/vim-gitgutter'
 " Tools:
 Bundle 'qstrahl/vim-matchmaker'
 Bundle 'rhysd/accelerated-jk'
@@ -88,7 +87,6 @@ Bundle 'Vladimiroff/vim-sparkup'
 Bundle 'wavded/vim-stylus'
 Bundle 'ppwwyyxx/vim-SugarCpp'
 Bundle 'jeroenbourgois/vim-actionscript'
-Bundle 'gilligan/vim-lldb'
 filetype plugin indent on
 " --------------------------------------------------------------------- f]]
 
@@ -164,9 +162,7 @@ if has("gui_running")                  " for gvim
 	set guioptions=aegi                " cleaner gui
 	set linespace=3
 	set background=dark
-	"colo wombat256
 	colo molokai
-	"colo bocau
 	hi CursorColumn guibg=Green
 	hi Matchmaker guibg=#333
 endif
@@ -302,8 +298,8 @@ cmap w!! SudoWrite %
 nnoremap "gf <C-W>gf
 " disable ex mode and help
 nnoremap Q <Esc>
-nnoremap <F1> :echo<CR>
-inoremap <F1> <C-o>:echo<CR>
+nnoremap <F1> <Esc>
+inoremap <F1> <Esc>
 
 vnoremap <expr> I ForceBlockwiseVisual('I')
 vnoremap <expr> A ForceBlockwiseVisual('A')
@@ -385,8 +381,8 @@ cmap <c-d> <Home>
 " undoable C-U, C-W
 inoremap <c-u> <c-g>u<c-u>
 inoremap <c-w> <c-g>u<c-w>
-"vnoremap << <gv<gv
-"vnoremap >> >gv>gv
+vnoremap << <gv<gv
+vnoremap >> >gv>gv
 " Save Cursor Position:
 au BufReadPost *
 			\ if line("'\"") > 0 && line("'\"") <= line("$") |
@@ -535,34 +531,6 @@ func! DeleteTrailingWhiteSpace()
 	normal `Z
 endfunc
 au BufWrite * if &ft != 'mkd' | call DeleteTrailingWhiteSpace() | endif
-
-" ---------------------------------------------------------------------
-" Extract And Inline Variable:
-func! ExtractVariable()
-	let name = input("Variable name: ")
-	if name == '' | return | endif
-	" Enter visual mode (not sure why this is needed since we're already in visual mode anyway)
-	normal! gv
-
-	exec "normal c" . name
-	exec "normal! O" . name . " = "
-	normal! $p
-endfunc
-func! InlineVariable()
-	" Copy the variable under the cursor into the 'a' register
-	exec "normal \"zyiw"
-	normal 2daW
-	exec "normal \"xd$"
-	normal dd
-	" Go to the end of the previous line so we can start our search for the
-	" usage of the variable to replace. Doing '0' instead of 'k$' doesn't
-	" work; I'm not sure why.
-	normal k$
-	exec '/\<' . @z . '\>'
-	exec ':.s/\<' . @z . '\>/' . @x
-endfunc
-xnoremap <leader>rv :call ExtractVariable()<cr>
-nnoremap <leader>ri :call InlineVariable()<cr>
 
 " ---------------------------------------------------------------------
 " Log For Debugging Vimscript:
@@ -782,7 +750,9 @@ func! SetTitle()
 		normal G
 	elseif &ft == 'cpp'
 		call GenerateHead(0)
-		call append(line("$"), ["#include <iostream>","#include <cstdlib>","#include <cstring>","#include <cstdio>","#include <limits>","using namespace std;",
+		call append(line("$"), ["#include <iostream>","#include <cstdlib>","#include <cstring>","#include <cstdio>",
+					\ "#include <limits>","#include <vector>", "using namespace std;",
+					\ "#define MSET(ARR, x) memset(ARR, x, sizeof(ARR))",
 					\ "#define REP(x, y) for (auto x = decltype(y){0}; x < (y); x ++)",
 					\ "#define REPL(x, y, z) for (auto x = decltype(z){y}; x < (z); x ++)",
 					\ "#define REPD(x, y, z) for (auto x = decltype(z){y}; x >= (z); x --)",
@@ -801,10 +771,10 @@ func! SetTitle()
 		0put=\"!/usr/bin/env ruby\<nl> coding: utf-8\"
 		call GenerateHead(2)
 		normal G
-	elseif &ft == 'html'
-		call setline(1, "html:5")
-		normal $
-		call feedkeys("\<C-z>")                                " call sparkup
+	"elseif &ft == 'html'
+		"call setline(1, "html:5")
+		"normal $
+		"call feedkeys("\<C-z>")                                " call sparkup
 	elseif &ft == 'java'
 		call GenerateHead(0)
 		call append(line("$"), ["public class ". file_head . " {", "\tpublic static void main(String[] args) {", "\t}", "}"])
@@ -1185,16 +1155,6 @@ func! RangerChooser()
 	redraw!
 endfunc
 
-"let g:syntastic_cpp_compiler         = 'clang++'
-"let g:syntastic_cpp_compiler_options = ' -std=c++11 -fopenmp -Iinclude -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -I/usr/include/ImageMagick-6'
-"let g:syntastic_loc_list_height      = 5
-"let g:syntastic_stl_format           = "Err:%fe %e,%w"
-"let g:syntastic_mode_map             = { 'mode': 'active', 'active_filetypes': [], 'passive_filetypes': ['html', 'zsh', 'tex', 'java', 'cpp'] }
-"let g:syntastic_python_checker_args  = '--ignore=W402'
-"let g:syntastic_error_symbol = '✗'
-"let g:syntastic_warning_symbol = '⚠'
-"let g:syntastic_always_populate_loc_list = 1
-"let g:syntastic_python_checkers = ['pyflakes']
 " f]]
 " UI And Format Plugin: f[[
 let g:DoxygenToolkit_briefTag_pre = "@Synopsis  "
@@ -1287,7 +1247,6 @@ let g:ScreenShellHeight = 20
 let g:ScreenShellTerminal = g:my_term
 nnoremap <LocalLeader>se :ScreenSend<CR>
 
-
 " local vimrc overwrite the global one
 if filereadable(getcwd() . "/.vimrc.local")
 	so .vimrc.local
@@ -1296,5 +1255,3 @@ else
 		so ../.vimrc.local
 	endif
 endif
-
-colo molokai
