@@ -41,6 +41,7 @@ Bundle 'yonchu/accelerated-smooth-scroll'
 Bundle 'tsaleh/vim-align'
 Bundle 'tpope/vim-surround'
 Bundle 'Lokaltog/vim-easymotion'
+" use S/s to skip in a line
 Bundle 'jayflo/vim-skip'
 Bundle 'terryma/vim-expand-region'
 Bundle 'terryma/vim-multiple-cursors'
@@ -51,19 +52,20 @@ Bundle 'kana/vim-textobj-indent'
 Bundle 'kana/vim-textobj-user'
 Bundle 'kana/vim-operator-user'
 Bundle 'AndrewRadev/splitjoin.vim'
+Bundle 'jeetsukumaran/vim-indentwise'
 Bundle 'VisIncr'
+Bundle 'ardagnir/united-front'
 " FileTypes:
 Bundle 'myhere/vim-nodejs-complete'
 Bundle 'spf13/PIV'
 Bundle 'nvie/vim-flake8'
-Bundle 'davidhalter/jedi-vim'
 Bundle 'LaTeX-Box-Team/LaTeX-Box'
 Bundle 'tpope/vim-rails'
-Bundle 'Shougo/neocomplcache'
 Bundle 'Shougo/vimproc'
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'othree/html5.vim'
 Bundle 'derekwyatt/vim-fswitch'
+Bundle 'shime/vim-livedown'
 " Syntax:
 Bundle 'gprof.vim'
 Bundle 'tpope/vim-markdown'
@@ -83,7 +85,7 @@ Bundle 'ujihisa/rdoc.vim'
 " to learn
 Bundle 'tpope/vim-scriptease'
 Bundle 'slim-template/vim-slim'
-Bundle 'Vladimiroff/vim-sparkup'
+Bundle 'tristen/vim-sparkup'
 Bundle 'wavded/vim-stylus'
 Bundle 'ppwwyyxx/vim-SugarCpp'
 Bundle 'jeroenbourgois/vim-actionscript'
@@ -325,7 +327,6 @@ inoremap <C-Y> <C-C>:let @z = @"<CR>mz
 " delete to blackhole register
 nnoremap <Del> "_x
 xnoremap <Del> "_d
-xnoremap p "_dp
 " ---------------------------------------------------------------------
 " Folding:
 set foldmethod=marker
@@ -502,7 +503,9 @@ imap 《 <
 map ： :
 
 func! Replace_Chn()                     " for writing latex
-	let chinese={"（" : "(" , "）" : ")" , "，" : ",", "；" : ";", "：" : ":", "？" : "?", "！" : "!", "“" : "\"", "’" : "'" ,"”" : "\"", "℃" : "\\\\textcelsius", "μ" : "$\\\\mu$"}
+	let chinese={"（" : "(" , "）" : ")" , "，" : ",", "；" : ";", "：" : ":",
+	"？" : "?", "！" : "!", "“" : "\"", "’" : "'" ,
+	""”" : "\"", "℃" : "\\\\textcelsius", "μ" : "$\\\\mu$"}
 	for i in keys(chinese)
 		silent! exec '%substitute/' . i . '/'. chinese[i] . '/g'
 	endfor
@@ -615,7 +618,7 @@ nmap <Leader>rd :redraw!<CR>
 nnoremap <silent> <Leader>no :noh <CR>:call clearmatches()<CR>:silent! SearchBuffersReset<CR>
 nnoremap <Leader>sd :! sdcv `echo <cword> \| sed -e 's/[^[:alnum:]]//g'` <CR>
 
-nnoremap <Leader>pj v}gJj0
+nnoremap <Leader>pj v}Jj0O
 nnoremap <leader>pq gqip
 nmap <Leader>syn :vsplit<bar>wincmd l<bar>exe "norm! Ljz<c-v><cr>"<cr>:set scb<cr>:wincmd h<cr> :set scb<cr>
 
@@ -624,6 +627,9 @@ nnoremap <Leader>-- o<C-R>=printf('%s%s', printf(&commentstring, ' '), repeat('-
 nnoremap <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 			\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 			\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+" change current line to title case
+nnoremap <Leader>tc :s/\<\(\w\)\(\w*\)\>/\u\1\L\2/g
+nnoremap <Leader>wc :!word_count %<CR>
 
 " ---------------------------------------------------------------------f]]
 " Completetion And Tags: f[[
@@ -641,70 +647,25 @@ inoremap <C-O> <C-X><C-O><C-P>
 inoremap <C-P> <C-X><C-P>
 set dict+=$HOME/.vim/static/dict_with_cases          " use c-X c-K to open dictionary completion
 set tags=.tags
-nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <CR><CR> :TlistUpdate <CR>:NeoComplCacheCachingTags<CR>
+nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <CR><CR> :TlistUpdate <CR>
 
 let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
 "let g:ycm_filetype_blacklist = {'markdown' : 1,  'txt' : 1, 'help' : 1, 'vim' : 1}
-let g:ycm_filetype_whitelist = {'cpp' : 1, 'c' : 1, 'python': 1, 'java': 1, 'javascript': 1}
+"let g:ycm_filetype_whitelist = {'cpp' : 1, 'c' : 1, 'python': 1, 'java': 1}
 let g:ycm_key_detailed_diagnostics = "<Leader>yd"
-let g:ycm_key_invoke_completion = "<F5>"
+"let g:ycm_key_invoke_completion = "<F5>"
 let g:ycm_complete_in_comments = 1
 let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_autoclose_preview_window_after_insertion = 1
-let g:ycm_key_list_select_completion = ['<TAB>', '<Down>']
+"let g:ycm_key_list_select_completion = ['<TAB>', '<Down>']
 let g:ycm_collect_identifiers_from_tags_files = 0	  " slow
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_cache_omnifunc = 1
 let g:ycm_min_num_of_chars_for_completion = 1
 let g:ycm_min_num_identifier_candidate_chars = 3
-let g:ycm_semantic_triggers =  {'c' : ['->', '.'], 'objc' : ['->', '.'],
-			\   'ocaml' : ['.', '#'], 'cpp,objcpp' : ['->', '.', '::'], 'php' : ['->', '::'],
-			\   'cs,java,javascript,vim,coffee,python,scala,go' : ['.'], 'ruby' : ['.', '::']}
 
 let g:EclimCompletionMethod = 'omnifunc'
-
-func! Neo_Toggle(mode)
-	let i = index(g:neocomplcache_disabled_sources_list._, a:mode)
-	if i == -1 | call add(g:neocomplcache_disabled_sources_list._, a:mode)
-	else | call remove(g:neocomplcache_disabled_sources_list._, i)
-	endif
-endfunc
-nnoremap <Leader>neo :call Neo_Toggle('omni_complete')<CR>
-nnoremap <Leader>ned :call Neo_Toggle('dictionary_complete')<CR>
-"inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"		" already done by ycm
-inoremap <expr><C-e>  pumvisible() ? neocomplcache#close_popup(). "\<End>" : "\<End>"
-inoremap <expr><CR>  pumvisible() ? neocomplcache#close_popup() : "\<CR>"
-inoremap <expr><BS>  neocomplcache#smart_close_popup()."\<C-h>"
-au CursorMovedI,InsertLeave * if pumvisible() == 0| silent! pclose| endif        " auto close preview window
-let g:neocomplcache_enable_at_startup = 1
-au Filetype cpp,c,python,java,javascript let g:neocomplcache_enable_at_startup = 0
-let g:neocomplcache_use_vimproc = 4
-let g:neocomplcache_disable_auto_complete = 0
-let g:neocomplcache_enable_auto_select = 0
-let g:neocomplcache_disabled_sources_list = {"_" : ['dictionary_complete'], "txt": [] }
-let g:neocomplcache_dictionary_filetype_lists = {'_' : $HOME . "/.vim/static/english_dict"}
-let g:neocomplcache_auto_completion_start_length = 2
-au Filetype txt let g:neocomplcache_auto_completion_start_length = 4
-let g:neocomplcache_enable_camel_case_completion = 1
-au Filetype txt let g:neocomplcache_enable_camel_case_completion = 0             " for speed
-let g:neocomplcache_enable_smart_case = 0                                        " 'smartcase' don't support my lower-case dict
-let g:neocomplcache_enable_underbar_completion = 1                               " a_b for axxb
-let g:neocomplcache_enable_fuzzy_completion = 1
-let g:neocomplcache_fuzzy_completion_start_length = 3
-let g:neocomplcache_temporary_dir = $HOME . "/.vimtmp/neocomplcache"
-let g:neocomplcache_text_mode_filetypes = {'txt': 1}
-let g:neocomplcache_source_completion_length = {'omni_complete': '3'}
-let g:neocomplcache_omni_patterns = {}
-let g:neocomplcache_omni_functions= {}
-let g:neocomplcache_omni_patterns.coffee = '[^. \t]\.\%(\h\w*\)\?'               " for nodejscomplete working in coffee
-let g:neocomplcache_omni_patterns.r = '[[:alnum:].\\]\+'
-let g:neocomplcache_omni_functions.r = 'rcomplete#CompleteR'
-" let g:neocomplcache_omni_patterns.java = '\h\w*\%(\.)\h\w*'
-let g:neocomplcache_force_omni_patterns = {}
-
-let g:jedi#use_tabs_not_buffers = 0
-let g:jedi#rename_command = "<Leader>rn"
 
 let g:sparkup = '~/.vim/bundle/sparkup/sparkup'
 let g:sparkupExecuteMapping = '<C-z>'
@@ -751,7 +712,7 @@ func! SetTitle()
 	elseif &ft == 'cpp'
 		call GenerateHead(0)
 		call append(line("$"), ["#include <iostream>","#include <cstdlib>","#include <cstring>","#include <cstdio>",
-					\ "#include <limits>","#include <vector>", "using namespace std;",
+					\ "#include <limits>","#include <vector>", "#include <iterator>", "using namespace std;",
 					\ "#define MSET(ARR, x) memset(ARR, x, sizeof(ARR))",
 					\ "#define REP(x, y) for (auto x = decltype(y){0}; x < (y); x ++)",
 					\ "#define REPL(x, y, z) for (auto x = decltype(z){y}; x < (z); x ++)",
@@ -820,6 +781,7 @@ au Filetype gnuplot let &makeprg="gnuplot % ; feh ./*"
 au Filetype dot let &makeprg="dot -Tpng -O -v % ; feh %.png"
 au Filetype php let &makeprg="php %"
 au Filetype r let &makeprg="R <% --vanilla"
+au Filetype sh let &makeprg="shellcheck -f gcc %"
 func! InstantRun()
 	if &ft == 'python'
 		if matchstr(getline(1), 'python2') == ""
@@ -832,6 +794,7 @@ func! InstantRun()
 	elseif &ft == 'java' | :! java %<
 	elseif &ft == 'javascript' | :! node %
 	elseif &ft == 'coffee' | :! coffee %
+	elseif &ft == 'haskell' | :! runhaskell %
 	else | call Make() | endif
 endfunc
 nnoremap <Leader>rr :call InstantRun() <CR>
@@ -950,7 +913,7 @@ func! C_init()
 	set syntax=cpp11.doxygen
 	let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
 	call C_grammar_init()
-	syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr PII PDB PDD PDI PID
+	syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr PII PDB PDD PDI PID PIF
 	syn keyword cppSTLType T
 endfunc
 func! Python_init()
@@ -958,12 +921,9 @@ func! Python_init()
 	setl expandtab
 	setl ts=4 sw=4 sts=4
 	setl textwidth=78
+	abbr ipeb from IPython import embed; embed()
 	syn keyword pythonDecorator self
 	nmap <buffer> <F8> :call Flake8()<CR>
-
-	" Jedi work with neo:
-	setl switchbuf=useopen
-	inoremap <buffer> . .<C-X><C-O><C-P>
 endfunc
 func! Ruby_init()
 	let &makeprg="ruby -c %"
@@ -1041,10 +1001,10 @@ au BufReadPost *.pdf silent %!pdftotext -nopgbrk "%" -
 au BufNewFile,BufRead *.lrc setf lrc
 au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
-au BufNewFile,BufRead *.decaf setf cpp
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
-au Filetype coffee,jade,stylus setl expandtab
-au Filetype verilog,stylus,vhdl,php,html,xml,zcml,yaml,json,coffee,jade,ejs setl tabstop=2 shiftwidth=2 softtabstop=2
+au Filetype coffee,jade,stylus,javascript,html,css setl expandtab
+au BufNewFile,BufRead *.hwdb setl expandtab ts=2 sw=2 sts=2
+au Filetype verilog,stylus,vhdl,php,html,xml,zcml,yaml,json,coffee,jade,ejs,proto setl tabstop=2 shiftwidth=2 softtabstop=2
 au FileType json setl foldmethod=syntax
 au Filetype txt setl textwidth=200
 let g:tex_flavor = 'latex'                                         " default filetype for tex
@@ -1120,7 +1080,7 @@ let g:MultipleSearchMaxColors = 16
 
 nnoremap <Leader>gr :Regrep <CR><CR><CR><CR>
 let Grep_Skip_Files = '.tags tags'
-let Grep_Skip_Dirs  = 'node_modules build output'
+let Grep_Skip_Dirs  = 'node_modules build output .git .svn'
 
 let g:fuf_keyOpenVsplit             = "<C-l>"
 let g:fuf_keyOpenTabpage            = "<C-t>"
