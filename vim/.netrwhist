@@ -1,10 +1,4 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =8
-let g:netrw_dirhist_1='/ssd_home/tmp/wechat-dump/lib'
-let g:netrw_dirhist_2='/ssd_home/tmp/wechat-dump/wechat'
-let g:netrw_dirhist_3='/home/wyx/Work/contests/hackshanghai/let-music-roll/web/static'
-let g:netrw_dirhist_4='/home/wyx/.urxvt'
-let g:netrw_dirhist_5='/home/wyx/.cmus'
-let g:netrw_dirhist_6='/home/wyx/System/script/bin'
-let g:netrw_dirhist_7='/tmp/t'
-let g:netrw_dirhist_8='/home/wyx/Work/contests/ASC15/log'
+let g:netrw_dirhist_cnt =2
+let g:netrw_dirhist_1='/home/wyx/System/dotfiles/watch/colonise/prezto-modules/prompt/functions'
+let g:netrw_dirhist_2='/home/wyx/System/script/bin'

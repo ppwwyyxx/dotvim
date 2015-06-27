@@ -1,14 +1,14 @@
 python <<EOF
 import os
 fptr = None
-fname = os.getenv("HOME") + '/.vimrc'
+fname = os.getenv("HOME") + '/unique.txt'
 def append_char():
 	import vim
 	global fptr
 	if fptr is None:
 		fptr = open(fname)
 
-	for _ in range(2):
+	for _ in range(1):
 		c = vim.current
 		ch = fptr.read(1)
 		if ch == '\n':

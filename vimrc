@@ -168,6 +168,7 @@ if has("gui_running")                  " for gvim
 	hi CursorColumn guibg=Green
 	hi Matchmaker guibg=#333
 endif
+colo molokai
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
 hi Search guibg=#8ca509
@@ -862,7 +863,7 @@ func! Tex_init()
 	inoremap <buffer> \beg \begin{}<Left>
 	inoremap <buffer> \bb <Esc>:call Tex_Block("")<Left><Left>
 	inoremap <buffer> \bbt <Esc>:call Tex_Block("t")<CR><Up><End>[H]<Down>\centering<CR>\caption{\label{tab:}}<Esc>k:call Tex_Block("tabular")<CR>
-	inoremap <buffer> \bbf <Esc>:call Tex_Block("f")<CR><Up><End>[H]<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
+	inoremap <buffer> \bbf <Esc>:call Tex_Block("f")<CR><Up><End>[H]<Down>\centering<CR>\includegraphics[width=0.8\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
 	inoremap <buffer> \bbm <Esc>:call Tex_Block("mp")<CR><Up><End>[b]{0.46\linewidth}<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
 	inoremap <buffer> \bf \textbf{}<Left>
 	xmap <buffer> \ve s\|i\verb<BS><Del><Esc>
