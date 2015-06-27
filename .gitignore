@@ -4,3 +4,5 @@ doc/tags
 .tags
 *.so
 *.o
+
+vim/static/dict_with_cases
