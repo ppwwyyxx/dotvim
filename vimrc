@@ -61,7 +61,6 @@ Bundle 'spf13/PIV'
 Bundle 'nvie/vim-flake8'
 Bundle 'LaTeX-Box-Team/LaTeX-Box'
 Bundle 'tpope/vim-rails'
-Bundle 'Shougo/vimproc'
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'othree/html5.vim'
 Bundle 'derekwyatt/vim-fswitch'
@@ -137,7 +136,7 @@ if ! has("gui_running")                " fix alt key under terminal
 		exe "set <A-" . nr2char(i) . ">=" . nr2char(i)
 	endfor
 endif
-set shell=zsh\ -f
+set shell=zsh
 let g:my_term = 'urxvt'                " for plugins to open window
 set iskeyword+=%,&,?,\|,\\,!
 set isfname-==
@@ -299,10 +298,11 @@ cnoremap %% <C-R>=expand('%:h').'/'<cr>
 cnoremap cd. lcd %:p:h
 cmap w!! SudoWrite %
 nnoremap "gf <C-W>gf
-" disable ex mode and help
+" disable ex mode, help and c-a
 nnoremap Q <Esc>
 nnoremap <F1> <Esc>
 inoremap <F1> <Esc>
+nnoremap <C-a> <Esc>
 
 vnoremap <expr> I ForceBlockwiseVisual('I')
 vnoremap <expr> A ForceBlockwiseVisual('A')
@@ -369,7 +369,7 @@ inoremap <c-j> <Down>
 inoremap <c-k> <Up>
 inoremap <c-l> <Right>
 imap <c-e> <End>
-imap <c-d> <Home>
+imap <c-a> <Home>
 inoremap <c-b> <S-Left>
 inoremap <a-f> <Esc>lwi
 inoremap <a-b> <Esc>bi
@@ -554,7 +554,7 @@ func! LastMod()
 	let l:col = col(".")
 	let l = min([line("$"), 8])
 	exec '1,' . l . 'substitute/' . '^\(.*File:\)[^\*]*\(.*\)$' . '/\1 ' . expand('<afile>:t') . '\2/e'
-	exec '1,' . l . 'substitute/' . '^\(.*Date:\)[^\*]*\(.*\)$' . '/\1 ' . strftime('%a %b %d %H:%M:%S %Y %z') . '\2/e'
+	"exec '1,' . l . 'substitute/' . '^\(.*Date:\)[^\*]*\(.*\)$' . '/\1 ' . strftime('%a %b %d %H:%M:%S %Y %z') . '\2/e'
 	call cursor(l:line, l:col)
 endfun
 au BufWritePre,FileWritePre * call LastMod()
@@ -839,8 +839,8 @@ func! Tex_Formula_init()
 endfunc
 func! Tex_init()
 	" pdf auto refresh preview
-"	au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make; killall -SIGHUP mupdf > /dev/null 2 >&1' &")
-	au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make > /dev/null 2>&1;' &")
+	"au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make; killall -HUP mupdf > /dev/null 2 >&1' &")
+	au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make > /dev/null 2>&1; killall -HUP mupdf' &")
 
 	setl nocursorline                                " for performance
 	hi clear Conceal
@@ -893,6 +893,23 @@ func! Tex_init()
 	nmap <buffer> <Leader>ce <Plug>LatexChangeEnv
 	xmap <buffer> <Leader>tc <Plug>LatexWrapSelection
 	xmap <buffer> <Leader>te <Plug>LatexEnvWrapSelection
+
+	func! ToMatrix()
+python << EOF
+import vim, re
+buf = vim.current.buffer
+(lnum1, col1) = buf.mark('<')
+(lnum2, col2) = buf.mark('>')
+lines = vim.eval('getline({}, {})'.format(lnum1, lnum2))
+lines = [re.sub(' +', '&  ', x.strip()) + '\\\\' for x in lines]
+lines.insert(0, '\\begin{pmatrix}')
+lines.append('\\end{pmatrix}')
+buf[lnum1-1:lnum2] = lines
+# TODO align
+EOF
+	endfunc
+	vnoremap <buffer> <Leader>M :<C-w>call ToMatrix()<CR>
+
 endfunc
 func! C_grammar_init()
 	inoremap <buffer> while<Space> while<Space>()<Left>
@@ -916,6 +933,11 @@ func! C_init()
 	call C_grammar_init()
 	syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr PII PDB PDD PDI PID PIF
 	syn keyword cppSTLType T
+endfunc
+func! Matlab_init()
+	inoremap <buffer> if<Space> if<Space><CR>end<Up>
+	inoremap <buffer> for<Space> for<Space><CR>end<Up><End>
+	inoremap <buffer> func<Space> function<Space><CR>end<Up><End>
 endfunc
 func! Python_init()
 	let &makeprg="pylint --reports=n --output-format=parseable %"
@@ -970,6 +992,7 @@ endfunc
 au FileType tex :call Tex_init()
 au FileType markdown :call MarkDown_init()
 au FileType cpp,c :call C_init()
+au FileType matlab :call Matlab_init()
 au FileType cs :call CS_init()
 au FileType python :call Python_init()
 au FileType ruby :call Ruby_init()
@@ -1215,4 +1238,8 @@ else
 	if filereadable(getcwd() . "/../.vimrc.local")
 		so ../.vimrc.local
 	endif
+endif
+
+if has('nvim')
+    tnoremap <Esc> <C-\><C-n>
 endif

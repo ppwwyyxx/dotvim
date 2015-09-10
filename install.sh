@@ -37,13 +37,8 @@ if [[ -f ~/backup_vim/$YCM_PYTHON_DIR/ycm_core.so ]]; then
 	cp ~/backup_vim/$YCM_PYTHON_DIR/*.so ~/.vim/$YCM_PYTHON_DIR
 else
 	echo "Compiling ycm_core ... (please make sure you have libclang.so in your system)"
-	echo $LINE
-	BUILD_DIR=/tmp/ycm_build
-	mkdir -p $BUILD_DIR
-	cd $BUILD_DIR
-	cmake -G "Unix Makefiles" -DUSE_SYSTEM_LIBCLANG=ON . ~/.vim/bundle/YouCompleteMe/cpp
-	make ycm_support_libs
-	cd && rm $BUILD_DIR -rf
+	cd  ~/.vim/bundle/YouCompleteMe
+	./install.py
 fi
 
 #VIMPROC_DIR="bundle/vimproc/autoload"
