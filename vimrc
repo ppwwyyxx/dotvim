@@ -317,6 +317,7 @@ endfunc
 " Clipboard:                           " + register may be wrong under xterm
 nnoremap Y y$
 set pastetoggle=<F12>                  " toggle paste insert mode
+au VimEnter * set pastetoggle=<F12>	   " workaround for bug in neovim #2843
 xnoremap <c-c> "+y
 inoremap <c-v> <Esc>:set paste<CR>"+p:set nopaste<CR>a
 inoremap <Leader><c-v> <Esc>:r !xsel -o -p<CR>
