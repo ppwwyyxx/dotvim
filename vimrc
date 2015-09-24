@@ -51,13 +51,11 @@ Bundle 'lucapette/vim-textobj-underscore'
 Bundle 'kana/vim-textobj-indent'
 Bundle 'kana/vim-textobj-user'
 Bundle 'kana/vim-operator-user'
-Bundle 'AndrewRadev/splitjoin.vim'
 Bundle 'jeetsukumaran/vim-indentwise'
 Bundle 'VisIncr'
 Bundle 'ardagnir/united-front'
 " FileTypes:
 Bundle 'myhere/vim-nodejs-complete'
-Bundle 'spf13/PIV'
 Bundle 'nvie/vim-flake8'
 Bundle 'LaTeX-Box-Team/LaTeX-Box'
 Bundle 'tpope/vim-rails'
@@ -256,7 +254,7 @@ set smarttab
 set autoindent smartindent
 command! INDENT :pyf ~/.vim/static/clang-format.py
 set textwidth=100
-set tabstop=4 softtabstop=4 shiftwidth=4
+set tabstop=2 softtabstop=2 shiftwidth=2
 set showmatch matchtime=0
 
 set ignorecase smartcase incsearch hlsearch
@@ -847,7 +845,7 @@ func! Tex_init()
 	hi clear Conceal
 	let &conceallevel=has("gui_running") ? 1: 2        " conceal problem for gvim
 	set concealcursor=
-	setl sw=2 sts=2 expandtab
+	setl expandtab
 	setl textwidth=150
 	set makeef=/dev/null
 
@@ -1004,7 +1002,7 @@ au FileType lua :call Lua_init()
 
 " ---------------------------------------------------------------------f]]
 " FileType Commands:
-au BufRead pip.conf setf conf
+au BufRead *.conf setf conf
 au BufWritePost .Xresources silent !xrdb %
 au BufWritePost .tmux.conf silent !tmux source %
 au BufRead tmux.conf,.tmux* setf tmux
@@ -1021,15 +1019,14 @@ au BufNewFile,BufRead *.gprof setf gprof
 au BufNewFile,BufRead *.txt,*.doc,*.pdf setf txt
 au BufReadPre *.doc,*.class,*.pdf setl ro
 au BufReadPost *.doc silent %!antiword "%"
-au BufRead *.class exe 'silent %!javap -c "%"' | setf java
 au BufReadPost *.pdf silent %!pdftotext -nopgbrk "%" -
+au BufRead *.class exe 'silent %!javap -c "%"' | setf java
 au BufNewFile,BufRead *.lrc setf lrc
 au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
 au Filetype coffee,jade,stylus,javascript,html,css setl expandtab
-au BufNewFile,BufRead *.hwdb setl expandtab ts=2 sw=2 sts=2
-au Filetype verilog,stylus,vhdl,php,html,xml,zcml,yaml,json,coffee,jade,ejs,proto setl tabstop=2 shiftwidth=2 softtabstop=2
+au BufNewFile,BufRead *.hwdb setl expandtab
 au FileType json setl foldmethod=syntax
 au Filetype txt setl textwidth=200
 let g:tex_flavor = 'latex'                                         " default filetype for tex
@@ -1080,9 +1077,6 @@ xmap <Leader>cl <Plug>NERDCommenterAlignLeft
 nmap <Leader>uc <Plug>NERDCommenterUncomment
 xmap <Leader>uc <Plug>NERDCommenterUncomment
 
-let g:gitgutter_enabled = 0
-nnoremap <Leader>gs :GitGutterEnable<CR>
-
 if exists("*expand_region#custom_text_objects")
 	call expand_region#custom_text_objects({
 				\ "\/\\n\\n\<CR>": 1,
@@ -1092,11 +1086,6 @@ if exists("*expand_region#custom_text_objects")
 endif
 xmap L <Plug>(expand_region_expand)
 xmap H <Plug>(expand_region_shrink)
-
-let g:splitjoin_split_mapping = ''
-let g:splitjoin_join_mapping = ''
-nmap <Leader>sj :SplitjoinSplit<cr>
-nmap <Leader>sk :SplitjoinJoin<cr>
 
 " Use * to Multiple Search word under cusor
 nnoremap <silent> * :execute ':Search \<' . expand('<cword>') . '\>'<cr>
