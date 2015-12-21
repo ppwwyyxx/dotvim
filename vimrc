@@ -10,7 +10,7 @@ Bundle 'gmarik/vundle'
 Bundle 'sudo.vim'
 " UI And Basic:
 Bundle 'Color-Scheme-Explorer'
-Bundle 'Lokaltog/vim-powerline'
+Bundle 'bling/vim-airline'
 Bundle 'Yggdroot/indentLine'
 Bundle 'uguu-org/vim-matrix-screensaver'
 Bundle 'kien/rainbow_parentheses.vim'
@@ -27,7 +27,8 @@ Bundle 'tpope/vim-tbone'
 Bundle 'grep.vim'
 Bundle 'sjl/gundo.vim'
 Bundle 'kakkyz81/evervim'
-Bundle 'FuzzyFinder'
+"Bundle 'FuzzyFinder'
+Bundle 'ctrlpvim/ctrlp.vim'
 Bundle 'L9'
 Bundle 'majutsushi/tagbar'
 Bundle 'taglist.vim'
@@ -165,7 +166,8 @@ if has("gui_running")                  " for gvim
 	hi CursorColumn guibg=Green
 	hi Matchmaker guibg=#333
 endif
-colo molokai
+"colo molokai
+colo default
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
 hi Search guibg=#8ca509
@@ -218,21 +220,12 @@ set rulerformat=%35(%=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %m\ %l/%L%)
 "set statusline+=%*
 set laststatus=2
 
-let g:Powerline_theme='custom'
-let g:Powerline_symbols = 'compatible'
-let g:Powerline_cache_dir = $HOME . '/.vimtmp/'
-let g:Powerline_stl_path_style = 'relative'
-let g:Powerline_symbols_override = { 'LINE': ''}
-let g:loaded_syntastic_plugin = 0      " disable powerline syntastic
-let g:Powerline_mode_n = 'N'
-let g:Powerline_mode_i = 'I'
-let g:Powerline_mode_v = 'V'
-let g:Powerline_mode_V = 'VL'
-let g:Powerline_mode_cv= 'VB'
-let g:Powerline_mode_R = 'R'
-let g:Powerline_mode_s = 'S'
-let g:Powerline_mode_S = 'SL'
-let g:Powerline_mode_cs= 'SB'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#buffer_min_count = 2
+let g:airline_powerline_fonts=1
+let g:airline_mode_map = {'n': 'N', 'i': 'I', 'R': 'R', 'v': 'V', 'V': 'V'}
+let g:airline_left_sep = '»'
+let g:airline_right_sep = '«'
 set noshowmode
 
 set scrolljump=5                       " lines to scroll with cursor
@@ -252,6 +245,7 @@ set splitright splitbelow
 set backspace=indent,eol,start         " allow backspace over everything
 set smarttab
 set autoindent smartindent
+set cino=N-s
 command! INDENT :pyf ~/.vim/static/clang-format.py
 set textwidth=100
 set tabstop=2 softtabstop=2 shiftwidth=2
@@ -263,14 +257,18 @@ xnoremap / <Esc>/\%V
 " use /[^\x00-\x7F] to search multibytes
 " ---------------------------------------------------------------------f]]
 " History:
-set nobackup noswapfile
+set nobackup noswapfile nowritebackup
 set history=200                        " command line history
 if has('persistent_undo')
 	set undofile                       " keep an undo record separately for every file
 	set undolevels=200
 	set undodir=~/.vimtmp/undo
 endif
-set viminfo+=n$HOME/.vimtmp/viminfo
+if has('nvim')
+	set viminfo+=n$HOME/.vimtmp/nviminfo
+else
+	set viminfo+=n$HOME/.vimtmp/viminfo
+endif
 au CursorHold,CursorHoldI,BufEnter,WinEnter * checktime
 set autoread                           " auto reload file when changes have been detected
 set updatetime=500                     " time threshold for CursorHold event
@@ -692,7 +690,7 @@ let g:clang_format#style_options = {
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
 func! GenerateHead(line)
-	let Head_List = [" File:", " Date:", " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"]
+	let Head_List = [" File:", " Author: Yuxin Wu <ppwwyyxx@gmail.com>"]
 	call append(a:line, Head_List)
 	" comment
 	normal ggVG cl
@@ -712,7 +710,8 @@ func! SetTitle()
 	elseif &ft == 'cpp'
 		call GenerateHead(0)
 		call append(line("$"), ["#include <iostream>","#include <cstdlib>","#include <cstring>","#include <cstdio>",
-					\ "#include <limits>","#include <vector>", "#include <iterator>", "using namespace std;",
+					\ "#include <limits>","#include <vector>", "#include <unordered_map>", "#include <set>",
+					\ "#include <iterator>", "#include <unordered_set>", "#include <queue>", "using namespace std;",
 					\ "#define MSET(ARR, x) memset(ARR, x, sizeof(ARR))",
 					\ "#define REP(x, y) for (auto x = decltype(y){0}; x < (y); x ++)",
 					\ "#define REPL(x, y, z) for (auto x = decltype(z){y}; x < (z); x ++)",
@@ -814,6 +813,7 @@ func! Tex_Block(label)
 endfunc
 func! Tex_Formula_init()
 	inoremap <buffer> <c-f> \dfrac{}{}<Esc>2hi
+	inoremap <buffer> <Leader>bf \mathbf{}<Left>
 	inoremap <buffer> <c-r> \sqrt{}<Left>
 	inoremap <buffer> <c-Left> \Leftrightarrow<Space>
 	inoremap <buffer> <c-Right> \Rightarrow<Space>
@@ -832,15 +832,12 @@ func! Tex_Formula_init()
 	inoremap <buffer> `o \omega
 	inoremap <buffer> `p \pi
 	inoremap <buffer> `r \rho
+	inoremap <buffer> `t \theta
 	inoremap <buffer> `R \mathbb{R}
 	inoremap <buffer> `s \sigma
 	inoremap <buffer> `v \varphi
 endfunc
 func! Tex_init()
-	" pdf auto refresh preview
-	"au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make; killall -HUP mupdf > /dev/null 2 >&1' &")
-	au BufWritePost *.tex call system("zsh -c 'pgrep -a xelatex || make > /dev/null 2>&1; killall -HUP mupdf' &")
-
 	setl nocursorline                                " for performance
 	hi clear Conceal
 	let &conceallevel=has("gui_running") ? 1: 2        " conceal problem for gvim
@@ -901,8 +898,8 @@ buf = vim.current.buffer
 (lnum2, col2) = buf.mark('>')
 lines = vim.eval('getline({}, {})'.format(lnum1, lnum2))
 lines = [re.sub(' +', '&  ', x.strip()) + '\\\\' for x in lines]
-lines.insert(0, '\\begin{pmatrix}')
-lines.append('\\end{pmatrix}')
+lines.insert(0, '\\begin{bmatrix}')
+lines.append('\\end{bmatrix}')
 buf[lnum1-1:lnum2] = lines
 # TODO align
 EOF
@@ -988,6 +985,8 @@ func! Lua_init()
 	setl expandtab
 	setl ts=4 sw=4 sts=4
 endfunc
+" pdf auto refresh preview
+au BufWritePost *.tex call jobstart("make try")
 au FileType tex :call Tex_init()
 au FileType markdown :call MarkDown_init()
 au FileType cpp,c :call C_init()
@@ -1096,28 +1095,33 @@ nnoremap <Leader>gr :Regrep <CR><CR><CR><CR>
 let Grep_Skip_Files = '.tags tags'
 let Grep_Skip_Dirs  = 'node_modules build output .git .svn'
 
-let g:fuf_keyOpenVsplit             = "<C-l>"
-let g:fuf_keyOpenTabpage            = "<C-t>"
-let g:fuf_buffer_keyDelete          = "<C-d>"
-let g:fuf_keyNextMode				= ""	" originally conflicted with keyOpenTabapage
-let g:fuf_autoPreview               = 1
-let g:fuf_mrufile_maxItem           = 200
-let g:fuf_modesDisable              = ['mrucmd', 'bookmarkfile', 'bookmarkdir', 'buffertag', 'help', 'dir']
-let g:fuf_dataDir                   = '~/.vimtmp/vim-fuf-data'
-let g:fuf_coveragefile_prompt       = '>Project[]>'
-let g:fuf_coveragefile_globPatterns = ['**/.*', '**/*', '../*', '../.*']
-let g:fuf_file_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
-let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d|so|os)$|(^|[/\\])\.(hg|git.*|bzr)($|[/\\])|node_modules.*|output|build|.env'
-nmap <Leader>ff :FufFile<CR>
-nmap <Leader>fp :FufCoverageFile<CR>
-nmap <Leader>ft :FufTag<CR>
-nmap <silent> <C-]> :FufTagWithCursorWord!<CR>
-nmap <Leader>fr :FufMruFile<CR>
-nmap <Leader>fb :FufBuffer<CR>
-nmap <Leader>fl :FufLine<CR>
-nmap <Leader>fj :FufJumpList<CR>
-nmap <Leader>fc :FufChangeList<CR>
-nmap <Leader>fw [I:let nr = input("Which one: ")<Bar>exe "normal " . nr ."[\t"<CR>
+"let g:fuf_keyOpenVsplit             = "<C-l>"
+"let g:fuf_keyOpenTabpage            = "<C-t>"
+"let g:fuf_buffer_keyDelete          = "<C-d>"
+"let g:fuf_keyNextMode				= ""	" originally conflicted with keyOpenTabapage
+"let g:fuf_autoPreview               = 1
+"let g:fuf_mrufile_maxItem           = 200
+"let g:fuf_modesDisable              = ['mrucmd', 'bookmarkfile', 'bookmarkdir', 'buffertag', 'help', 'dir']
+"let g:fuf_dataDir                   = '~/.vimtmp/vim-fuf-data'
+"let g:fuf_coveragefile_prompt       = '>Project[]>'
+"let g:fuf_coveragefile_globPatterns = ['**/.*', '**/*', '../*', '../.*']
+"let g:fuf_file_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
+"let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d|so|os)$|(^|[/\\])\.(hg|git.*|bzr)($|[/\\])|node_modules.*|output|build|.env'
+"nmap <Leader>ff :FufFile<CR>
+"nmap <Leader>fp :FufCoverageFile<CR>
+"nmap <Leader>ft :FufTag<CR>
+"nmap <silent> <C-]> :FufTagWithCursorWord!<CR>
+"nmap <Leader>fr :FufMruFile<CR>
+"nmap <Leader>fb :FufBuffer<CR>
+"nmap <Leader>fl :FufLine<CR>
+"nmap <Leader>fj :FufJumpList<CR>
+"nmap <Leader>fc :FufChangeList<CR>
+"nmap <Leader>fw [I:let nr = input("Which one: ")<Bar>exe "normal " . nr ."[\t"<CR>
+nmap <Leader>fr :CtrlPMRU<CR>
+let g:ctrlp_cache_dir = $HOME . '/.vimtmp/ctrlp'
+if executable('ag')
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+endif
 
 func! RangerChooser()
 	let arg0 = has('gui_running') ? "urxvt -e " : " "
@@ -1173,7 +1177,7 @@ nnoremap <leader>ig :IndentLinesToggle<CR>:set list! lcs=tab:\\|\<Space><CR>
 " Window Plugins: f[[
 let g:win_width = 22
 nmap <Leader>tl :TlistToggle <CR>
-au Filetype cpp,c    nmap <Leader>tl :TagbarToggle<CR>
+au Filetype cpp,c,python    nmap <Leader>tl :TagbarToggle<CR>
 let Tlist_WinWidth                = g:win_width
 let Tlist_Sort_Type               = 'name'
 let Tlist_Exit_OnlyWindow         = 1
