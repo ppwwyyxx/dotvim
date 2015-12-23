@@ -36,20 +36,10 @@ YCM_PYTHON_DIR="bundle/YouCompleteMe/python"
 if [[ -f ~/backup_vim/$YCM_PYTHON_DIR/ycm_core.so ]]; then
 	cp ~/backup_vim/$YCM_PYTHON_DIR/*.so ~/.vim/$YCM_PYTHON_DIR
 else
-	echo "Compiling ycm_core ... (please make sure you have libclang.so in your system)"
+	echo "Compiling ycm_core ..."
 	cd  ~/.vim/bundle/YouCompleteMe
-	./install.py
+	./install.py --clang-completer
 fi
-
-#VIMPROC_DIR="bundle/vimproc/autoload"
-#if [[ -f ~/backup_vim/$VIMPROC_DIR/vimproc_unix.so ]]; then
-	#cp ~/backup_vim/$VIMPROC_DIR/*.so ~/.vim/$VIMPROC_DIR
-#else
-	#echo "Compiling vimproc..."
-	#echo $LINE
-	#cd ~/.vim/$VIMPROC_DIR/..
-	#make -f make_unix.mak
-#fi
 
 # install eclim
 pacaur -S eclim

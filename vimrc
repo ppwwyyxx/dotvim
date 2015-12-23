@@ -27,11 +27,9 @@ Bundle 'tpope/vim-tbone'
 Bundle 'grep.vim'
 Bundle 'sjl/gundo.vim'
 Bundle 'kakkyz81/evervim'
-"Bundle 'FuzzyFinder'
 Bundle 'ctrlpvim/ctrlp.vim'
 Bundle 'L9'
 Bundle 'majutsushi/tagbar'
-Bundle 'taglist.vim'
 Bundle 'scrooloose/nerdtree'
 Bundle 'tomtom/tlib_vim'
 Bundle 'winmanager'
@@ -226,6 +224,7 @@ let g:airline_powerline_fonts=1
 let g:airline_mode_map = {'n': 'N', 'i': 'I', 'R': 'R', 'v': 'V', 'V': 'V'}
 let g:airline_left_sep = '»'
 let g:airline_right_sep = '«'
+let g:airline#extensions#whitespace#enabled = 0
 set noshowmode
 
 set scrolljump=5                       " lines to scroll with cursor
@@ -645,7 +644,7 @@ inoremap <C-O> <C-X><C-O><C-P>
 inoremap <C-P> <C-X><C-P>
 set dict+=$HOME/.vim/static/dict_with_cases          " use c-X c-K to open dictionary completion
 set tags=.tags
-nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <CR><CR> :TlistUpdate <CR>
+nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <CR><CR>
 
 let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
 "let g:ycm_filetype_blacklist = {'markdown' : 1,  'txt' : 1, 'help' : 1, 'vim' : 1}
@@ -1095,33 +1094,18 @@ nnoremap <Leader>gr :Regrep <CR><CR><CR><CR>
 let Grep_Skip_Files = '.tags tags'
 let Grep_Skip_Dirs  = 'node_modules build output .git .svn'
 
-"let g:fuf_keyOpenVsplit             = "<C-l>"
-"let g:fuf_keyOpenTabpage            = "<C-t>"
-"let g:fuf_buffer_keyDelete          = "<C-d>"
-"let g:fuf_keyNextMode				= ""	" originally conflicted with keyOpenTabapage
-"let g:fuf_autoPreview               = 1
-"let g:fuf_mrufile_maxItem           = 200
-"let g:fuf_modesDisable              = ['mrucmd', 'bookmarkfile', 'bookmarkdir', 'buffertag', 'help', 'dir']
-"let g:fuf_dataDir                   = '~/.vimtmp/vim-fuf-data'
-"let g:fuf_coveragefile_prompt       = '>Project[]>'
-"let g:fuf_coveragefile_globPatterns = ['**/.*', '**/*', '../*', '../.*']
-"let g:fuf_file_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d)$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
-"let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|d|so|os)$|(^|[/\\])\.(hg|git.*|bzr)($|[/\\])|node_modules.*|output|build|.env'
-"nmap <Leader>ff :FufFile<CR>
-"nmap <Leader>fp :FufCoverageFile<CR>
-"nmap <Leader>ft :FufTag<CR>
-"nmap <silent> <C-]> :FufTagWithCursorWord!<CR>
-"nmap <Leader>fr :FufMruFile<CR>
-"nmap <Leader>fb :FufBuffer<CR>
-"nmap <Leader>fl :FufLine<CR>
-"nmap <Leader>fj :FufJumpList<CR>
-"nmap <Leader>fc :FufChangeList<CR>
-"nmap <Leader>fw [I:let nr = input("Which one: ")<Bar>exe "normal " . nr ."[\t"<CR>
 nmap <Leader>fr :CtrlPMRU<CR>
+nmap <Leader>fb :CtrlPBuffer<CR>
 let g:ctrlp_cache_dir = $HOME . '/.vimtmp/ctrlp'
 if executable('ag')
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+	" avoid mistakenly execution on my home directory
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g "" --ignore-dir={node_modules,site-packages,dist-packages,Document,Documents,Work}'
 endif
+ let g:ctrlp_prompt_mappings = {
+    \ 'AcceptSelection("h")': ['<c-x>', '<c-cr>', '<c-s>'],
+    \ 'AcceptSelection("v")': ['<c-v>', '<RightMouse>'],
+		\ 'PtrCurRight()': ['<right>'],
+    \ }
 
 func! RangerChooser()
 	let arg0 = has('gui_running') ? "urxvt -e " : " "
@@ -1176,13 +1160,10 @@ nnoremap <leader>ig :IndentLinesToggle<CR>:set list! lcs=tab:\\|\<Space><CR>
 
 " Window Plugins: f[[
 let g:win_width = 22
-nmap <Leader>tl :TlistToggle <CR>
-au Filetype cpp,c,python    nmap <Leader>tl :TagbarToggle<CR>
-let Tlist_WinWidth                = g:win_width
-let Tlist_Sort_Type               = 'name'
-let Tlist_Exit_OnlyWindow         = 1
-let Tlist_GainFocus_On_ToggleOpen = 0
-let Tlist_Enable_Fold_Column      = 0
+nmap <Leader>tl :TagbarToggle<CR>
+let g:tagbar_width = g:win_width
+let g:tagbar_autofocus = 1
+let g:tagbar_indent = 1
 
 nmap <Leader>fm :NERDTreeToggle <CR>
 let g:NERDTreeWinSize       = g:win_width
@@ -1190,18 +1171,6 @@ let g:NERDTreeShowBookmarks = 1
 let g:NERDTreeBookmarksFile = '~/.vim/NERDTreeBookmarks'
 let g:NERDTreeHijackNetrw   = 0
 let NERDTreeIgnore          = ['\.pyc', '\~$', '\.swo$', '\.swp$', '\.git', '\.hg', '\.svn', '\.bzr']
-
-nnoremap <Leader>wm :set splitright!<CR>:WMToggle <CR>:set splitright!<CR>:q<CR>:140wincmd <<CR><C-w>=
-let g:winManagerWidth        = g:win_width
-let g:persistentBehaviour    = 0
-let g:winManagerWindowLayout = 'NERDTree|TagList'
-let g:NERDTree_title         = "[NERDTree]"
-func! NERDTree_Start()
-	exe 'NERDTree'
-endfunc
-func! NERDTree_IsValid()
-	return 1
-endfunc
 
 nmap <Leader>ut :GundoToggle<CR>
 let g:gundo_width = g:win_width
