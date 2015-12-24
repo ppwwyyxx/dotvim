@@ -7,5 +7,6 @@ rm vim vimrc -rf
 cp ~/.vimrc ./vimrc -Hv
 cp ~/.vim ./vim -Hvr
 rm vim/bundle -rf
+rm vim/.netrwhist
 git a . -A
 

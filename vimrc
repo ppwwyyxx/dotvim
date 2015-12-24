@@ -2,89 +2,85 @@
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
 syntax on
-" Bundle: f[[
+" Plugins: f[[
 filetype off						" for vundle
-set rtp+=~/.vim/bundle/vundle
-call vundle#rc()
-Bundle 'gmarik/vundle'
-Bundle 'sudo.vim'
-" UI And Basic:
-Bundle 'Color-Scheme-Explorer'
-Bundle 'bling/vim-airline'
-Bundle 'Yggdroot/indentLine'
-Bundle 'uguu-org/vim-matrix-screensaver'
-Bundle 'kien/rainbow_parentheses.vim'
-Bundle 'searchfold.vim'
-Bundle 'MultipleSearch'
-Bundle 'LargeFile'
-Bundle 'ppwwyyxx/vim-PinyinSearch'
 
-Bundle 'sjl/clam.vim'
-Bundle 'basepi/vim-conque'
-Bundle 'ervandew/screen'
+call plug#begin('~/.vim/bundle')
+Plug 'sudo.vim'
+" UI And Basic:
+Plug 'Color-Scheme-Explorer'
+Plug 'bling/vim-airline'
+Plug 'Yggdroot/indentLine'
+Plug 'uguu-org/vim-matrix-screensaver'
+Plug 'kien/rainbow_parentheses.vim'
+Plug 'searchfold.vim'
+Plug 'MultipleSearch'
+Plug 'LargeFile'
+Plug 'ppwwyyxx/vim-PinyinSearch'
+
 " Window Tools:
-Bundle 'tpope/vim-tbone'
-Bundle 'grep.vim'
-Bundle 'sjl/gundo.vim'
-Bundle 'kakkyz81/evervim'
-Bundle 'ctrlpvim/ctrlp.vim'
-Bundle 'L9'
-Bundle 'majutsushi/tagbar'
-Bundle 'scrooloose/nerdtree'
-Bundle 'tomtom/tlib_vim'
-Bundle 'winmanager'
+Plug 'tpope/vim-tbone'
+Plug 'grep.vim'
+Plug 'sjl/gundo.vim'
+Plug 'kakkyz81/evervim'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'majutsushi/tagbar'
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'sjl/clam.vim'
+Plug 'basepi/vim-conque'
+Plug 'ervandew/screen'
 " Tools:
-Bundle 'qstrahl/vim-matchmaker'
-Bundle 'rhysd/accelerated-jk'
-Bundle 'yonchu/accelerated-smooth-scroll'
-Bundle 'tsaleh/vim-align'
-Bundle 'tpope/vim-surround'
-Bundle 'Lokaltog/vim-easymotion'
+Plug 'qstrahl/vim-matchmaker'
+Plug 'rhysd/accelerated-jk'
+Plug 'yonchu/accelerated-smooth-scroll'
+Plug 'tsaleh/vim-align'
+Plug 'tpope/vim-surround'
+Plug 'Lokaltog/vim-easymotion'
 " use S/s to skip in a line
-Bundle 'jayflo/vim-skip'
-Bundle 'terryma/vim-expand-region'
-Bundle 'terryma/vim-multiple-cursors'
-Bundle 'scrooloose/nerdcommenter'
-Bundle 'glts/vim-textobj-comment'
-Bundle 'lucapette/vim-textobj-underscore'
-Bundle 'kana/vim-textobj-indent'
-Bundle 'kana/vim-textobj-user'
-Bundle 'kana/vim-operator-user'
-Bundle 'jeetsukumaran/vim-indentwise'
-Bundle 'VisIncr'
-Bundle 'ardagnir/united-front'
+Plug 'jayflo/vim-skip'
+Plug 'terryma/vim-expand-region'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'scrooloose/nerdcommenter'
+Plug 'glts/vim-textobj-comment'
+Plug 'lucapette/vim-textobj-underscore'
+Plug 'kana/vim-textobj-indent'
+Plug 'kana/vim-textobj-user'
+Plug 'kana/vim-operator-user'
+Plug 'jeetsukumaran/vim-indentwise'
+Plug 'VisIncr'
+Plug 'ardagnir/united-front'
 " FileTypes:
-Bundle 'myhere/vim-nodejs-complete'
-Bundle 'nvie/vim-flake8'
-Bundle 'LaTeX-Box-Team/LaTeX-Box'
-Bundle 'tpope/vim-rails'
-Bundle 'Valloric/YouCompleteMe'
-Bundle 'othree/html5.vim'
-Bundle 'derekwyatt/vim-fswitch'
-Bundle 'shime/vim-livedown'
+Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
+Plug 'nvie/vim-flake8', {'for': 'python'}
+Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': 'tex'}
+Plug 'tpope/vim-rails', {'for': 'ruby'}
+Plug 'Valloric/YouCompleteMe', {'do': './install.py --clang-completer', 'for': ['cpp', 'java', 'python']}
+Plug 'othree/html5.vim', {'for': 'html'}
+Plug 'derekwyatt/vim-fswitch'
+Plug 'shime/vim-livedown', {'for': 'markdown'}
 " Syntax:
-Bundle 'gprof.vim'
-Bundle 'tpope/vim-markdown'
-Bundle 'smilekzs/vim-coffee-script'
-Bundle 'hail2u/vim-css3-syntax'
-Bundle 'chrisbra/csv.vim'
-Bundle 'mrtazz/DoxygenToolkit.vim'
-Bundle 'digitaltoad/vim-jade'
-Bundle 'maksimr/vim-jsbeautify'
-Bundle 'einars/js-beautify'
-Bundle 'pangloss/vim-javascript'
-Bundle 'groenewege/vim-less'
-Bundle 'Mathematica-Syntax-File'
-Bundle 'evanmiller/nginx-vim-syntax'
-Bundle 'fs111/pydoc.vim'
-Bundle 'ujihisa/rdoc.vim'
+Plug 'gprof.vim'
+Plug 'tpope/vim-markdown'
+Plug 'smilekzs/vim-coffee-script'
+Plug 'hail2u/vim-css3-syntax', {'for': 'css'}
+Plug 'chrisbra/csv.vim', {'for': 'csv'}
+Plug 'mrtazz/DoxygenToolkit.vim'
+Plug 'digitaltoad/vim-jade', {'for': 'jade'}
+Plug 'maksimr/vim-jsbeautify'
+Plug 'einars/js-beautify'
+Plug 'pangloss/vim-javascript', {'for': 'javascript'}
+Plug 'groenewege/vim-less'
+Plug 'Mathematica-Syntax-File'
+Plug 'evanmiller/nginx-vim-syntax'
+Plug 'fs111/pydoc.vim'
+Plug 'ujihisa/rdoc.vim'
 " to learn
-Bundle 'tpope/vim-scriptease'
-Bundle 'slim-template/vim-slim'
-Bundle 'tristen/vim-sparkup'
-Bundle 'wavded/vim-stylus'
-Bundle 'ppwwyyxx/vim-SugarCpp'
-Bundle 'jeroenbourgois/vim-actionscript'
+Plug 'tpope/vim-scriptease'
+Plug 'slim-template/vim-slim'
+Plug 'tristen/vim-sparkup'
+Plug 'wavded/vim-stylus'
+Plug 'jeroenbourgois/vim-actionscript'
+call plug#end()
 filetype plugin indent on
 " --------------------------------------------------------------------- f]]
 
@@ -152,6 +148,7 @@ set ttyfast
 " --------------------------------------------------------------------- f]]
 " UI: f[[
 set background=light
+colo default
 if has("gui_running")                  " for gvim
 	set antialias                      " font antialias
 	set guifont=inconsolata\ 13
@@ -159,13 +156,11 @@ if has("gui_running")                  " for gvim
 	set guifontwide=WenQuanYi\ Micro\ Hei\ 13
 	set guioptions=aegi                " cleaner gui
 	set linespace=3
-	set background=dark
+	set background=light
 	colo molokai
 	hi CursorColumn guibg=Green
 	hi Matchmaker guibg=#333
 endif
-"colo molokai
-colo default
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
 hi Search guibg=#8ca509
@@ -225,6 +220,7 @@ let g:airline_mode_map = {'n': 'N', 'i': 'I', 'R': 'R', 'v': 'V', 'V': 'V'}
 let g:airline_left_sep = '»'
 let g:airline_right_sep = '«'
 let g:airline#extensions#whitespace#enabled = 0
+let g:airline_section_z = "%p%% %#__accent_bold#%l%#__restore__#:%v"
 set noshowmode
 
 set scrolljump=5                       " lines to scroll with cursor
@@ -647,15 +643,11 @@ set tags=.tags
 nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <CR><CR>
 
 let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
-"let g:ycm_filetype_blacklist = {'markdown' : 1,  'txt' : 1, 'help' : 1, 'vim' : 1}
-"let g:ycm_filetype_whitelist = {'cpp' : 1, 'c' : 1, 'python': 1, 'java': 1}
 let g:ycm_key_detailed_diagnostics = "<Leader>yd"
-"let g:ycm_key_invoke_completion = "<F5>"
 let g:ycm_complete_in_comments = 1
 let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_autoclose_preview_window_after_insertion = 1
-"let g:ycm_key_list_select_completion = ['<TAB>', '<Down>']
 let g:ycm_collect_identifiers_from_tags_files = 0	  " slow
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_cache_omnifunc = 1
@@ -667,10 +659,6 @@ let g:EclimCompletionMethod = 'omnifunc'
 let g:sparkup = '~/.vim/bundle/sparkup/sparkup'
 let g:sparkupExecuteMapping = '<C-z>'
 " <C-n> to jump to next empty tag
-
-let g:rubycomplete_buffer_loading = 0	" TODO
-let g:rubycomplete_classes_in_global = 1
-let g:rubycomplete_rails = 1
 
 let g:clang_format#code_style = 'google'
 let g:clang_format#style_options = {
@@ -900,7 +888,6 @@ lines = [re.sub(' +', '&  ', x.strip()) + '\\\\' for x in lines]
 lines.insert(0, '\\begin{bmatrix}')
 lines.append('\\end{bmatrix}')
 buf[lnum1-1:lnum2] = lines
-# TODO align
 EOF
 	endfunc
 	vnoremap <buffer> <Leader>M :<C-w>call ToMatrix()<CR>
@@ -915,12 +902,6 @@ func! C_grammar_init()
 	nnoremap <Leader>id :w<CR>:INDENT<CR><CR>:e<CR>
 endfunc
 func! C_init()
-	"call textobj#user#plugin('cif', { 'code': {
-	"\     'pattern': ['if ', '$'],
-	"\     'select-i': 'if',
-	"\   }})
-	set tags+=~/.vim/static/cpp                        " core in cpp
-	set tags+=/home/cpp_lib_tags                    " all libs
 	abbr #i #include
 	abbr #I #include
 	set syntax=cpp11.doxygen
@@ -985,7 +966,9 @@ func! Lua_init()
 	setl ts=4 sw=4 sts=4
 endfunc
 " pdf auto refresh preview
-au BufWritePost *.tex call jobstart("make try")
+if has('nvim')
+	au BufWritePost *.tex call jobstart("make try")
+endif
 au FileType tex :call Tex_init()
 au FileType markdown :call MarkDown_init()
 au FileType cpp,c :call C_init()
