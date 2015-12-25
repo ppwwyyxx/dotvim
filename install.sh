@@ -19,10 +19,7 @@ python dict_to_cases.py
 mkdir -p ~/.vimtmp/undo
 mkdir -p ~/.vimtmp/vim-fuf-data
 
-echo "Installing Bundles ..."
-mkdir -p ~/.vim/bundle/vundle
-git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
-vim +BundleInstall +qall
+vim +PlugInstall +qall
 
 for i in ~/.vim/patch/*; do
    filename=`basename $i`
@@ -32,16 +29,14 @@ for i in ~/.vim/patch/*; do
    patch -p0 < $i
 done
 
-YCM_PYTHON_DIR="bundle/YouCompleteMe/python"
-if [[ -f ~/backup_vim/$YCM_PYTHON_DIR/ycm_core.so ]]; then
-	cp ~/backup_vim/$YCM_PYTHON_DIR/*.so ~/.vim/$YCM_PYTHON_DIR
-else
-	echo "Compiling ycm_core ..."
-	cd  ~/.vim/bundle/YouCompleteMe
-	./install.py --clang-completer
-fi
-
-# install eclim
-pacaur -S eclim
+# included in plug-vim
+#YCM_PYTHON_DIR="bundle/YouCompleteMe/python"
+#if [[ -f ~/backup_vim/$YCM_PYTHON_DIR/ycm_core.so ]]; then
+	#cp ~/backup_vim/$YCM_PYTHON_DIR/*.so ~/.vim/$YCM_PYTHON_DIR
+#else
+	#echo "Compiling ycm_core ..."
+	#cd  ~/.vim/bundle/YouCompleteMe
+	#./install.py --clang-completer
+#fi
 
 echo "Finish installing ppwwyyxx/dotvim"

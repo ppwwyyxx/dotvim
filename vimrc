@@ -29,7 +29,8 @@ Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'sjl/clam.vim'
 Plug 'basepi/vim-conque'
 Plug 'ervandew/screen'
-" Tools:
+Plug 'powerman/vim-plugin-viewdoc'
+" Editing Tools:
 Plug 'qstrahl/vim-matchmaker'
 Plug 'rhysd/accelerated-jk'
 Plug 'yonchu/accelerated-smooth-scroll'
@@ -49,12 +50,13 @@ Plug 'kana/vim-operator-user'
 Plug 'jeetsukumaran/vim-indentwise'
 Plug 'VisIncr'
 Plug 'ardagnir/united-front'
-" FileTypes:
+" Programming:
 Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
 Plug 'nvie/vim-flake8', {'for': 'python'}
 Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': 'tex'}
 Plug 'tpope/vim-rails', {'for': 'ruby'}
 Plug 'Valloric/YouCompleteMe', {'do': './install.py --clang-completer', 'for': ['cpp', 'java', 'python']}
+Plug 'critiqjo/lldb.nvim' ", {'for': ['cpp', 'c'] }
 Plug 'othree/html5.vim', {'for': 'html'}
 Plug 'derekwyatt/vim-fswitch'
 Plug 'shime/vim-livedown', {'for': 'markdown'}
@@ -272,6 +274,7 @@ set updatetime=500                     " time threshold for CursorHold event
 " Basic Maps:
 let mapleader=" "
 let maplocalleader=","
+let g:no_viewdoc_maps = 1
 set timeoutlen=300                     " wait for ambiguous mapping
 set ttimeoutlen=0                      " wait for xterm key escape
 inoremap <c-\> <Esc>
@@ -631,7 +634,7 @@ set wildmode=list:longest,full
 set wildignore+=*.o,*.exe,main,*.pyc,*.aux,*.toc     " don't add .class for javacomplete searching for Reflection.class
 set wildignore+=*.git,*.svn,*.hg
 set wildignore+=*.sqlite3
-set wildignore+=*~,*.bak,*.sw
+set wildignore+=*~,*.bak,*.sw,*.jpg,*.png,*.gif,*.JPG
 set completeopt=menu,preview,longest
 set complete=.,w,b,u
 set path+=./include,                                 " path containing included files for searching variables
@@ -740,13 +743,6 @@ au BufNewFile Makefile exec ":r ~/Work/programming/cpp/Makefiles/Makefile"
 command! -nargs=* Makepg call Make_arg("g++ % -o %:r -pg -Wall -std=c++11", <f-args>)
 
 func! Make()                        " silent make with quickfix window popup
-	if &ft == 'cpp'
-		if filereadable(getcwd() . "/Makefile")
-			let &makeprg="make"
-		elseif  filereadable(getcwd() . "/../Makefile")
-			let &makeprg="make -C .."
-		endif
-	endif
 	make
 	redraw!
 	for i in getqflist()
@@ -756,13 +752,6 @@ func! Make()                        " silent make with quickfix window popup
 	endfor
 endfunc
 
-func! FindMakefile()
-	exec "cd " . expand ("%:p:h")
-	while ! filereadable(getcwd() . "/Makefile") && getcwd () != "/"
-		cd ..
-	endw
-	:!make
-endfunc
 au Filetype gnuplot let &makeprg="gnuplot % ; feh ./*"
 au Filetype dot let &makeprg="dot -Tpng -O -v % ; feh %.png"
 au Filetype php let &makeprg="php %"
@@ -786,7 +775,6 @@ endfunc
 nnoremap <Leader>rr :call InstantRun() <CR>
 nnoremap <Leader>mk :call Make()<CR>
 nnoremap <Leader>mr :!make run <CR>
-nnoremap <Leader>make :call FindMakefile()<CR>
 " --------------------------------------------------------------------- f]]
 
 " Mapping For Programming: (These should've been moved to ftplugin) f[[
@@ -901,11 +889,18 @@ func! C_grammar_init()
 	"command! INDENT :!indent -linux -l80 -brf %
 	nnoremap <Leader>id :w<CR>:INDENT<CR><CR>:e<CR>
 endfunc
-func! C_init()
+func! Cpp_init()
 	abbr #i #include
 	abbr #I #include
 	set syntax=cpp11.doxygen
+
 	let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
+	if filereadable(getcwd() . "/Makefile")
+		let &makeprg="make"
+	elseif  filereadable(getcwd() . "/../Makefile")
+		let &makeprg="make -C .."
+	endif
+
 	call C_grammar_init()
 	syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr PII PDB PDD PDI PID PIF
 	syn keyword cppSTLType T
@@ -971,14 +966,14 @@ if has('nvim')
 endif
 au FileType tex :call Tex_init()
 au FileType markdown :call MarkDown_init()
-au FileType cpp,c :call C_init()
+au FileType cpp :call Cpp_init()
 au FileType matlab :call Matlab_init()
 au FileType cs :call CS_init()
 au FileType python :call Python_init()
 au FileType ruby :call Ruby_init()
 au FileType java :call Java_init()
 au FileType javascript :call Js_init()
-au FileType r :call C_grammar_init()
+au FileType r,c :call C_grammar_init()
 au FileType lua :call Lua_init()
 
 " ---------------------------------------------------------------------f]]

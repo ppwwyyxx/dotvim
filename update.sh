@@ -5,8 +5,8 @@
 
 rm vim vimrc -rf
 cp ~/.vimrc ./vimrc -Hv
-cp ~/.vim ./vim -Hvr
-rm vim/bundle -rf
+rsync -avPL --delete --exclude=bundle ~/.vim ./
+mv .vim vim
 rm vim/.netrwhist
 git a . -A
 
