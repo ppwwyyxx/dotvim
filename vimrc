@@ -215,8 +215,8 @@ set rulerformat=%35(%=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %m\ %l/%L%)
 "set statusline+=%*
 set laststatus=2
 
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#buffer_min_count = 2
+"let g:airline#extensions#tabline#enabled = 1
+"let g:airline#extensions#tabline#buffer_min_count = 2
 let g:airline_powerline_fonts=1
 let g:airline_mode_map = {'n': 'N', 'i': 'I', 'R': 'R', 'v': 'V', 'V': 'V'}
 let g:airline_left_sep = '»'
@@ -1052,6 +1052,8 @@ nmap <Leader>cl <Plug>NERDCommenterAlignLeft
 xmap <Leader>cl <Plug>NERDCommenterAlignLeft
 nmap <Leader>uc <Plug>NERDCommenterUncomment
 xmap <Leader>uc <Plug>NERDCommenterUncomment
+let g:NERDCustomDelimiters = {
+        \ 'python': { 'left': '#' } }
 
 if exists("*expand_region#custom_text_objects")
 	call expand_region#custom_text_objects({
@@ -1074,6 +1076,7 @@ let Grep_Skip_Dirs  = 'node_modules build output .git .svn'
 
 nmap <Leader>fr :CtrlPMRU<CR>
 nmap <Leader>fb :CtrlPBuffer<CR>
+nmap <Leader>ff :CtrlP .<CR>
 let g:ctrlp_cache_dir = $HOME . '/.vimtmp/ctrlp'
 if executable('ag')
 	" avoid mistakenly execution on my home directory

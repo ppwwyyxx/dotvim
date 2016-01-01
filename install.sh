@@ -21,6 +21,7 @@ mkdir -p ~/.vimtmp/vim-fuf-data
 
 vim +PlugInstall +qall
 
+echo "Patching..."
 for i in ~/.vim/patch/*; do
    filename=`basename $i`
    bundle="${filename%.*}"
@@ -28,15 +29,5 @@ for i in ~/.vim/patch/*; do
    cd ~/.vim/bundle/$bundle
    patch -p0 < $i
 done
-
-# included in plug-vim
-#YCM_PYTHON_DIR="bundle/YouCompleteMe/python"
-#if [[ -f ~/backup_vim/$YCM_PYTHON_DIR/ycm_core.so ]]; then
-	#cp ~/backup_vim/$YCM_PYTHON_DIR/*.so ~/.vim/$YCM_PYTHON_DIR
-#else
-	#echo "Compiling ycm_core ..."
-	#cd  ~/.vim/bundle/YouCompleteMe
-	#./install.py --clang-completer
-#fi
 
 echo "Finish installing ppwwyyxx/dotvim"
