@@ -7,3 +7,5 @@ That file is more like an instruction, it might not simply work on different mac
 YCM might take some time to install. You can interrupt it by `ctrl-c` if you don't need it.
 
 See ``vimrc`` for details on my configurations.
+
+``vimrc-simple`` is a portable file ready to be use without any plugin.
