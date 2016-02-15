@@ -8,5 +8,5 @@ cp ~/.vimrc ./vimrc -Hv
 rsync -avPL --delete --exclude=bundle ~/.vim ./
 mv .vim vim
 rm vim/.netrwhist
+rm vim/init.vim
 git a . -A
-

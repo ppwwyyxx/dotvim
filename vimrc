@@ -82,6 +82,8 @@ Plug 'slim-template/vim-slim'
 Plug 'tristen/vim-sparkup'
 Plug 'wavded/vim-stylus'
 Plug 'jeroenbourgois/vim-actionscript'
+"Plug 'derekwyatt/vim-protodef'
+Plug 'ccimpl.vim'
 call plug#end()
 filetype plugin indent on
 " --------------------------------------------------------------------- f]]
@@ -126,11 +128,6 @@ endif
 "endif
 "unlet color_normal | unlet color_insert | unlet color_exit
 
-if ! has("gui_running")                " fix alt key under terminal
-	for i in range(48, 57) + range(65, 90) + range(97, 122)
-		exe "set <A-" . nr2char(i) . ">=" . nr2char(i)
-	endfor
-endif
 set shell=zsh
 let g:my_term = 'urxvt'                " for plugins to open window
 set iskeyword+=%,&,?,\|,\\,!
@@ -656,6 +653,7 @@ let g:ycm_confirm_extra_conf = 0
 let g:ycm_cache_omnifunc = 1
 let g:ycm_min_num_of_chars_for_completion = 1
 let g:ycm_min_num_identifier_candidate_chars = 3
+nnoremap <leader>jd :YcmCompleter GoTo<CR>
 
 let g:EclimCompletionMethod = 'omnifunc'
 
@@ -680,7 +678,7 @@ let g:clang_format#style_options = {
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
 func! GenerateHead(line)
-	let Head_List = [" File:", " Author: Yuxin Wu <ppwwyyxx@gmail.com>"]
+	let Head_List = [" File:", " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"]
 	call append(a:line, Head_List)
 	" comment
 	normal ggVG cl
@@ -714,7 +712,7 @@ func! SetTitle()
 					\ "	} while (0)" ])
 		normal G
 	elseif &ft == 'python'
-		0put=\"!/usr/bin/env python2\<nl> -*- coding: UTF-8 -*-\"
+		0put=\"!/usr/bin/env python2\<nl> -*- coding: utf-8 -*-\"
 		call GenerateHead(2)
 		normal G
 	elseif &ft == 'ruby'
@@ -890,8 +888,8 @@ func! C_grammar_init()
 	nnoremap <Leader>id :w<CR>:INDENT<CR><CR>:e<CR>
 endfunc
 func! Cpp_init()
-	abbr #i #include
-	abbr #I #include
+	iabbr #i #include
+	iabbr #I #include
 	set syntax=cpp11.doxygen
 
 	let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
@@ -915,7 +913,7 @@ func! Python_init()
 	setl expandtab
 	setl ts=4 sw=4 sts=4
 	setl textwidth=78
-	abbr ipeb from IPython import embed; embed()
+	iabbr ipeb from IPython import embed; embed()
 	syn keyword pythonDecorator self
 	nmap <buffer> <F8> :call Flake8()<CR>
 endfunc
@@ -950,7 +948,7 @@ func! MarkDown_init()
 	set nofoldenable
 	inoremap {% {%  %}<Left><Left>
 	inoremap ``` ```<CR>```<Up><End><Esc>
-	abbr more <!-- more -->
+	iabbr more <!-- more -->
 	xmap <Leader>l s]%a()
 	xmap <Leader>e s*gvs*
 endfunc
@@ -958,7 +956,7 @@ func! Lua_init()
 	set makeef=/dev/null
 	let &makeprg="lua %"
 	setl expandtab
-	setl ts=4 sw=4 sts=4
+	setl ts=3 sw=3 sts=3
 endfunc
 " pdf auto refresh preview
 if has('nvim')
@@ -991,6 +989,7 @@ au BufWritePost,BufWrite __doc__ setf txt
 au BufNewFile,BufRead *.mako setf mako
 au BufNewFile,BufRead *.g,*.y,*.ypp setl syntax=antlr3			   " syntax for CFG
 au BufNewFile,BufRead *.ejs set syntax=html ft=html
+au BufNewFile,BufRead *.ispc set syntax=cpp
 au BufNewFile,BufRead *.gprof setf gprof
 au BufNewFile,BufRead *.txt,*.doc,*.pdf setf txt
 au BufReadPre *.doc,*.class,*.pdf setl ro
