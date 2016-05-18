@@ -680,6 +680,9 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 let g:syntastic_python_checkers = [ ]
+let g:syntastic_lua_checkers = ["luac", "flychecklint"]
+let g:syntastic_aggregate_errors = 1
+let g:syntastic_mode_map = { 'mode': 'passive' }
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
