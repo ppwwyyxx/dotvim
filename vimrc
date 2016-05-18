@@ -17,12 +17,12 @@ Plug 'searchfold.vim'
 Plug 'MultipleSearch'
 Plug 'LargeFile'
 Plug 'ppwwyyxx/vim-PinyinSearch'
+Plug 'sclarki/neonwave.vim'
 
 " Window Tools:
 Plug 'tpope/vim-tbone'
 Plug 'grep.vim'
 Plug 'sjl/gundo.vim'
-Plug 'kakkyz81/evervim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'majutsushi/tagbar'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
@@ -60,6 +60,7 @@ Plug 'critiqjo/lldb.nvim' ", {'for': ['cpp', 'c'] }
 Plug 'othree/html5.vim', {'for': 'html'}
 Plug 'derekwyatt/vim-fswitch'
 Plug 'shime/vim-livedown', {'for': 'markdown'}
+Plug 'scrooloose/syntastic'
 " Syntax:
 Plug 'gprof.vim'
 Plug 'tpope/vim-markdown'
@@ -83,7 +84,6 @@ Plug 'tristen/vim-sparkup'
 Plug 'wavded/vim-stylus'
 Plug 'jeroenbourgois/vim-actionscript'
 "Plug 'derekwyatt/vim-protodef'
-Plug 'ccimpl.vim'
 call plug#end()
 filetype plugin indent on
 " --------------------------------------------------------------------- f]]
@@ -150,9 +150,9 @@ set background=light
 colo default
 if has("gui_running")                  " for gvim
 	set antialias                      " font antialias
-	set guifont=inconsolata\ 13
+	set guifont=inconsolata\ 15
 	"set guifont=Monospace\ 12
-	set guifontwide=WenQuanYi\ Micro\ Hei\ 13
+	set guifontwide=WenQuanYi\ Micro\ Hei\ 15
 	set guioptions=aegi                " cleaner gui
 	set linespace=3
 	set background=light
@@ -274,8 +274,6 @@ let maplocalleader=","
 let g:no_viewdoc_maps = 1
 set timeoutlen=300                     " wait for ambiguous mapping
 set ttimeoutlen=0                      " wait for xterm key escape
-inoremap <c-\> <Esc>
-vnoremap <c-\> <Esc>
 "inoremap <Esc> <Esc>
 inoremap jj <ESC>
 nnoremap ; :
@@ -424,8 +422,6 @@ nmap <c-w><Right> 4<c-w>>
 nmap <c-w><Left> 4<c-w><
 nmap <c-w><Down> 4<c-w>+
 nmap <c-w><Up> 4<c-w>-
-nmap <Left> <c-w>h
-nmap <Right> <c-w>l
 nmap <c-h> <c-w>h
 nmap <c-l> <c-w>l
 nmap <c-k> <c-w>k
@@ -628,10 +624,10 @@ nnoremap <Leader>wc :!word_count %<CR>
 " Completetion And Tags: f[[
 set wildmenu                                         " command-line completion
 set wildmode=list:longest,full
-set wildignore+=*.o,*.exe,main,*.pyc,*.aux,*.toc     " don't add .class for javacomplete searching for Reflection.class
+set wildignore+=*.o,*.exe,main,*.pyc,*.aux,*.toc,*.bin     " don't add .class for javacomplete searching for Reflection.class
 set wildignore+=*.git,*.svn,*.hg
 set wildignore+=*.sqlite3
-set wildignore+=*~,*.bak,*.sw,*.jpg,*.png,*.gif,*.JPG
+set wildignore+=*~,*.bak,*.sw,*.gif
 set completeopt=menu,preview,longest
 set complete=.,w,b,u
 set path+=./include,                                 " path containing included files for searching variables
@@ -675,6 +671,16 @@ let g:clang_format#style_options = {
             \ "AllowShortLoopOnASingleLine" : "true",
             \ "Standard" : "C++11" }
 
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+let g:syntastic_python_checkers = [ ]
+
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
 func! GenerateHead(line)
@@ -712,7 +718,7 @@ func! SetTitle()
 					\ "	} while (0)" ])
 		normal G
 	elseif &ft == 'python'
-		0put=\"!/usr/bin/env python2\<nl> -*- coding: utf-8 -*-\"
+		0put=\"!/usr/bin/env python\<nl> -*- coding: utf-8 -*-\"
 		call GenerateHead(2)
 		normal G
 	elseif &ft == 'ruby'
@@ -890,6 +896,7 @@ endfunc
 func! Cpp_init()
 	iabbr #i #include
 	iabbr #I #include
+	set expandtab
 	set syntax=cpp11.doxygen
 
 	let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
@@ -913,7 +920,7 @@ func! Python_init()
 	setl expandtab
 	setl ts=4 sw=4 sts=4
 	setl textwidth=78
-	iabbr ipeb from IPython import embed; embed()
+	iabbr ipeb import IPython; IPython.embed(config=IPython.terminal.ipapp.load_default_config())
 	syn keyword pythonDecorator self
 	nmap <buffer> <F8> :call Flake8()<CR>
 endfunc
@@ -922,6 +929,7 @@ func! Ruby_init()
 	imap <C-CR> <CR><CR>end<Esc>-cc
 	setl expandtab
 	setl ts=2 sw=2 sts=2
+	iabbr ipeb require 'pry'; binding.pry
 endfunc
 func! Java_init()
 	let &makeprg="javac %"
@@ -957,6 +965,7 @@ func! Lua_init()
 	let &makeprg="lua %"
 	setl expandtab
 	setl ts=3 sw=3 sts=3
+	iabbr ipeb require("fb.debugger").enter()
 endfunc
 " pdf auto refresh preview
 if has('nvim')
@@ -979,6 +988,7 @@ au FileType lua :call Lua_init()
 au BufRead *.conf setf conf
 au BufWritePost .Xresources silent !xrdb %
 au BufWritePost .tmux.conf silent !tmux source %
+au BufWritePost .xbindkeysrc silent !killall -HUP xbindkeys
 au BufRead tmux.conf,.tmux* setf tmux
 au BufRead /usr/include/* setf cpp
 au BufRead SConstruct setf python
@@ -1003,9 +1013,10 @@ au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
 au Filetype coffee,jade,stylus,javascript,html,css setl expandtab
 au BufNewFile,BufRead *.hwdb setl expandtab
 au FileType json setl foldmethod=syntax
-au Filetype txt setl textwidth=200
+au Filetype txt,crontab setl textwidth=500
 let g:tex_flavor = 'latex'                                         " default filetype for tex
 au FileType sh,zsh inoremap ` ``<Left>
+au BufNewFile,BufRead *.elv setl ft=zsh syntax=zsh
 au BufWritePost *
 			\ if getline(1) =~ "^#!/bin/[a-z]*sh" |
 			\   exe "silent !chmod a+x <afile>" |
@@ -1036,9 +1047,6 @@ command! Badapple so ~/.vim/badapple/badapple.vim
 let g:EasyMotion_leader_key = ','
 xmap s <Plug>VSurround
 let g:html_indent_inctags = "body,head,tbody"
-
-command! NOTE EvervimNotebookList
-if filereadable($HOME . "/.evervim/secret.vim") | source ~/.evervim/secret.vim | endif
 
 " <Leader>cv to use ColorV
 let g:colorv_cache_file = $HOME . '/.vimtmp/colorv_cache_file'
