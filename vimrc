@@ -9,7 +9,8 @@ call plug#begin('~/.vim/bundle')
 Plug 'sudo.vim'
 " UI And Basic:
 Plug 'Color-Scheme-Explorer'
-Plug 'bling/vim-airline'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 Plug 'Yggdroot/indentLine'
 Plug 'uguu-org/vim-matrix-screensaver'
 Plug 'kien/rainbow_parentheses.vim'
@@ -58,9 +59,10 @@ Plug 'tpope/vim-rails', {'for': 'ruby'}
 Plug 'Valloric/YouCompleteMe', {'do': './install.py --clang-completer', 'for': ['cpp', 'java', 'python']}
 Plug 'critiqjo/lldb.nvim' ", {'for': ['cpp', 'c'] }
 Plug 'othree/html5.vim', {'for': 'html'}
-Plug 'derekwyatt/vim-fswitch'
+Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
 Plug 'shime/vim-livedown', {'for': 'markdown'}
 Plug 'scrooloose/syntastic'
+Plug 'neomake/neomake'
 " Syntax:
 Plug 'gprof.vim'
 Plug 'tpope/vim-markdown'
@@ -214,12 +216,13 @@ set laststatus=2
 
 "let g:airline#extensions#tabline#enabled = 1
 "let g:airline#extensions#tabline#buffer_min_count = 2
-let g:airline_powerline_fonts=1
+let g:airline_theme='durant'
+"let g:airline_powerline_fonts=1
 let g:airline_mode_map = {'n': 'N', 'i': 'I', 'R': 'R', 'v': 'V', 'V': 'V'}
 let g:airline_left_sep = '»'
 let g:airline_right_sep = '«'
 let g:airline#extensions#whitespace#enabled = 0
-let g:airline_section_z = "%p%% %#__accent_bold#%l%#__restore__#:%v"
+"let g:airline_section_z = "%p%% %#__accent_bold#%l%#__restore__#:%v"
 set noshowmode
 
 set scrolljump=5                       " lines to scroll with cursor
@@ -514,6 +517,7 @@ nmap <Leader>ps :call PinyinSearch()<CR>
 nnoremap ? :call PinyinSearch()<CR>
 nmap <Leader>pn :call PinyinNext()<CR>
 let g:PinyinSearch_Dict = $HOME . "/.vim/bundle/vim-PinyinSearch/PinyinSearch.dict"
+"let g:PinyinSearch_Dict = $HOME . "/Work/projects/vim-PinyinSearch/PinyinSearch.dict"
 
 " ---------------------------------------------------------------------f]]
 " Delete Trailing Whitespaces On Saving:
@@ -639,17 +643,17 @@ set tags=.tags
 nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <CR><CR>
 
 let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
-let g:ycm_key_detailed_diagnostics = "<Leader>yd"
-let g:ycm_complete_in_comments = 1
-let g:ycm_seed_identifiers_with_syntax = 1
-let g:ycm_autoclose_preview_window_after_completion = 1
-let g:ycm_autoclose_preview_window_after_insertion = 1
-let g:ycm_collect_identifiers_from_tags_files = 0	  " slow
-let g:ycm_confirm_extra_conf = 0
-let g:ycm_cache_omnifunc = 1
-let g:ycm_min_num_of_chars_for_completion = 1
-let g:ycm_min_num_identifier_candidate_chars = 3
-nnoremap <leader>jd :YcmCompleter GoTo<CR>
+"let g:ycm_key_detailed_diagnostics = "<Leader>yd"
+"let g:ycm_complete_in_comments = 1
+"let g:ycm_seed_identifiers_with_syntax = 1
+"let g:ycm_autoclose_preview_window_after_completion = 1
+"let g:ycm_autoclose_preview_window_after_insertion = 1
+"let g:ycm_collect_identifiers_from_tags_files = 0	  " slow
+"let g:ycm_confirm_extra_conf = 0
+"let g:ycm_cache_omnifunc = 1
+"let g:ycm_min_num_of_chars_for_completion = 1
+"let g:ycm_min_num_identifier_candidate_chars = 3
+"nnoremap <leader>jd :YcmCompleter GoTo<CR>
 
 let g:EclimCompletionMethod = 'omnifunc'
 
@@ -676,13 +680,15 @@ set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
 let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
+"let g:syntastic_auto_loc_list = 1	" don't open loclist
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
-let g:syntastic_python_checkers = [ ]
+let g:syntastic_python_checkers = ['flake8']
+let g:syntastic_python_flake8_args = "--max-line-length=120"
 let g:syntastic_lua_checkers = ["luac", "flychecklint"]
 let g:syntastic_aggregate_errors = 1
-let g:syntastic_mode_map = { 'mode': 'passive' }
+"let g:syntastic_mode_map = { 'mode': 'passive' }
+"au BufWritePost *.py :SyntasticCheck
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
@@ -706,7 +712,7 @@ func! SetTitle()
 		normal G
 	elseif &ft == 'cpp'
 		call GenerateHead(0)
-		call append(line("$"), ["#include <iostream>","#include <cstdlib>","#include <cstring>","#include <cstdio>",
+		call append(line("$"), ["#include <iostream>","#include <cstring>","#include <cstdio>",
 					\ "#include <limits>","#include <vector>", "#include <unordered_map>", "#include <set>",
 					\ "#include <iterator>", "#include <unordered_set>", "#include <queue>", "using namespace std;",
 					\ "#define MSET(ARR, x) memset(ARR, x, sizeof(ARR))",
@@ -742,7 +748,7 @@ func! SetTitle()
 	endif
 endfunc
 au BufNewFile *.* call SetTitle()
-au BufNewFile Makefile exec ":r ~/Work/programming/cpp/Makefiles/Makefile"
+au BufNewFile Makefile exec ":r ~/Work/projects/image_stitching/src/Makefile"
 
 " ---------------------------------------------------------------------f]]
 " Make For Programming: f[[
@@ -825,7 +831,7 @@ func! Tex_init()
 	let &conceallevel=has("gui_running") ? 1: 2        " conceal problem for gvim
 	set concealcursor=
 	setl expandtab
-	setl textwidth=150
+	setl textwidth=99999
 	set makeef=/dev/null
 
 	inoremap <buffer> $$ $<Space>$<Left>
@@ -843,6 +849,7 @@ func! Tex_init()
 	inoremap <buffer> \bbt <Esc>:call Tex_Block("t")<CR><Up><End>[H]<Down>\centering<CR>\caption{\label{tab:}}<Esc>k:call Tex_Block("tabular")<CR>
 	inoremap <buffer> \bbf <Esc>:call Tex_Block("f")<CR><Up><End>[H]<Down>\centering<CR>\includegraphics[width=0.8\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
 	inoremap <buffer> \bbm <Esc>:call Tex_Block("mp")<CR><Up><End>[b]{0.46\linewidth}<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
+	inoremap <buffer> \bmb \begin{bmatrix}\end{bmatrix}<Esc>12hi
 	inoremap <buffer> \bf \textbf{}<Left>
 	xmap <buffer> \ve s\|i\verb<BS><Del><Esc>
 	xmap <buffer> \bbe di\bbe<CR><Tab><Esc>pj
@@ -880,8 +887,8 @@ buf = vim.current.buffer
 (lnum2, col2) = buf.mark('>')
 lines = vim.eval('getline({}, {})'.format(lnum1, lnum2))
 lines = [re.sub(' +', '&  ', x.strip()) + '\\\\' for x in lines]
-lines.insert(0, '\\begin{bmatrix}')
-lines.append('\\end{bmatrix}')
+#lines.insert(0, '\\begin{bmatrix}')
+#lines.append('\\end{bmatrix}')
 buf[lnum1-1:lnum2] = lines
 EOF
 	endfunc
@@ -899,8 +906,9 @@ endfunc
 func! Cpp_init()
 	iabbr #i #include
 	iabbr #I #include
-	set expandtab
+	"set expandtab
 	set syntax=cpp11.doxygen
+	setl ts=2 sw=2 sts=2 expandtab
 
 	let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
 	if filereadable(getcwd() . "/Makefile")
@@ -923,7 +931,7 @@ func! Python_init()
 	setl expandtab
 	setl ts=4 sw=4 sts=4
 	setl textwidth=78
-	iabbr ipeb import IPython; IPython.embed(config=IPython.terminal.ipapp.load_default_config())
+	iabbr ipeb import IPython as IP; IP.embed(config=IP.terminal.ipapp.load_default_config())
 	syn keyword pythonDecorator self
 	nmap <buffer> <F8> :call Flake8()<CR>
 endfunc
@@ -1191,9 +1199,15 @@ if filereadable(getcwd() . "/.vimrc.local")
 else
 	if filereadable(getcwd() . "/../.vimrc.local")
 		so ../.vimrc.local
+	else
+		if filereadable(getcwd() . "/../../.vimrc.local")
+			so ../../.vimrc.local
+		endif
 	endif
 endif
 
 if has('nvim')
     tnoremap <Esc> <C-\><C-n>
 endif
+
+" au BufWritePost *.py call jobstart("/home/wyx/Work/projects/tensorpack/docs/update.sh")
