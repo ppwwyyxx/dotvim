@@ -97,38 +97,7 @@ if exists('$TMUX')                 " fix keymap under screen
     exec "set <xDown>=\e[1;*B"
     exec "set <xRight>=\e[1;*C"
     exec "set <xLeft>=\e[1;*D"
-    "map [F $
-    "imap [F $
-    "map [H g0
-    "imap [H g0
-"else
-    "let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-    "let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 endif
-
-" Note: xterm color names: http://mkaz.com/solog/system/xterm-colors.html
-"let color_normal = 'HotPink'
-"let color_insert = 'RoyalBlue1'
-"let color_exit = 'green'
-"if &term =~ 'xterm\|rxvt'
-	"exe 'silent !echo -ne "\e]12;"' . shellescape(color_normal, 1) . '"\007"'
-	"let &t_SI="\e]12;" . color_insert . "\007"
-	"let &t_EI="\e]12;" . color_normal . "\007"
-""	exe 'autocmd VimLeave * :!echo -ne "\e]12;"' . shellescape(color_exit, 1) . '"\007"'
-"elseif &term =~ "screen"
-	"if exists('$TMUX')
-		"exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
-		"let &t_SI="\033Ptmux;\033\e]12;" . color_insert . "\007\033\\"
-		"let &t_EI="\033Ptmux;\033\e]12;" . color_normal . "\007\033\\"
-""		exe 'autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
-	"else
-		"exe 'silent !echo -ne "\033P\e]12;"' . shellescape(color_normal, 1) . '"\007\033\\"'
-		"let &t_SI="\033P\e]12;" . color_insert . "\007\033\\"
-		"let &t_EI="\033P\e]12;" . color_normal . "\007\033\\"
-""		exe 'autocmd VimLeave * :!echo -ne "\033P\e]12;"' . shellescape(color_exit, 1) . '"\007\033\\"'
-	"endif
-"endif
-"unlet color_normal | unlet color_insert | unlet color_exit
 
 set shell=zsh
 let g:my_term = 'urxvt'                " for plugins to open window
@@ -160,7 +129,7 @@ if has("gui_running")                  " for gvim
 	set background=light
 	colo molokai
 	hi CursorColumn guibg=Green
-	hi Matchmaker guibg=#333
+	hi Matchmaker guibg=Yellow
 endif
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
@@ -344,6 +313,8 @@ func! QuickfixToggle()
 	copen
 endfunc
 nnoremap <Leader>q :call QuickfixToggle()<CR>
+nnoremap ]e :lnext<CR>
+nnoremap [e :lprev<CR>
 
 " ---------------------------------------------------------------------
 " Cursor Movement: f[[
@@ -646,8 +617,8 @@ let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
 "let g:ycm_key_detailed_diagnostics = "<Leader>yd"
 "let g:ycm_complete_in_comments = 1
 "let g:ycm_seed_identifiers_with_syntax = 1
-"let g:ycm_autoclose_preview_window_after_completion = 1
-"let g:ycm_autoclose_preview_window_after_insertion = 1
+let g:ycm_autoclose_preview_window_after_completion = 1
+let g:ycm_autoclose_preview_window_after_insertion = 1
 "let g:ycm_collect_identifiers_from_tags_files = 0	  " slow
 "let g:ycm_confirm_extra_conf = 0
 "let g:ycm_cache_omnifunc = 1
