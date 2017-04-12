@@ -41,8 +41,6 @@ flags = [
 '-Wno-long-long',
 '-Wno-variadic-macros',
 '-fexceptions',
-#'-DNDEBUG',
-'-DM_PI=3.1415926', # somehow clang doesn't have M_PI
 # THIS IS IMPORTANT! Without a "-std=<something>" flag, clang won't know which
 # language to use when compiling headers. So it will guess. Badly. So C++
 # headers will be compiled as C headers. You don't want that so ALWAYS specify
@@ -56,10 +54,7 @@ flags = [
 # For a C project, you would set this to 'c' instead of 'c++'.
 '-x',
 'c++',
-'-isystem',
-'/usr/include',
-'-I',
-'.'
+'-I.',
 ]
 
 

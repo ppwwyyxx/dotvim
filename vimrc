@@ -515,9 +515,9 @@ nmap <Leader>tv :call ToggleVerbose()<CR>
 func! LastMod()
 	let l:line = line(".")                            " save cursor position
 	let l:col = col(".")
-	let l = min([line("$"), 8])
+	let l = min([line("$"), 4])
 	exec '1,' . l . 'substitute/' . '^\(.*File:\)[^\*]*\(.*\)$' . '/\1 ' . expand('<afile>:t') . '\2/e'
-	"exec '1,' . l . 'substitute/' . '^\(.*Date:\)[^\*]*\(.*\)$' . '/\1 ' . strftime('%a %b %d %H:%M:%S %Y %z') . '\2/e'
+	exec '1,' . l . 'substitute/' . '^\(.*Date:\)[^\*]*\(.*\)$' . '/\1 ' . strftime('%a %b %d %H:%M:%S %Y %z') . '\2/e'
 	call cursor(l:line, l:col)
 endfun
 au BufWritePre,FileWritePre * call LastMod()
@@ -616,13 +616,12 @@ nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <
 let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
 "let g:ycm_key_detailed_diagnostics = "<Leader>yd"
 "let g:ycm_complete_in_comments = 1
-"let g:ycm_seed_identifiers_with_syntax = 1
+let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_autoclose_preview_window_after_insertion = 1
 "let g:ycm_collect_identifiers_from_tags_files = 0	  " slow
-"let g:ycm_confirm_extra_conf = 0
+let g:ycm_confirm_extra_conf = 0
 "let g:ycm_cache_omnifunc = 1
-"let g:ycm_min_num_of_chars_for_completion = 1
 "let g:ycm_min_num_identifier_candidate_chars = 3
 "nnoremap <leader>jd :YcmCompleter GoTo<CR>
 
@@ -654,7 +653,7 @@ let g:syntastic_always_populate_loc_list = 1
 "let g:syntastic_auto_loc_list = 1	" don't open loclist
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
-let g:syntastic_python_checkers = ['flake8']
+let g:syntastic_python_checkers = []
 let g:syntastic_python_flake8_args = "--max-line-length=120"
 let g:syntastic_lua_checkers = ["luac", "flychecklint"]
 let g:syntastic_aggregate_errors = 1
@@ -663,9 +662,9 @@ let g:syntastic_aggregate_errors = 1
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
+let g:custom_head_list = [" File:", " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"]
 func! GenerateHead(line)
-	let Head_List = [" File:", " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"]
-	call append(a:line, Head_List)
+	call append(a:line, g:custom_head_list)
 	" comment
 	normal ggVG cl
 	silent! exec "%s/^ \\+//g"
@@ -902,7 +901,7 @@ func! Python_init()
 	setl expandtab
 	setl ts=4 sw=4 sts=4
 	setl textwidth=78
-	iabbr ipeb import IPython as IP; IP.embed(config=IP.terminal.ipapp.load_default_config())
+	iabbr ipeb import IPython as IP; IP.embed()
 	syn keyword pythonDecorator self
 	nmap <buffer> <F8> :call Flake8()<CR>
 endfunc
@@ -946,7 +945,7 @@ func! Lua_init()
 	set makeef=/dev/null
 	let &makeprg="lua %"
 	setl expandtab
-	setl ts=3 sw=3 sts=3
+	setl ts=2 sw=2 sts=2
 	iabbr ipeb require("fb.debugger").enter()
 endfunc
 " pdf auto refresh preview
