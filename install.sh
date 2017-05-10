@@ -3,7 +3,7 @@
 # Date: Sat Jun 27 22:46:46 2015 +0800
 # Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 echo "Backup original vimfiles to ~/backup_vim* ..."
-[[ -f ~/.vimrc ]] && mv ~/.vimrc ~/backup_vimrc -v
+[[ -f ~/.vimrc ]] && mv -v ~/.vimrc ~/backup_vimrc 
 [[ -d ~/.vim ]] && mv ~/.vim ~/backup_vim
 
 LINE="---------------------------------------------------------------------"

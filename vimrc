@@ -662,7 +662,7 @@ let g:syntastic_aggregate_errors = 1
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
-let g:custom_head_list = [" File:", " Author: Yuxin Wu <ppwwyyxxc@gmail.com>"]
+let g:custom_head_list = [" File:"]
 func! GenerateHead(line)
 	call append(a:line, g:custom_head_list)
 	" comment
