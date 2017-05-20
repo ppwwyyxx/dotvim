@@ -6,23 +6,22 @@ syntax on
 filetype off						" for vundle
 
 call plug#begin('~/.vim/bundle')
-Plug 'sudo.vim'
+Plug 'vim-scripts/sudo.vim'
 " UI And Basic:
-Plug 'Color-Scheme-Explorer'
+Plug 'jlanzarotta/colorSchemeExplorer'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'Yggdroot/indentLine'
 Plug 'uguu-org/vim-matrix-screensaver'
 Plug 'kien/rainbow_parentheses.vim'
-Plug 'searchfold.vim'
-Plug 'MultipleSearch'
-Plug 'LargeFile'
+Plug 'vim-scripts/searchfold.vim'
+Plug 'vim-scripts/MultipleSearch'
+Plug 'vim-scripts/LargeFile'
 Plug 'ppwwyyxx/vim-PinyinSearch'
 Plug 'sclarki/neonwave.vim'
 
 " Window Tools:
 Plug 'tpope/vim-tbone'
-Plug 'grep.vim'
 Plug 'sjl/gundo.vim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'majutsushi/tagbar'
@@ -49,7 +48,7 @@ Plug 'kana/vim-textobj-indent'
 Plug 'kana/vim-textobj-user'
 Plug 'kana/vim-operator-user'
 Plug 'jeetsukumaran/vim-indentwise'
-Plug 'VisIncr'
+Plug 'vim-scripts/VisIncr'
 Plug 'ardagnir/united-front'
 " Programming:
 Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
@@ -64,7 +63,7 @@ Plug 'shime/vim-livedown', {'for': 'markdown'}
 Plug 'scrooloose/syntastic'
 Plug 'neomake/neomake'
 " Syntax:
-Plug 'gprof.vim'
+Plug 'vim-scripts/gprof.vim'
 Plug 'tpope/vim-markdown'
 Plug 'smilekzs/vim-coffee-script'
 Plug 'hail2u/vim-css3-syntax', {'for': 'css'}
@@ -75,12 +74,13 @@ Plug 'maksimr/vim-jsbeautify'
 Plug 'einars/js-beautify'
 Plug 'pangloss/vim-javascript', {'for': 'javascript'}
 Plug 'groenewege/vim-less'
-Plug 'Mathematica-Syntax-File'
+Plug 'vim-scripts/Mathematica-Syntax-File'
 Plug 'evanmiller/nginx-vim-syntax'
 Plug 'fs111/pydoc.vim'
 Plug 'ujihisa/rdoc.vim'
+Plug 'tikhomirov/vim-glsl'
+
 " to learn
-Plug 'tpope/vim-scriptease'
 Plug 'slim-template/vim-slim'
 Plug 'tristen/vim-sparkup'
 Plug 'wavded/vim-stylus'
@@ -119,6 +119,7 @@ set ttyfast
 " UI: f[[
 set background=light
 colo default
+set guicursor=		" neovim mess up with terminal cursor
 if has("gui_running")                  " for gvim
 	set antialias                      " font antialias
 	set guifont=inconsolata\ 15
@@ -1007,9 +1008,7 @@ au BufWritePost *
 " ---------------------------------------------------------------------
 " Misc Plugins: f[[
 " :ColorSchemeExplorer to use colorschemeexplorer
-" <Leader>di / ds to use DrawIt
 " <Leader>mar to mark
-" :Rmodel / :Rcontroller ... to use rails
 " surround: ds/cs in normal mode, s in visual mode
 " :I in block-visual mode to use VisIncr
 " <Leader>tt to Align latex table
@@ -1019,8 +1018,8 @@ au BufWritePost *
 " {count}zS to show highlight
 au BufEnter *.cpp let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './,./include,../include'
 au BufEnter *.cc let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './include,./,../include'
-au BufEnter *.hh let b:fswitchdst = 'cpp,cc' | let b:fswitchlocs = '../,./'
-au BufEnter *.h let b:fswitchdst = 'cpp,cc' | let b:fswitchlocs = './,../'
+au BufEnter *.hh let b:fswitchdst = 'cc,cpp' | let b:fswitchlocs = './,../'
+au BufEnter *.h let b:fswitchdst = 'cc,cpp' | let b:fswitchlocs = './,../'
 command! A FSHere
 command! AV FSSplitRight
 
@@ -1028,10 +1027,6 @@ command! Badapple so ~/.vim/badapple/badapple.vim
 let g:EasyMotion_leader_key = ','
 xmap s <Plug>VSurround
 let g:html_indent_inctags = "body,head,tbody"
-
-" <Leader>cv to use ColorV
-let g:colorv_cache_file = $HOME . '/.vimtmp/colorv_cache_file'
-let g:colorv_cache_fav = $HOME . '/.vimtmp/colorv_cache_fav'
 
 let g:NERDCreateDefaultMappings = 0
 nmap <Leader>cc <Plug>NERDCommenterSexy
@@ -1057,10 +1052,6 @@ xmap H <Plug>(expand_region_shrink)
 nnoremap <silent> * :execute ':Search \<' . expand('<cword>') . '\>'<cr>
 nnoremap <Leader>/ :Search<Space>
 let g:MultipleSearchMaxColors = 16
-
-nnoremap <Leader>gr :Regrep <CR><CR><CR><CR>
-let Grep_Skip_Files = '.tags tags'
-let Grep_Skip_Dirs  = 'node_modules build output .git .svn'
 
 nmap <Leader>fr :CtrlPMRU<CR>
 nmap <Leader>fb :CtrlPBuffer<CR>
@@ -1088,12 +1079,6 @@ endfunc
 
 " f]]
 " UI And Format Plugin: f[[
-let g:DoxygenToolkit_briefTag_pre = "@Synopsis  "
-let g:DoxygenToolkit_paramTag_pre = "@Param "
-let g:DoxygenToolkit_returnTag    = "@Returns   "
-let g:DoxygenToolkit_blockHeader  = "--------------------------------------------------------------------------"
-let g:DoxygenToolkit_blockFooter  = "----------------------------------------------------------------------------"
-
 " highlight words under cursor
 let g:matchmaker_enable_startup = 1
 
@@ -1146,7 +1131,7 @@ let g:gundo_width = g:win_width
 let g:gundo_preview_bottom = 1
 
 let g:pydoc_open_cmd = 'vsplit'
-let g:pydoc_cmd = '/usr/bin/pydoc2'
+let g:pydoc_cmd = '/usr/bin/pydoc'
 let g:pydoc_highlight = 0                             " don't highlight searching word
 
 let g:ConqueTerm_StartMessages = 0
