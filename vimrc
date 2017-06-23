@@ -62,6 +62,7 @@ Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
 Plug 'shime/vim-livedown', {'for': 'markdown'}
 Plug 'scrooloose/syntastic'
 Plug 'neomake/neomake'
+Plug 'airblade/vim-gitgutter'
 " Syntax:
 Plug 'vim-scripts/gprof.vim'
 Plug 'tpope/vim-markdown'
