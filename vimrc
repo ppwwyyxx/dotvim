@@ -55,7 +55,7 @@ Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
 Plug 'nvie/vim-flake8', {'for': 'python'}
 Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': 'tex'}
 Plug 'tpope/vim-rails', {'for': 'ruby'}
-Plug 'Valloric/YouCompleteMe', {'do': './install.py --clang-completer', 'for': ['cpp', 'java', 'python']}
+Plug 'Valloric/YouCompleteMe', {'do': 'python3 ./install.py --clang-completer', 'for': ['cpp', 'java', 'python']}
 Plug 'critiqjo/lldb.nvim' ", {'for': ['cpp', 'c'] }
 Plug 'othree/html5.vim', {'for': 'html'}
 Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
