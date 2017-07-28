@@ -1,6 +1,6 @@
 #!/bin/bash -e
 # File: install.sh
-# Date: Thu Jun 15 18:24:12 2017 -0700
+# Date: Fri Jul 28 11:47:32 2017 -0700
 # Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 echo "Backup original vimfiles to ~/backup_vim* ..."
 [[ -f ~/.vimrc ]] && mv -v ~/.vimrc ~/backup_vimrc
@@ -26,13 +26,13 @@ cd -
 
 vim +PlugInstall +qall
 
-echo "Patching..."
-for i in ~/.vim/patch/*; do
-   filename=`basename $i`
-   bundle="${filename%.*}"
-   echo "Patching $bundle ..."
-   cd ~/.vim/bundle/$bundle
-   patch -p0 < $i
-done
+#echo "Patching..."
+#for i in ~/.vim/patch/*; do
+   #filename=`basename $i`
+   #bundle="${filename%.*}"
+   #echo "Patching $bundle ..."
+   #cd ~/.vim/bundle/$bundle
+   #patch -p0 < $i
+#done
 
 echo "Finish installing ppwwyyxx/dotvim"
