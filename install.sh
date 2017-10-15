@@ -1,6 +1,6 @@
 #!/bin/bash -e
 # File: install.sh
-# Date: Fri Jul 28 11:47:32 2017 -0700
+# Date: Sun Oct 15 00:15:02 2017 -0700
 # Author: Yuxin Wu <ppwwyyxxc@gmail.com>
 echo "Backup original vimfiles to ~/backup_vim* ..."
 [[ -f ~/.vimrc ]] && mv -v ~/.vimrc ~/backup_vimrc
@@ -19,9 +19,9 @@ python dict_to_cases.py
 mkdir -p ~/.vimtmp/undo
 mkdir -p ~/.vimtmp/vim-fuf-data
 mkdir -p ~/.config/
-ln -sv ~/.vim ~/.config/nvim
+ln -sfv ~/.vim ~/.config/nvim
 cd ~/.config/nvim
-ln -sv ~/.vimrc ./init.vim
+ln -svf ~/.vimrc ./init.vim
 cd -
 
 vim +PlugInstall +qall

@@ -18,7 +18,6 @@ Plug 'vim-scripts/searchfold.vim'
 Plug 'vim-scripts/MultipleSearch'
 Plug 'vim-scripts/LargeFile'
 Plug 'ppwwyyxx/vim-PinyinSearch'
-Plug 'sclarki/neonwave.vim'
 
 " Window Tools:
 Plug 'tpope/vim-tbone'
@@ -76,7 +75,6 @@ Plug 'einars/js-beautify'
 Plug 'pangloss/vim-javascript', {'for': 'javascript'}
 Plug 'groenewege/vim-less'
 Plug 'vim-scripts/Mathematica-Syntax-File'
-Plug 'evanmiller/nginx-vim-syntax'
 Plug 'fs111/pydoc.vim'
 Plug 'ujihisa/rdoc.vim'
 Plug 'tikhomirov/vim-glsl'
