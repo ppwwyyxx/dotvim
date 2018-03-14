@@ -497,7 +497,7 @@ func! DeleteTrailingWhiteSpace()
 	%s/\s\+$//e
 	normal `Z
 endfunc
-au BufWrite * if &ft != 'mkd' | call DeleteTrailingWhiteSpace() | endif
+au BufWrite * if &ft != 'mkd' && &ft != 'tex' | call DeleteTrailingWhiteSpace() | endif
 
 " ---------------------------------------------------------------------
 " Log For Debugging Vimscript:
