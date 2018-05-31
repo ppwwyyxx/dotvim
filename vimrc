@@ -394,16 +394,12 @@ nmap <LocalLeader>c :call ToggleColorColumn(0)<CR>
 " Window:
 nmap <c-w><Right> 4<c-w>>
 nmap <c-w><Left> 4<c-w><
-nmap <c-w><Down> 4<c-w>+
-nmap <c-w><Up> 4<c-w>-
+nmap <c-w><Down> 4<c-w>-
+nmap <c-w><Up> 4<c-w>+
 nmap <c-h> <c-w>h
 nmap <c-l> <c-w>l
 nmap <c-k> <c-w>k
 nmap <c-j> <c-w>j
-imap <Left> <Esc><Left>
-imap <Right> <Esc><Right>
-imap <Down> <Esc><Down>
-imap <Up> <Esc><Up>
 au vimResized * exe "normal! \<c-w>="
 
 " ---------------------------------------------------------------------
@@ -577,7 +573,7 @@ nnoremap <Leader>ch :call Browser ()<CR>
 nmap <Leader>cp :!xclip -i -selection clipboard % <CR><CR>
 nnoremap <Leader>bk :!mkdir -p vim_backup; cp % vim_backup/%_bk --backup=numbered <CR>
 
-nmap <Leader>nw :set wrap!<CR>
+nmap <Leader>tw :set wrap!<CR>
 nmap <Leader>rd :redraw!<CR>
 nnoremap <silent> <Leader>no :noh <CR>:call clearmatches()<CR>:silent! SearchBuffersReset<CR>
 nnoremap <Leader>sd :! sdcv `echo <cword> \| sed -e 's/[^[:alnum:]]//g'` <CR>
@@ -697,8 +693,8 @@ func! SetTitle()
 					\ "	} while (0)" ])
 		normal G
 	elseif &ft == 'python'
-		0put=\"!/usr/bin/env python\<nl> -*- coding: utf-8 -*-\"
-		call GenerateHead(2)
+		0put=\" -*- coding: utf-8 -*-\"
+		call GenerateHead(1)
 		normal G
 	elseif &ft == 'ruby'
 		0put=\"!/usr/bin/env ruby\<nl> coding: utf-8\"
@@ -871,7 +867,7 @@ func! C_grammar_init()
 	inoremap <buffer> if<Space> if<Space>()<Left>
 	inoremap <buffer> for<Space> for<Space>()<Left>
 	"command! INDENT :!indent -linux -l80 -brf %
-	nnoremap <Leader>id :w<CR>:INDENT<CR><CR>:e<CR>
+	"nnoremap <Leader>id :w<CR>:INDENT<CR><CR>:e<CR>
 endfunc
 func! Cpp_init()
 	iabbr #i #include
@@ -938,7 +934,9 @@ func! MarkDown_init()
 	inoremap {% {%  %}<Left><Left>
 	inoremap ``` ```<CR>```<Up><End><Esc>
 	iabbr more <!-- more -->
+	" surround with link
 	xmap <Leader>l s]%a()
+	" emphasis
 	xmap <Leader>e s*gvs*
 endfunc
 func! Lua_init()
@@ -1108,7 +1106,8 @@ let g:cssbeautify_file  = fnameescape(s:rootDir."/.vim/bundle/js-beautify/beauti
 let g:indentLine_enabled = 0
 let g:indentLine_color_term = 239
 let g:indentLine_color_gui = '#A4E57E'
-nnoremap <leader>ig :IndentLinesToggle<CR>:set list! lcs=tab:\\|\<Space><CR>
+" toggle indent
+nnoremap <leader>ti :IndentLinesToggle<CR>:set list! lcs=tab:\\|\<Space><CR>
 " f]]
 
 " Window Plugins: f[[
@@ -1118,6 +1117,8 @@ let g:tagbar_width = g:win_width
 let g:tagbar_autofocus = 1
 let g:tagbar_indent = 1
 
+" toggle file
+nmap <Leader>tf :NERDTreeToggle <CR>
 nmap <Leader>fm :NERDTreeToggle <CR>
 let g:NERDTreeWinSize       = g:win_width
 let g:NERDTreeShowBookmarks = 1
