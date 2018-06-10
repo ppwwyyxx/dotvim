@@ -1,4 +1,4 @@
-" Author: Yuxin Wu <ppwwyyxxc@gmail.com>"
+" Author: Yuxin Wu
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
 syntax on
@@ -53,15 +53,15 @@ Plug 'ardagnir/united-front'
 Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
 Plug 'nvie/vim-flake8', {'for': 'python'}
 Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': 'tex'}
-Plug 'tpope/vim-rails', {'for': 'ruby'}
 Plug 'Valloric/YouCompleteMe', {'do': 'python3 ./install.py --clang-completer', 'for': ['cpp', 'java', 'python']}
-Plug 'critiqjo/lldb.nvim' ", {'for': ['cpp', 'c'] }
+Plug 'critiqjo/lldb.nvim'  ", {'for': ['cpp', 'c'] }
 Plug 'othree/html5.vim', {'for': 'html'}
 Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
 Plug 'shime/vim-livedown', {'for': 'markdown'}
 Plug 'scrooloose/syntastic'
 Plug 'neomake/neomake'
 Plug 'airblade/vim-gitgutter'
+Plug 'wakatime/vim-wakatime'
 " Syntax:
 Plug 'vim-scripts/gprof.vim'
 Plug 'tpope/vim-markdown'
@@ -505,39 +505,6 @@ func! ToggleVerbose()
 	else | set verbose=0 | set verbosefile= | endif
 endfunc
 nmap <Leader>tv :call ToggleVerbose()<CR>
-
-" ---------------------------------------------------------------------
-" Head Update:
-func! LastMod()
-	let l:line = line(".")                            " save cursor position
-	let l:col = col(".")
-	let l = min([line("$"), 4])
-	exec '1,' . l . 'substitute/' . '^\(.*File:\)[^\*]*\(.*\)$' . '/\1 ' . expand('<afile>:t') . '\2/e'
-	exec '1,' . l . 'substitute/' . '^\(.*Date:\)[^\*]*\(.*\)$' . '/\1 ' . strftime('%a %b %d %H:%M:%S %Y %z') . '\2/e'
-	call cursor(l:line, l:col)
-endfun
-au BufWritePre,FileWritePre * call LastMod()
-
-" ---------------------------------------------------------------------
-" Toggle Hex Mode:
-func! ToggleHex()
-	let l:modified=&mod | let l:oldreadonly=&readonly
-	setl ro
-	let l:oldmodifiable=&modifiable | let &modifiable=1
-	if ! exists("b:editHex") || !b:editHex
-		let b:oldft=&ft | let b:oldbin=&bin
-		setl binary
-		let &ft="xxd" | let b:editHex=1
-		%!xxd
-	else
-		let &ft=b:oldft | let b:editHex=0
-		if !b:oldbin | setl nobinary | endif
-		%!xxd -r
-	endif
-	" restore values for modified and read only state
-	let &mod=l:modified | let &readonly=l:oldreadonly | let &modifiable=l:oldmodifiable
-endfunc
-nmap <Leader>hex :call ToggleHex()
 
 " ---------------------------------------------------------------------
 " Diff Current Buffer With Correspondent Saved File:
