@@ -938,6 +938,7 @@ au BufWritePost .xbindkeysrc silent !killall -HUP xbindkeys
 au BufRead tmux.conf,.tmux* setf tmux
 au BufRead /usr/include/* setf cpp
 au BufRead SConstruct setf python
+au BufRead TARGETS setf python | set expandtab
 au BufNewFile,BufRead config.fish set ft=sh						   " syntax for fish config file
 au BufNewFile,BufRead *.json setl ft=json syntax=txt
 au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt				   " for vidir / vimv
@@ -962,6 +963,7 @@ au FileType json setl foldmethod=syntax
 au Filetype txt,crontab setl textwidth=500
 let g:tex_flavor = 'latex'                                         " default filetype for tex
 au FileType sh,zsh inoremap ` ``<Left>
+au FileType sh,zsh setl expandtab
 au BufNewFile,BufRead *.elv setl ft=zsh syntax=zsh
 au BufWritePost *
 			\ if getline(1) =~ "^#!/bin/[a-z]*sh" |
@@ -1020,6 +1022,7 @@ let g:MultipleSearchMaxColors = 16
 nmap <Leader>fr :CtrlPMRU<CR>
 nmap <Leader>fb :CtrlPBuffer<CR>
 nmap <Leader>ff :CtrlP .<CR>
+nmap <Leader>px :CtrlPClearAllCaches<CR>
 let g:ctrlp_cache_dir = $HOME . '/.vimtmp/ctrlp'
 if executable('ag')
 	" avoid mistakenly execution on my home directory
