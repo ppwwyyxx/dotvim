@@ -957,7 +957,7 @@ au BufNewFile,BufRead *.lrc setf lrc
 au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
-au Filetype coffee,jade,stylus,javascript,html,css setl expandtab
+au Filetype coffee,jade,stylus,javascript,html,css,yaml setl expandtab
 au BufNewFile,BufRead *.hwdb setl expandtab
 au FileType json setl foldmethod=syntax
 au Filetype txt,crontab setl textwidth=500
