@@ -6,8 +6,9 @@ syntax on
 filetype off						" for vundle
 
 call plug#begin('~/.vim/bundle')
-Plug 'vim-scripts/sudo.vim'
 " UI And Basic:
+if !exists('g:vscode')
+Plug 'vim-scripts/sudo.vim'
 Plug 'jlanzarotta/colorSchemeExplorer'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -15,11 +16,13 @@ Plug 'Yggdroot/indentLine'
 Plug 'uguu-org/vim-matrix-screensaver'
 Plug 'kien/rainbow_parentheses.vim'
 Plug 'vim-scripts/searchfold.vim'
-Plug 'vim-scripts/MultipleSearch'
 Plug 'vim-scripts/LargeFile'
+endif
+Plug 'vim-scripts/MultipleSearch'
 Plug 'ppwwyyxx/vim-PinyinSearch'
 
 " Window Tools:
+if !exists('g:vscode')
 Plug 'tpope/vim-tbone'
 Plug 'sjl/gundo.vim'
 Plug 'ctrlpvim/ctrlp.vim'
@@ -29,17 +32,22 @@ Plug 'sjl/clam.vim'
 Plug 'basepi/vim-conque'
 Plug 'ervandew/screen'
 Plug 'powerman/vim-plugin-viewdoc'
+endif
 " Editing Tools:
 Plug 'qstrahl/vim-matchmaker'
 Plug 'rhysd/accelerated-jk'
 Plug 'yonchu/accelerated-smooth-scroll'
 Plug 'tsaleh/vim-align'
 Plug 'tpope/vim-surround'
+if !exists('g:vscode')
 Plug 'Lokaltog/vim-easymotion'
+endif
 " use S/s to skip in a line
 Plug 'jayflo/vim-skip'
 Plug 'terryma/vim-expand-region'
+if !exists('g:vscode')
 Plug 'terryma/vim-multiple-cursors'
+endif
 Plug 'scrooloose/nerdcommenter'
 Plug 'glts/vim-textobj-comment'
 Plug 'lucapette/vim-textobj-underscore'
@@ -50,6 +58,7 @@ Plug 'jeetsukumaran/vim-indentwise'
 Plug 'vim-scripts/VisIncr'
 Plug 'ardagnir/united-front'
 " Programming:
+if !exists('g:vscode')
 Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
 Plug 'nvie/vim-flake8', {'for': 'python'}
 Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': 'tex'}
@@ -85,6 +94,7 @@ Plug 'tristen/vim-sparkup'
 Plug 'wavded/vim-stylus'
 Plug 'jeroenbourgois/vim-actionscript'
 "Plug 'derekwyatt/vim-protodef'
+endif
 call plug#end()
 filetype plugin indent on
 " --------------------------------------------------------------------- f]]
@@ -118,7 +128,9 @@ set ttyfast
 " UI: f[[
 set background=light
 colo default
+if !exists('g:vscode')
 set guicursor=		" neovim mess up with terminal cursor
+endif
 if has("gui_running")                  " for gvim
 	set antialias                      " font antialias
 	set guifont=inconsolata\ 15
@@ -129,7 +141,10 @@ if has("gui_running")                  " for gvim
 	set background=light
 	colo molokai
 	hi CursorColumn guibg=Green
-	hi Matchmaker guibg=Yellow
+	hi Matchmaker guibg=#444444
+endif
+if exists('g:vscode')
+	hi Matchmaker guibg=#444444
 endif
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
@@ -174,6 +189,7 @@ let g:tex_conceal='adgmb'
 set mouse=a
 set showcmd                            " display incomplete commands right_bottom
 set numberwidth=1
+if !exists('g:vscode')
 set relativenumber
 set number
 set ruler
@@ -193,6 +209,7 @@ let g:airline_right_sep = '«'
 let g:airline#extensions#whitespace#enabled = 0
 "let g:airline_section_z = "%p%% %#__accent_bold#%l%#__restore__#:%v"
 set noshowmode
+endif
 
 set scrolljump=5                       " lines to scroll with cursor
 set scrolloff=5                        " minimum lines to keep at border
@@ -302,6 +319,7 @@ nnoremap zo zO
 
 " ---------------------------------------------------------------------
 " QuickFix:
+if !exists('g:vscode')
 set switchbuf=split
 func! QuickfixToggle()
 	for i in range(1, winnr('$'))
@@ -315,6 +333,7 @@ endfunc
 nnoremap <Leader>q :call QuickfixToggle()<CR>
 nnoremap ]e :lnext<CR>
 nnoremap [e :lprev<CR>
+endif
 
 " ---------------------------------------------------------------------
 " Cursor Movement: f[[
@@ -350,6 +369,7 @@ inoremap <c-w> <c-g>u<c-w>
 vnoremap << <gv<gv
 vnoremap >> >gv>gv
 " Save Cursor Position:
+if !exists('g:vscode')
 au BufReadPost *
 			\ if line("'\"") > 0 && line("'\"") <= line("$") |
 			\   exe "normal g`\"" |
@@ -389,6 +409,7 @@ hi ColorColumn ctermbg=red
 "au CursorMoved,BufWinEnter * call HintCursorLine(1)		" this greatly affects performance ...
 au CursorHold,CursorHoldI,BufLeave,WinLeave * call HintCursorLine(0)
 nmap <LocalLeader>c :call ToggleColorColumn(0)<CR>
+endif
 
 " ---------------------------------------------------------------------
 " Window:
@@ -401,14 +422,6 @@ nmap <c-l> <c-w>l
 nmap <c-k> <c-w>k
 nmap <c-j> <c-w>j
 au vimResized * exe "normal! \<c-w>="
-
-" ---------------------------------------------------------------------
-" Buffer:
-nnoremap <a-Down> :bn! <CR>
-nnoremap <a-Up> :bp! <CR>
-inoremap <a-Down> <ESC>:bn! <CR>
-inoremap <a-Up> <ESC>:bp! <CR>
-nnoremap <a-k> :bd<CR>
 
 " ---------------------------------------------------------------------f]]
 " Auto Fill Brackets:
@@ -1001,8 +1014,6 @@ nmap <Leader>cl <Plug>NERDCommenterAlignLeft
 xmap <Leader>cl <Plug>NERDCommenterAlignLeft
 nmap <Leader>uc <Plug>NERDCommenterUncomment
 xmap <Leader>uc <Plug>NERDCommenterUncomment
-let g:NERDCustomDelimiters = {
-        \ 'python': { 'left': '#' } }
 
 if exists("*expand_region#custom_text_objects")
 	call expand_region#custom_text_objects({
@@ -1135,4 +1146,8 @@ if has('nvim')
     tnoremap <Esc> <C-\><C-n>
 endif
 
-" au BufWritePost *.py call jobstart("/home/wyx/Work/projects/tensorpack/docs/update.sh")
+" VSCode specifics:
+if exists('g:vscode')
+	let g:python_recommended_style = 0  " https://github.com/asvetliakov/vscode-neovim/issues/152
+	nmap <Leader>fm :call VSCodeNotify('workbench.action.toggleSidebarVisibility')<CR>
+endif
