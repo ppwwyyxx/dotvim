@@ -1150,4 +1150,6 @@ endif
 if exists('g:vscode')
 	let g:python_recommended_style = 0  " https://github.com/asvetliakov/vscode-neovim/issues/152
 	nmap <Leader>fm :call VSCodeNotify('workbench.action.toggleSidebarVisibility')<CR>
+	nmap <Leader>mm :call VSCodeNotify('editor.action.toggleMinimap')<CR>
+	nmap <C-q>z :call VSCodeNotify('workbench.action.toggleZenMode')<CR>
 endif
