@@ -129,7 +129,7 @@ set ttyfast
 set background=light
 colo default
 if !exists('g:vscode')
-set guicursor=		" neovim mess up with terminal cursor
+	set guicursor=		" neovim mess up with terminal cursor
 endif
 if has("gui_running")                  " for gvim
 	set antialias                      " font antialias
@@ -263,7 +263,6 @@ let maplocalleader=","
 let g:no_viewdoc_maps = 1
 set timeoutlen=300                     " wait for ambiguous mapping
 set ttimeoutlen=0                      " wait for xterm key escape
-"inoremap <Esc> <Esc>
 inoremap jj <ESC>
 nnoremap ; :
 command! -bang -nargs=* Q q<bang>
@@ -272,9 +271,11 @@ command! -bang -nargs=* -complete=file Wq wq<bang> <args>
 command! -bang -nargs=* -complete=file WQ wq<bang> <args>
 nnoremap <Tab> i<Tab><Esc>
 nnoremap <S-Tab> ^i<Tab><Esc>
-cnoremap %% <C-R>=expand('%:h').'/'<cr>
+if !exists('g:vscode')  " cmap slows down vscode
+	cnoremap %% <C-R>=expand('%:h').'/'<cr>
+	cmap w!! SudoWrite %
+endif
 cnoremap cd. lcd %:p:h
-cmap w!! SudoWrite %
 nnoremap "gf <C-W>gf
 " disable ex mode, help and c-a
 nnoremap Q <Esc>
@@ -344,9 +345,10 @@ endif
 let g:accelerated_jk_acceleration_limit = 500
 let g:accelerated_jk_acceleration_table = [10, 20, 30, 35, 40, 45, 50]
 
-nnoremap n nzzzv
-nnoremap N Nzzzv
-nnoremap <c-e> $
+if !exists('g:vscode')  " affect display
+	nnoremap n nzzzv
+	nnoremap N Nzzzv
+endif
 inoremap <c-h> <Left>
 inoremap <c-j> <Down>
 inoremap <c-k> <Up>
@@ -356,13 +358,15 @@ imap <c-a> <Home>
 inoremap <c-b> <S-Left>
 inoremap <a-f> <Esc>lwi
 inoremap <a-b> <Esc>bi
-cmap <c-j> <Down>
-cmap <c-k> <Up>
-cmap <a-f> <S-Right>
-cmap <c-b> <S-Left>
-cmap <a-b> <S-Left>
-cmap <c-e> <End>
-cmap <c-d> <Home>
+if !exists('g:vscode')
+	cmap <c-j> <Down>
+	cmap <c-k> <Up>
+	cmap <a-f> <S-Right>
+	cmap <c-b> <S-Left>
+	cmap <a-b> <S-Left>
+	cmap <c-e> <End>
+	cmap <c-d> <Home>
+endif
 " undoable C-U, C-W
 inoremap <c-u> <c-g>u<c-u>
 inoremap <c-w> <c-g>u<c-w>
@@ -1152,4 +1156,8 @@ if exists('g:vscode')
 	nmap <Leader>fm :call VSCodeNotify('workbench.action.toggleSidebarVisibility')<CR>
 	nmap <Leader>mm :call VSCodeNotify('editor.action.toggleMinimap')<CR>
 	nmap <C-q>z :call VSCodeNotify('workbench.action.toggleZenMode')<CR>
+	"command! q call VSCodeNotify('workbench.action.closeEditorsInGroup')
+	command! -bang Quit call VSCodeNotify('workbench.action.closeEditorsInGroup')
+	command! -bang Wq call VSCodeCall('workbench.action.files.save') | call VSCodeNotify('workbench.action.closeEditorsInGroup')
+
 endif
