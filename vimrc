@@ -274,8 +274,8 @@ nnoremap <S-Tab> ^i<Tab><Esc>
 if !exists('g:vscode')  " cmap slows down vscode
 	cnoremap %% <C-R>=expand('%:h').'/'<cr>
 	cmap w!! SudoWrite %
+	cnoremap cd. lcd %:p:h
 endif
-cnoremap cd. lcd %:p:h
 nnoremap "gf <C-W>gf
 " disable ex mode, help and c-a
 nnoremap Q <Esc>
@@ -559,7 +559,20 @@ nnoremap <Leader>bk :!mkdir -p vim_backup; cp % vim_backup/%_bk --backup=numbere
 
 nmap <Leader>tw :set wrap!<CR>
 nmap <Leader>rd :redraw!<CR>
-nnoremap <silent> <Leader>no :noh <CR>:call clearmatches()<CR>:silent! SearchBuffersReset<CR>
+
+func! ClearMyHighlight()
+	" https://vi.stackexchange.com/questions/3148/what-is-the-functional-difference-between-nohlsearch-and-set-nohlsearch
+	call clearmatches()
+	if !exists('g:vscode')
+		" cause buggy buffer to create in vscode
+		return ":let v:hlsearch=0\<CR>:silent! SearchBuffersReset\<CR>"
+	else
+		return ":let v:hlsearch=0\<CR>:silent! SearchReset\<CR>"
+	endif
+endfunc
+"nnoremap <silent> <Leader>no :noh <CR>:call clearmatches()<CR>:silent! SearchBuffersReset<CR>
+nnoremap <expr> <Leader>no ClearMyHighlight()
+
 nnoremap <Leader>sd :! sdcv `echo <cword> \| sed -e 's/[^[:alnum:]]//g'` <CR>
 
 nnoremap <Leader>pj v}Jj0O
@@ -573,7 +586,6 @@ nnoremap <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 			\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 " change current line to title case
 nnoremap <Leader>tc :s/\<\(\w\)\(\w*\)\>/\u\1\L\2/g
-nnoremap <Leader>wc :!word_count %<CR>
 
 " ---------------------------------------------------------------------f]]
 " Completetion And Tags: f[[
@@ -1155,6 +1167,7 @@ if exists('g:vscode')
 	let g:python_recommended_style = 0  " https://github.com/asvetliakov/vscode-neovim/issues/152
 	nmap <Leader>fm :call VSCodeNotify('workbench.action.toggleSidebarVisibility')<CR>
 	nmap <Leader>mm :call VSCodeNotify('editor.action.toggleMinimap')<CR>
+	nmap <Leader>tl :call VSCodeNotify('breadcrumbs.focusAndSelect')<CR>
 	nmap <C-q>z :call VSCodeNotify('workbench.action.toggleZenMode')<CR>
 	"command! q call VSCodeNotify('workbench.action.closeEditorsInGroup')
 	command! -bang Quit call VSCodeNotify('workbench.action.closeEditorsInGroup')
