@@ -127,6 +127,9 @@ set ttyfast
 " --------------------------------------------------------------------- f]]
 " UI: f[[
 set background=light
+set title
+set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:~:.:h\")})%)%(\ %a%)
+
 colo default
 if !exists('g:vscode')
 	set guicursor=		" neovim mess up with terminal cursor
@@ -688,10 +691,6 @@ func! SetTitle()
 					\ "		std::cout << std::endl;  \\",
 					\ "	} while (0)" ])
 		normal G
-	elseif &ft == 'python'
-		0put=\" -*- coding: utf-8 -*-\"
-		call GenerateHead(1)
-		normal G
 	elseif &ft == 'ruby'
 		0put=\"!/usr/bin/env ruby\<nl> coding: utf-8\"
 		call GenerateHead(2)
@@ -732,6 +731,7 @@ au Filetype dot let &makeprg="dot -Tpng -O -v % ; feh %.png"
 au Filetype php let &makeprg="php %"
 au Filetype r let &makeprg="R <% --vanilla"
 au Filetype sh let &makeprg="shellcheck -f gcc %"
+if !exists('g:vscode')
 func! InstantRun()
 	if &ft == 'python'
 		if matchstr(getline(1), 'python2') == ""
@@ -748,6 +748,7 @@ func! InstantRun()
 	else | call Make() | endif
 endfunc
 nnoremap <Leader>rr :call InstantRun() <CR>
+endif
 nnoremap <Leader>mk :call Make()<CR>
 nnoremap <Leader>mr :!make run <CR>
 " --------------------------------------------------------------------- f]]
@@ -925,11 +926,11 @@ func! Js_init()
 endfunc
 func! MarkDown_init()
 	call Tex_Formula_init()
+	setl expandtab
 	set ofu=
 	set nofoldenable
 	inoremap {% {%  %}<Left><Left>
 	inoremap ``` ```<CR>```<Up><End><Esc>
-	iabbr more <!-- more -->
 	" surround with link
 	xmap <Leader>l s]%a()
 	" emphasis
@@ -1043,7 +1044,9 @@ xmap H <Plug>(expand_region_shrink)
 
 " Use * to Multiple Search word under cusor
 nnoremap <silent> * :execute ':Search \<' . expand('<cword>') . '\>'<cr>
+if !exists('g:vscode')
 nnoremap <Leader>/ :Search<Space>
+endif
 let g:MultipleSearchMaxColors = 16
 
 nmap <Leader>fr :CtrlPMRU<CR>
@@ -1165,12 +1168,18 @@ endif
 " VSCode specifics:
 if exists('g:vscode')
 	let g:python_recommended_style = 0  " https://github.com/asvetliakov/vscode-neovim/issues/152
-	nmap <Leader>fm :call VSCodeNotify('workbench.action.toggleSidebarVisibility')<CR>
-	nmap <Leader>mm :call VSCodeNotify('editor.action.toggleMinimap')<CR>
-	nmap <Leader>tl :call VSCodeNotify('breadcrumbs.focusAndSelect')<CR>
-	nmap <C-q>z :call VSCodeNotify('workbench.action.toggleZenMode')<CR>
-	"command! q call VSCodeNotify('workbench.action.closeEditorsInGroup')
+	nnoremap <Leader>fm :call VSCodeNotify('workbench.action.toggleSidebarVisibility')<CR>
+	nnoremap <Leader>mm :call VSCodeNotify('editor.action.toggleMinimap')<CR>
+	nnoremap <Leader>tl :call VSCodeNotify('breadcrumbs.focusAndSelect')<CR>
+	nnoremap <C-q>z :call VSCodeNotify('workbench.action.toggleZenMode')<CR>
+    nnoremap <Leader>/ :call VSCodeNotify('search.action.openNewEditor')<CR>
+    nnoremap <Leader>pp :call VSCodeNotify('workbench.action.openRecent')<CR>
+    nnoremap <Leader>gc :call VSCodeNotify('gitlens.copyRemoteFileUrlToClipboard')<CR>
+	nnoremap ]e :call VSCodeNotify('editor.action.marker.nextInFiles')<CR>
+	nnoremap [e :call VSCodeNotify('editor.action.marker.prevInFiles')<CR>
+
 	command! -bang Quit call VSCodeNotify('workbench.action.closeEditorsInGroup')
 	command! -bang Wq call VSCodeCall('workbench.action.files.save') | call VSCodeNotify('workbench.action.closeEditorsInGroup')
 
+	au FileType python nnoremap <Leader>rr :call VSCodeNotify('python.execInTerminal')<CR>
 endif
