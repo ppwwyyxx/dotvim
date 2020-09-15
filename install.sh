@@ -22,7 +22,7 @@ cd ~/.config
 ln -sfv ~/.vim ./nvim
 cd -
 
-~/.vim
+cd ~/.vim
 ln -svf ~/.vimrc ./init.vim
 cd -
 
