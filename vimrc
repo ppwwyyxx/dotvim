@@ -643,7 +643,8 @@ set statusline+=%*
 
 let g:ale_linters_explicit = 1
 let g:ale_linters = {'python': ['flake8']}
-let g:ale_fixers = {'python': ['black']}
+let g:ale_fixers = {'python': ['black', 'isort']}
+let g:ale_python_black_options = "-l 100"
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
@@ -1135,6 +1136,9 @@ let g:ScreenShellTerminal = g:my_term
 nnoremap <LocalLeader>se :ScreenSend<CR>
 
 " local vimrc overwrite the global one
+if filereadable($HOME . "/.vimrc.local")
+	so $HOME/.vimrc.local
+endif
 if filereadable(getcwd() . "/.vimrc.local")
 	so .vimrc.local
 else
