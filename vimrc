@@ -29,7 +29,6 @@ Plug 'ctrlpvim/ctrlp.vim'
 Plug 'majutsushi/tagbar'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'sjl/clam.vim'
-Plug 'basepi/vim-conque'
 Plug 'ervandew/screen'
 Plug 'powerman/vim-plugin-viewdoc'
 endif
@@ -60,20 +59,19 @@ Plug 'ardagnir/united-front'
 " Programming:
 if !exists('g:vscode')
 Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
-Plug 'nvie/vim-flake8', {'for': 'python'}
 Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': 'tex'}
 Plug 'Valloric/YouCompleteMe', {'do': 'python3 ./install.py --clang-completer', 'for': ['cpp', 'java', 'python']}
 Plug 'critiqjo/lldb.nvim'  ", {'for': ['cpp', 'c'] }
 Plug 'othree/html5.vim', {'for': 'html'}
 Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
 Plug 'shime/vim-livedown', {'for': 'markdown'}
-Plug 'scrooloose/syntastic'
 Plug 'neomake/neomake'
 Plug 'airblade/vim-gitgutter'
 Plug 'wakatime/vim-wakatime'
 " Syntax:
 Plug 'vim-scripts/gprof.vim'
 Plug 'tpope/vim-markdown'
+Plug 'dense-analysis/ale'
 Plug 'smilekzs/vim-coffee-script'
 Plug 'hail2u/vim-css3-syntax', {'for': 'css'}
 Plug 'chrisbra/csv.vim', {'for': 'csv'}
@@ -641,19 +639,10 @@ let g:clang_format#style_options = {
             \ "Standard" : "C++11" }
 
 set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
-"let g:syntastic_auto_loc_list = 1	" don't open loclist
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-let g:syntastic_python_checkers = []
-let g:syntastic_python_flake8_args = "--max-line-length=120"
-let g:syntastic_lua_checkers = ["luac", "flychecklint"]
-let g:syntastic_aggregate_errors = 1
-"let g:syntastic_mode_map = { 'mode': 'passive' }
-"au BufWritePost *.py :SyntasticCheck
+let g:ale_linters_explicit = 1
+let g:ale_linters = {'python': ['flake8']}
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
@@ -896,7 +885,6 @@ func! Python_init()
 	setl textwidth=78
 	iabbr ipeb import IPython as IP; IP.embed()
 	syn keyword pythonDecorator self
-	nmap <buffer> <F8> :call Flake8()<CR>
 endfunc
 func! Ruby_init()
 	let &makeprg="ruby -c %"
@@ -1133,10 +1121,6 @@ let g:gundo_preview_bottom = 1
 let g:pydoc_open_cmd = 'vsplit'
 let g:pydoc_cmd = '/usr/bin/pydoc'
 let g:pydoc_highlight = 0                             " don't highlight searching word
-
-let g:ConqueTerm_StartMessages = 0
-let g:ConqueTerm_CWInsert = 1
-nnoremap <Leader>ip :ConqueTermVSplit ipython2<CR>
 
 " <LocalLeader>r to refresh output window
 nnoremap ! :Clam<space>
