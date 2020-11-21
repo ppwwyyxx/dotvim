@@ -643,6 +643,7 @@ set statusline+=%*
 
 let g:ale_linters_explicit = 1
 let g:ale_linters = {'python': ['flake8']}
+let g:ale_fixers = {'python': ['black']}
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
@@ -885,6 +886,7 @@ func! Python_init()
 	setl textwidth=78
 	iabbr ipeb import IPython as IP; IP.embed()
 	syn keyword pythonDecorator self
+	nmap <buffer> <F8> :ALEFix<CR>
 endfunc
 func! Ruby_init()
 	let &makeprg="ruby -c %"
