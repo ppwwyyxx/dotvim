@@ -1,7 +1,4 @@
-#!/usr/bin/python
-# $File: dict_to_cases.py
-# $Date: Mon Dec 10 23:46:08 2012 +0800
-# Author: Yuxin Wu <ppwwyyxxc@gmail.com>
+#!/usr/bin/env python
 inf = open("english_dict", "r")
 ouf = open("dict_with_cases", "w")
 

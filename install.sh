@@ -11,7 +11,7 @@ rm ~/.vim -rvf && cp vim ~/.vim -rvf
 
 echo "Generating dict..."
 cd ~/.vim/static/
-python dict_to_cases.py
+python3 dict_to_cases.py
 
 mkdir -p ~/.vimtmp/undo
 mkdir -p ~/.vimtmp/vim-fuf-data
