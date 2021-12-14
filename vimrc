@@ -17,6 +17,10 @@ Plug 'uguu-org/vim-matrix-screensaver'
 Plug 'kien/rainbow_parentheses.vim'
 Plug 'vim-scripts/searchfold.vim'
 Plug 'vim-scripts/LargeFile'
+if has('nvim')
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+endif
+Plug 'tomasiser/vim-code-dark'
 endif
 Plug 'vim-scripts/MultipleSearch'
 Plug 'ppwwyyxx/vim-PinyinSearch'
@@ -58,9 +62,10 @@ Plug 'vim-scripts/VisIncr'
 Plug 'ardagnir/united-front'
 " Programming:
 if !exists('g:vscode')
+Plug 'ruanyl/vim-gh-line'
 Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
 Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': 'tex'}
-Plug 'Valloric/YouCompleteMe', {'do': 'python3 ./install.py --clang-completer', 'for': ['cpp', 'java', 'python']}
+Plug 'Valloric/YouCompleteMe', {'do': 'python3 ./install.py --clangd-completer', 'for': ['cpp', 'java', 'python']}
 Plug 'critiqjo/lldb.nvim'  ", {'for': ['cpp', 'c'] }
 Plug 'othree/html5.vim', {'for': 'html'}
 Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
@@ -166,6 +171,7 @@ hi DiffText ctermbg=none ctermfg=55
 let g:zenburn_high_Contrast = 1
 
 " Highlight Class and Function names
+if !exists('g:vscode')
 func! HighlightClasses()
 	syn match cCustomClass     "\w\+\s*\(::\)\@="
 	hi def link cCustomClass     cppType
@@ -183,9 +189,11 @@ hi SpellLocal term=standout term=underline cterm=italic ctermfg=blue guifg=blue
 hi clear SpellRare
 hi SpellRare term=standout term=underline cterm=italic ctermfg=Blue guifg=blue
 " Statusline Highlight:
+" Having these two lines in vscode causes newline (o) to sometimes not work correctly
 au InsertEnter * hi StatusLine term=reverse ctermbg=5 gui=undercurl guisp=Magenta
 au InsertLeave * hi StatusLine term=reverse ctermfg=0 ctermbg=2 gui=bold,reverse
 let g:tex_conceal='adgmb'
+endif
 
 set mouse=a
 set showcmd                            " display incomplete commands right_bottom
@@ -235,6 +243,21 @@ set textwidth=100
 set tabstop=2 softtabstop=2 shiftwidth=2
 set showmatch matchtime=0
 
+if has('nvim') && !exists('g:vscode')
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  highlight = {
+    enable = true,
+  },
+}
+EOF
+hi clear TSVariable
+hi clear pythonTSParameter
+hi TSVariable ctermfg=white
+hi pythonTSParameter ctermfg=white
+endif
+
 set ignorecase smartcase incsearch hlsearch
 set magic                              " for regular expressions
 xnoremap / <Esc>/\%V
@@ -246,7 +269,11 @@ set history=200                        " command line history
 if has('persistent_undo')
 	set undofile                       " keep an undo record separately for every file
 	set undolevels=200
-	set undodir=~/.vimtmp/undo
+	if has('nvim')
+			set undodir=~/.vimtmp/undo
+	else
+			set undodir=~/.vimtmp/old_vim_undo
+	endif
 endif
 if has('nvim')
 	set viminfo+=n$HOME/.vimtmp/nviminfo
@@ -582,7 +609,7 @@ nmap <Leader>syn :vsplit<bar>wincmd l<bar>exe "norm! Ljz<c-v><cr>"<cr>:set scb<c
 
 nnoremap <Leader>-- o<C-R>=printf('%s%s', printf(&commentstring, ' '), repeat('-', 90))<CR><Home><Esc>
 
-nnoremap <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+nnoremap <Leader>sH :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 			\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 			\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 " change current line to title case
@@ -643,8 +670,7 @@ set statusline+=%*
 
 let g:ale_linters_explicit = 1
 let g:ale_linters = {'python': ['flake8']}
-let g:ale_fixers = {'python': ['black', 'isort']}
-let g:ale_python_black_options = "-l 100"
+let g:ale_fixers = {'python': ['black']}
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
@@ -959,7 +985,7 @@ au BufWritePost .xbindkeysrc silent !killall -HUP xbindkeys
 au BufRead tmux.conf,.tmux* setf tmux
 au BufRead /usr/include/* setf cpp
 au BufRead SConstruct setf python
-au BufRead TARGETS setf python | set expandtab
+au BufRead TARGETS setf syntax=python | set expandtab
 au BufNewFile,BufRead config.fish set ft=sh						   " syntax for fish config file
 au BufNewFile,BufRead *.json setl ft=json syntax=txt
 au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt				   " for vidir / vimv
@@ -978,7 +1004,7 @@ au BufNewFile,BufRead *.lrc setf lrc
 au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
-au Filetype coffee,jade,stylus,javascript,html,css,yaml setl expandtab
+au Filetype coffee,jade,stylus,javascript,html,css,yaml,typescript setl expandtab
 au BufNewFile,BufRead *.hwdb setl expandtab
 au FileType json setl foldmethod=syntax
 au Filetype txt,crontab setl textwidth=500
@@ -1003,6 +1029,9 @@ au BufWritePost *
 " <Leader>z/Z/iz to fold/restore/reverse_fold search result
 " Tyank, Twrite, Tput to use tbone for tmux
 " {count}zS to show highlight
+nnoremap md :LivedownToggle<CR>
+" <leader>gO to open github repo
+let g:gh_line_map = '<Leader>gC'
 au BufEnter *.cpp let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './,./include,../include'
 au BufEnter *.cc let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './include,./,../include'
 au BufEnter *.hh let b:fswitchdst = 'cc,cpp' | let b:fswitchlocs = './,../'
@@ -1136,9 +1165,6 @@ let g:ScreenShellTerminal = g:my_term
 nnoremap <LocalLeader>se :ScreenSend<CR>
 
 " local vimrc overwrite the global one
-if filereadable($HOME . "/.vimrc.local")
-	so $HOME/.vimrc.local
-endif
 if filereadable(getcwd() . "/.vimrc.local")
 	so .vimrc.local
 else
@@ -1162,14 +1188,17 @@ if exists('g:vscode')
 	nnoremap <Leader>mm :call VSCodeNotify('editor.action.toggleMinimap')<CR>
 	nnoremap <Leader>tl :call VSCodeNotify('breadcrumbs.focusAndSelect')<CR>
 	nnoremap <C-q>z :call VSCodeNotify('workbench.action.toggleZenMode')<CR>
-    nnoremap <Leader>/ :call VSCodeNotify('search.action.openNewEditor')<CR>
-    nnoremap <Leader>pp :call VSCodeNotify('workbench.action.openRecent')<CR>
-    nnoremap <Leader>gc :call VSCodeNotify('gitlens.copyRemoteFileUrlToClipboard')<CR>
+  nnoremap <Leader>/ :call VSCodeNotify('search.action.openNewEditor')<CR>
+  nnoremap <Leader>pp :call VSCodeNotify('workbench.action.openRecent')<CR>
+  nnoremap <Leader>gC :call VSCodeNotify('gitlens.copyRemoteFileUrlToClipboard')<CR>
 	nnoremap ]e :call VSCodeNotify('editor.action.marker.nextInFiles')<CR>
 	nnoremap [e :call VSCodeNotify('editor.action.marker.prevInFiles')<CR>
 
 	command! -bang Quit call VSCodeNotify('workbench.action.closeEditorsInGroup')
 	command! -bang Wq call VSCodeCall('workbench.action.files.save') | call VSCodeNotify('workbench.action.closeEditorsInGroup')
+
+	" reload file from disk:, what about :e file?
+  command! e call VSCodeNotify('workbench.action.files.revert')
 
 	au FileType python nnoremap <Leader>rr :call VSCodeNotify('python.execInTerminal')<CR>
 endif
