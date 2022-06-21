@@ -47,8 +47,8 @@ Plug 'rhysd/accelerated-jk'
 Plug 'yonchu/accelerated-smooth-scroll'
 Plug 'tsaleh/vim-align'
 Plug 'tpope/vim-surround'
-if !exists('g:vscode')
-Plug 'Lokaltog/vim-easymotion'
+if !exists('g:vscode') && has('nvim')
+Plug 'phaazon/hop.nvim'
 endif
 " use S/s to skip in a line
 Plug 'jayflo/vim-skip'
@@ -624,7 +624,7 @@ nnoremap <Leader>tc :s/\<\(\w\)\(\w*\)\>/\u\1\L\2/g
 " Completetion And Tags: f[[
 set wildmenu                                         " command-line completion
 set wildmode=list:longest,full
-set wildignore+=*.o,*.exe,main,*.pyc,*.aux,*.toc,*.bin     " don't add .class for javacomplete searching for Reflection.class
+set wildignore+=*.o,main,*.pyc,*.aux,*.toc,*.bin     " don't add .class for javacomplete searching for Reflection.class
 set wildignore+=*.git,*.svn,*.hg
 set wildignore+=*.sqlite3
 set wildignore+=*~,*.bak,*.sw,*.gif
@@ -947,7 +947,7 @@ func! Js_init()
   call C_grammar_init()
 endfunc
 func! MarkDown_init()
-  call Tex_Formula_init()
+  " call Tex_Formula_init()
   setl expandtab
   set ofu=
   set nofoldenable
@@ -990,7 +990,7 @@ au BufWritePost .xbindkeysrc silent !bash -c 'killall xbindkeys; sleep 0.5; xbin
 au BufRead tmux.conf,.tmux* setf tmux
 au BufRead /usr/include/* setf cpp
 au BufRead SConstruct setf python
-au BufRead TARGETS setf syntax=python | set expandtab
+au BufRead TARGETS,WORKSPACE setf syntax=python | set expandtab
 au BufNewFile,BufRead config.fish set ft=sh               " syntax for fish config file
 au BufNewFile,BufRead *.json setl ft=json syntax=txt
 au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt           " for vidir / vimv
@@ -1009,7 +1009,7 @@ au BufNewFile,BufRead *.lrc setf lrc
 au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
-au Filetype coffee,jade,stylus,javascript,html,css,yaml,typescript,vim setl expandtab
+au Filetype coffee,jade,stylus,javascript,html,css,yaml,typescript,vim,json,javascriptreact setl expandtab
 au BufNewFile,BufRead *.hwdb setl expandtab
 au FileType json setl foldmethod=syntax
 au Filetype txt,crontab setl textwidth=500
@@ -1045,7 +1045,12 @@ command! A FSHere
 command! AV FSSplitRight
 
 command! Badapple so ~/.vim/badapple/badapple.vim
-let g:EasyMotion_leader_key = ','
+
+if !exists('g:vscode') && has('nvim')
+lua require'hop'.setup { keys = 'etovxqpdygfblzhckisuran', jump_on_sole_occurrence = false }
+nnoremap ,w :HopWord<CR>
+endif
+
 xmap s <Plug>VSurround
 let g:html_indent_inctags = "body,head,tbody"
 
@@ -1074,7 +1079,7 @@ if !exists('g:vscode') && !has('nvim')
 endif
 let g:MultipleSearchMaxColors = 16
 
-if has('nvim')
+if has('nvim') && !exists('g:vscode')
   nnoremap <C-P> <cmd>lua require('telescope.builtin').find_files{prompt_prefix='🔍'}<cr>
   nnoremap <leader>/ <cmd>lua require('telescope.builtin').live_grep{prompt_prefix='🔍'}<cr>
   nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers{prompt_prefix='🔍'}<cr>
@@ -1094,7 +1099,7 @@ require('telescope').setup{
   },
 }
 EOF
-else
+elseif !exists('g:vscode')
   nmap <Leader>fr :CtrlPMRU<CR>
   nmap <Leader>fb :CtrlPBuffer<CR>
   nmap <Leader>ff :CtrlP .<CR>
