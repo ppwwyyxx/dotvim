@@ -8,38 +8,40 @@ filetype off            " for vundle
 call plug#begin('~/.vim/bundle')
 " UI And Basic:
 if !exists('g:vscode')
-Plug 'vim-scripts/sudo.vim'
-Plug 'jlanzarotta/colorSchemeExplorer'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'Yggdroot/indentLine'
-Plug 'uguu-org/vim-matrix-screensaver'
-Plug 'kien/rainbow_parentheses.vim'
-Plug 'vim-scripts/searchfold.vim'
-Plug 'vim-scripts/LargeFile'
-if has('nvim')
+  Plug 'vim-scripts/sudo.vim'
+  Plug 'jlanzarotta/colorSchemeExplorer'
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-airline/vim-airline-themes'
+  Plug 'Yggdroot/indentLine'
+  Plug 'uguu-org/vim-matrix-screensaver'
+  Plug 'kien/rainbow_parentheses.vim'
+  Plug 'vim-scripts/searchfold.vim'
+  Plug 'vim-scripts/LargeFile'
+  if has('nvim')
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-endif
-Plug 'tomasiser/vim-code-dark'
+    Plug 'kyazdani42/nvim-web-devicons'
+  endif
+  Plug 'tomasiser/vim-code-dark'
 endif
 Plug 'vim-scripts/MultipleSearch'
 Plug 'ppwwyyxx/vim-PinyinSearch'
 
 " Window Tools:
 if !exists('g:vscode')
-Plug 'tpope/vim-tbone'
-Plug 'sjl/gundo.vim'
-if has('nvim')
-  Plug 'nvim-lua/plenary.nvim'
-  Plug 'nvim-telescope/telescope.nvim'
-else
-  Plug 'ctrlpvim/ctrlp.vim'
-endif
-Plug 'majutsushi/tagbar'
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'sjl/clam.vim'
-Plug 'ervandew/screen'
-Plug 'powerman/vim-plugin-viewdoc'
+  Plug 'sjl/gundo.vim'
+  if has('nvim')
+    Plug 'nvim-lua/plenary.nvim'
+    Plug 'nvim-telescope/telescope.nvim'
+    Plug 'kyazdani42/nvim-tree.lua'
+    "Plug 'stevearc/aerial.nvim'
+  else
+    Plug 'ctrlpvim/ctrlp.vim'
+    Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+  endif
+  Plug 'preservim/tagbar'
+  Plug 'sjl/clam.vim'
+  Plug 'ervandew/screen'
+  Plug 'powerman/vim-plugin-viewdoc'
 endif
 " Editing Tools:
 Plug 'qstrahl/vim-matchmaker'
@@ -48,13 +50,13 @@ Plug 'yonchu/accelerated-smooth-scroll'
 Plug 'tsaleh/vim-align'
 Plug 'tpope/vim-surround'
 if !exists('g:vscode') && has('nvim')
-Plug 'phaazon/hop.nvim'
+  Plug 'phaazon/hop.nvim'
 endif
-" use S/s to skip in a line
+" Use S/s to skip halfway in a line
 Plug 'jayflo/vim-skip'
 Plug 'terryma/vim-expand-region'
 if !exists('g:vscode')
-Plug 'terryma/vim-multiple-cursors'
+  Plug 'terryma/vim-multiple-cursors'
 endif
 Plug 'scrooloose/nerdcommenter'
 Plug 'glts/vim-textobj-comment'
@@ -64,7 +66,6 @@ Plug 'kana/vim-textobj-user'
 Plug 'kana/vim-operator-user'
 Plug 'jeetsukumaran/vim-indentwise'
 Plug 'vim-scripts/VisIncr'
-Plug 'ardagnir/united-front'
 " Programming:
 if !exists('g:vscode')
 Plug 'ruanyl/vim-gh-line'
@@ -79,9 +80,9 @@ Plug 'neomake/neomake'
 Plug 'airblade/vim-gitgutter'
 Plug 'wakatime/vim-wakatime'
 " Syntax:
+Plug 'dense-analysis/ale'
 Plug 'vim-scripts/gprof.vim'
 Plug 'tpope/vim-markdown'
-Plug 'dense-analysis/ale'
 Plug 'smilekzs/vim-coffee-script'
 Plug 'hail2u/vim-css3-syntax', {'for': 'css'}
 Plug 'chrisbra/csv.vim', {'for': 'csv'}
@@ -95,13 +96,12 @@ Plug 'vim-scripts/Mathematica-Syntax-File'
 Plug 'fs111/pydoc.vim'
 Plug 'ujihisa/rdoc.vim'
 Plug 'tikhomirov/vim-glsl'
-
-" to learn
 Plug 'slim-template/vim-slim'
-Plug 'tristen/vim-sparkup'
 Plug 'wavded/vim-stylus'
 Plug 'jeroenbourgois/vim-actionscript'
-"Plug 'derekwyatt/vim-protodef'
+
+" to learn
+" Plug 'rstacruz/sparkup'
 endif
 call plug#end()
 filetype plugin indent on
@@ -251,10 +251,8 @@ set showmatch matchtime=0
 if has('nvim') && !exists('g:vscode')
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
-  highlight = {
-    enable = true,
-  },
+  ensure_installed = "all", -- or a list of languages
+  highlight = { enable = true, },
 }
 EOF
 hi clear TSVariable
@@ -1044,8 +1042,6 @@ au BufEnter *.h let b:fswitchdst = 'cc,cpp' | let b:fswitchlocs = './,../'
 command! A FSHere
 command! AV FSSplitRight
 
-command! Badapple so ~/.vim/badapple/badapple.vim
-
 if !exists('g:vscode') && has('nvim')
 lua require'hop'.setup { keys = 'etovxqpdygfblzhckisuran', jump_on_sole_occurrence = false }
 nnoremap ,w :HopWord<CR>
@@ -1147,6 +1143,7 @@ if ! has('gui_running')            " to cooperate with gvim_color_css
 endif
 
 nmap <Leader>xml :%s/></>\r</g<CR>gg=G
+" vim-jsbeautify
 nmap <Leader>js :call JsBeautify()<CR>:set ft=js<CR>
 nmap <Leader>css :call CSSBeautify()<CR>
 nmap <Leader>html :call HtmlBeautify()<CR>
@@ -1164,19 +1161,49 @@ nnoremap <leader>ti :IndentLinesToggle<CR>:set list! lcs=tab:\\|\<Space><CR>
 
 " Window Plugins: f[[
 let g:win_width = 22
-nmap <Leader>tl :TagbarToggle<CR>
-let g:tagbar_width = g:win_width
-let g:tagbar_autofocus = 1
-let g:tagbar_indent = 1
+if 0  " https://github.com/stevearc/aerial.nvim/issues/81
+lua << EOF
+require('aerial').setup({max_width = {30, 0.2}})
+EOF
+  nmap <Leader>tl :AerialToggle<CR>
+else
+  nmap <Leader>tl :TagbarToggle<CR>
+  let g:tagbar_width = g:win_width
+  let g:tagbar_autofocus = 1
+  let g:tagbar_indent = 1
+endif
 
 " toggle file
-nmap <Leader>tf :NERDTreeToggle <CR>
-nmap <Leader>fm :NERDTreeToggle <CR>
-let g:NERDTreeWinSize       = g:win_width
-let g:NERDTreeShowBookmarks = 1
-let g:NERDTreeBookmarksFile = '~/.vim/NERDTreeBookmarks'
-let g:NERDTreeHijackNetrw   = 0
-let NERDTreeIgnore          = ['\.pyc', '\~$', '\.swo$', '\.swp$', '\.git', '\.hg', '\.svn', '\.bzr']
+if has('nvim')
+  lua << EOF
+require("nvim-tree").setup({
+  view = {
+    width = 25,
+    mappings = { list = {
+      { key = "l", action = "edit" },
+      { key = "h", action = "close_node" },
+    }}
+  }
+})
+-- https://github.com/kyazdani42/nvim-tree.lua/discussions/1115
+vim.api.nvim_create_autocmd("BufEnter", {
+  nested = true,
+  callback = function()
+    if #vim.api.nvim_list_wins() == 1 and vim.api.nvim_buf_get_name(0):match("NvimTree_") ~= nil then
+      vim.cmd "quit"
+    end
+  end
+})
+EOF
+  nmap <Leader>fm :NvimTreeToggle <CR>
+else
+  nmap <Leader>fm :NERDTreeToggle <CR>
+  let g:NERDTreeWinSize       = g:win_width
+  let g:NERDTreeShowBookmarks = 1
+  let g:NERDTreeBookmarksFile = '~/.vim/NERDTreeBookmarks'
+  let g:NERDTreeHijackNetrw   = 0
+  let NERDTreeIgnore          = ['\.pyc', '\~$', '\.swo$', '\.swp$', '\.git', '\.hg', '\.svn', '\.bzr']
+endif
 
 nmap <Leader>ut :GundoToggle<CR>
 let g:gundo_width = g:win_width
