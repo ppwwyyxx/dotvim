@@ -10,18 +10,20 @@ call plug#begin('~/.vim/bundle')
 if !exists('g:vscode')
   Plug 'vim-scripts/sudo.vim'
   Plug 'jlanzarotta/colorSchemeExplorer'
-  Plug 'vim-airline/vim-airline'
-  Plug 'vim-airline/vim-airline-themes'
   Plug 'Yggdroot/indentLine'
   Plug 'uguu-org/vim-matrix-screensaver'
   Plug 'kien/rainbow_parentheses.vim'
   Plug 'vim-scripts/searchfold.vim'
   Plug 'vim-scripts/LargeFile'
+  Plug 'tomasiser/vim-code-dark'
   if has('nvim')
+    Plug 'nvim-lualine/lualine.nvim'
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     Plug 'kyazdani42/nvim-web-devicons'
+  else
+    Plug 'vim-airline/vim-airline'
+    Plug 'vim-airline/vim-airline-themes'
   endif
-  Plug 'tomasiser/vim-code-dark'
 endif
 Plug 'vim-scripts/MultipleSearch'
 Plug 'ppwwyyxx/vim-PinyinSearch'
@@ -144,13 +146,13 @@ if !exists('g:vscode')
 endif
 if has("gui_running")                  " for gvim
   set antialias                      " font antialias
-  set guifont=inconsolata\ 15
-  "set guifont=Monospace\ 12
+  "set guifont=inconsolata\ 15
+  set guifont=Monospace\ 12
   set guifontwide=WenQuanYi\ Micro\ Hei\ 15
   set guioptions=aegi                " cleaner gui
   set linespace=3
   set background=light
-  colo molokai
+  "colo molokai
   hi CursorColumn guibg=Green
   hi Matchmaker guibg=#444444
 endif
@@ -208,20 +210,68 @@ set relativenumber
 set number
 set ruler
 set rulerformat=%35(%=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %m\ %l/%L%)
-"let &statusline="%<[%{substitute(getcwd(), expand(\"$HOME\"), '~', 'g')}]\ %f\ %=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %l/%L"
-"set statusline+=%#warningmsg#
-"set statusline+=%*
 set laststatus=2
 
-"let g:airline#extensions#tabline#enabled = 1
-"let g:airline#extensions#tabline#buffer_min_count = 2
-let g:airline_theme='durant'
-"let g:airline_powerline_fonts=1
-let g:airline_mode_map = {'n': 'N', 'i': 'I', 'R': 'R', 'v': 'V', 'V': 'V'}
-let g:airline_left_sep = '»'
-let g:airline_right_sep = '«'
-let g:airline#extensions#whitespace#enabled = 0
-"let g:airline_section_z = "%p%% %#__accent_bold#%l%#__restore__#:%v"
+if has('nvim')
+  lua << END
+  local theme = require'lualine.themes.powerline_dark'
+  theme.inactive.c.fg = theme.normal.c.fg
+  theme.inactive.c.bg = theme.normal.c.bg
+  -- http://lua-users.org/wiki/SplitJoin
+  local split = function(str, pat)
+    local t = {}  -- NOTE: use {n = 0} in Lua-5.0
+    local fpat = "(.-)" .. pat
+    local last_end = 1
+    local s, e, cap = str:find(fpat, 1)
+    while s do
+       if s ~= 1 or cap ~= "" then
+          table.insert(t, cap)
+       end
+       last_end = e+1
+       s, e, cap = str:find(fpat, last_end)
+    end
+    if last_end <= #str then
+       cap = str:sub(last_end)
+       table.insert(t, cap)
+    end
+    return t
+  end
+  require('lualine').setup {
+  options = {
+    theme = theme,
+    component_separators = { left = '', right = ''},
+    section_separators = { left = '', right = ''},
+  },
+  sections = {
+    lualine_a = {{'mode', fmt = function(str) return str:sub(1,1) end }},
+    lualine_b = {'branch', 'diff'},
+    lualine_c = {
+      {'filename', path = 1, fmt = function(str)
+          -- shorten the path
+          local parts = split(str, '[\\/]+')
+          for i=1,#parts-2 do
+            parts[i] = parts[i]:sub(1, 3)
+          end
+          return table.concat(parts, "/")
+        end },
+      {'diagnostics', sources = {'nvim_diagnostic', 'ale'}}
+    },
+    lualine_x = {'encoding', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = { lualine_x = {'progress'}, },
+}
+END
+else
+  let g:airline_theme='durant'
+  "let g:airline_powerline_fonts=1
+  let g:airline_mode_map = {'n': 'N', 'i': 'I', 'R': 'R', 'v': 'V', 'V': 'V'}
+  let g:airline_left_sep = '»'
+  let g:airline_right_sep = '«'
+  let g:airline#extensions#whitespace#enabled = 0
+  let g:airline#extensions#ale#enabled = 1
+endif
 set noshowmode
 endif
 
@@ -244,7 +294,7 @@ set smarttab
 set autoindent smartindent
 set cino=N-s
 command! INDENT :pyf ~/.vim/static/clang-format.py
-set textwidth=100
+set textwidth=0
 set tabstop=2 softtabstop=2 shiftwidth=2
 set showmatch matchtime=0
 
