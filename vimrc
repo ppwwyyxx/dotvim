@@ -84,9 +84,7 @@ Plug 'wakatime/vim-wakatime'
 " Syntax:
 Plug 'dense-analysis/ale'
 Plug 'vim-scripts/gprof.vim'
-Plug 'tpope/vim-markdown'
 Plug 'smilekzs/vim-coffee-script'
-Plug 'hail2u/vim-css3-syntax', {'for': 'css'}
 Plug 'chrisbra/csv.vim', {'for': 'csv'}
 Plug 'mrtazz/DoxygenToolkit.vim'
 Plug 'digitaltoad/vim-jade', {'for': 'jade'}
@@ -97,10 +95,14 @@ Plug 'groenewege/vim-less'
 Plug 'vim-scripts/Mathematica-Syntax-File'
 Plug 'fs111/pydoc.vim'
 Plug 'ujihisa/rdoc.vim'
-Plug 'tikhomirov/vim-glsl'
 Plug 'slim-template/vim-slim'
 Plug 'wavded/vim-stylus'
 Plug 'jeroenbourgois/vim-actionscript'
+if !has('nvim')
+  Plug 'tikhomirov/vim-glsl'
+  Plug 'tpope/vim-markdown'
+  Plug 'hail2u/vim-css3-syntax', {'for': 'css'}
+endif
 
 " to learn
 " Plug 'rstacruz/sparkup'
@@ -299,16 +301,16 @@ set tabstop=2 softtabstop=2 shiftwidth=2
 set showmatch matchtime=0
 
 if has('nvim') && !exists('g:vscode')
-lua <<EOF
-require'nvim-treesitter.configs'.setup {
-  ensure_installed = "all", -- or a list of languages
-  highlight = { enable = true, },
-}
+  lua <<EOF
+  require'nvim-treesitter.configs'.setup {
+    ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'scss', 'typescript', 'vim', 'yaml' },
+    highlight = { enable = true, },
+  }
 EOF
-hi clear TSVariable
-hi clear pythonTSParameter
-hi TSVariable ctermfg=white
-hi pythonTSParameter ctermfg=white
+  hi clear TSVariable
+  hi clear pythonTSParameter
+  hi TSVariable ctermfg=white
+  hi pythonTSParameter ctermfg=white
 endif
 
 set ignorecase smartcase incsearch hlsearch
