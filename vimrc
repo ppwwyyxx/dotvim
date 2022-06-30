@@ -35,7 +35,6 @@ if !exists('g:vscode')
     Plug 'nvim-lua/plenary.nvim'
     Plug 'nvim-telescope/telescope.nvim'
     Plug 'kyazdani42/nvim-tree.lua'
-    "Plug 'stevearc/aerial.nvim'
   else
     Plug 'ctrlpvim/ctrlp.vim'
     Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
@@ -1213,17 +1212,10 @@ nnoremap <leader>ti :IndentLinesToggle<CR>:set list! lcs=tab:\\|\<Space><CR>
 
 " Window Plugins: f[[
 let g:win_width = 22
-if 0  " https://github.com/stevearc/aerial.nvim/issues/81
-lua << EOF
-require('aerial').setup({max_width = {30, 0.2}})
-EOF
-  nmap <Leader>tl :AerialToggle<CR>
-else
-  nmap <Leader>tl :TagbarToggle<CR>
-  let g:tagbar_width = g:win_width
-  let g:tagbar_autofocus = 1
-  let g:tagbar_indent = 1
-endif
+nmap <Leader>tl :TagbarToggle<CR>
+let g:tagbar_width = g:win_width
+let g:tagbar_autofocus = 1
+let g:tagbar_indent = 1
 
 " toggle file
 if has('nvim')
