@@ -345,7 +345,6 @@ let maplocalleader=","
 let g:no_viewdoc_maps = 1
 set timeoutlen=300                     " wait for ambiguous mapping
 set ttimeoutlen=0                      " wait for xterm key escape
-inoremap jj <ESC>
 nnoremap ; :
 command! -bang -nargs=* Q q<bang>
 command! -bang -nargs=* -complete=file W w<bang> <args>
@@ -1268,6 +1267,9 @@ let g:ScreenShellTerminal = g:my_term
 nnoremap <LocalLeader>se :ScreenSend<CR>
 
 " local vimrc overwrite the global one
+if filereadable(expand("~/.vimrc.local"))
+  execute 'so' expand("~/.vimrc.local")
+endif
 if filereadable(getcwd() . "/.vimrc.local")
   so .vimrc.local
 else
