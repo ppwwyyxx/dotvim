@@ -8,7 +8,6 @@ filetype off            " for vundle
 call plug#begin('~/.vim/bundle')
 " UI And Basic:
 if !exists('g:vscode')
-  Plug 'vim-scripts/sudo.vim'
   Plug 'jlanzarotta/colorSchemeExplorer'
   Plug 'Yggdroot/indentLine'
   Plug 'uguu-org/vim-matrix-screensaver'
@@ -17,10 +16,12 @@ if !exists('g:vscode')
   Plug 'vim-scripts/LargeFile'
   Plug 'tomasiser/vim-code-dark'
   if has('nvim')
+    Plug 'lambdalisue/suda.vim'
     Plug 'nvim-lualine/lualine.nvim'
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     Plug 'kyazdani42/nvim-web-devicons'
   else
+    Plug 'vim-scripts/sudo.vim'
     Plug 'vim-airline/vim-airline'
     Plug 'vim-airline/vim-airline-themes'
   endif
@@ -144,18 +145,18 @@ set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:~:.:h\")})%)%(\ %a%)
 colo default
 if !exists('g:vscode')
   set guicursor=    " neovim mess up with terminal cursor
-endif
-if has("gui_running")                  " for gvim
-  set antialias                      " font antialias
-  "set guifont=inconsolata\ 15
-  set guifont=Monospace\ 12
-  set guifontwide=WenQuanYi\ Micro\ Hei\ 15
+  if has("nvim")
+    set guifont=Monospace:h18
+  else
+    set guifont=Monospace\ 16
+  endif
   set guioptions=aegi                " cleaner gui
-  set linespace=3
-  set background=light
-  "colo molokai
+endif
+if has("gui_running") || exists('g:neovide')   " for gvim/neovide
+  colo codedark
   hi CursorColumn guibg=Green
   hi Matchmaker guibg=#444444
+  cnoremap <C-S-v> <C-r>*
 endif
 if exists('g:vscode')
   hi Matchmaker guibg=#444444
@@ -354,7 +355,11 @@ nnoremap <Tab> i<Tab><Esc>
 nnoremap <S-Tab> ^i<Tab><Esc>
 if !exists('g:vscode')  " cmap slows down vscode
   cnoremap %% <C-R>=expand('%:h').'/'<cr>
-  cmap w!! SudoWrite %
+  if has('nvim')
+    cmap w!! SudaWrite %
+  else
+    cmap w!! SudoWrite %
+  endif
   cnoremap cd. lcd %:p:h
 endif
 nnoremap "gf <C-W>gf
@@ -722,8 +727,10 @@ set statusline+=%#warningmsg#
 set statusline+=%*
 
 let g:ale_linters_explicit = 1
-let g:ale_linters = {'python': ['flake8']}
+let g:ale_linters = {'python': ['flake8'], 'sh': ['shellcheck']}
 let g:ale_fixers = {'python': ['black']}
+let g:ale_python_flake8_options = '--max-line-length 120'
+let g:ale_python_black_options = '-l 100'
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
