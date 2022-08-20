@@ -213,6 +213,7 @@ set number
 set ruler
 set rulerformat=%35(%=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %m\ %l/%L%)
 set laststatus=2
+set expandtab
 
 if has('nvim')
   lua << END
@@ -580,14 +581,12 @@ func! Fcitx_enter()
     call system("fcitx-remote -o")
   endif
 endfun
-"autocmd InsertLeave * call system("fcitx-remote -c")
 autocmd InsertEnter * call Fcitx_enter()
 
 nmap <Leader>ps :call PinyinSearch()<CR>
 nnoremap ? :call PinyinSearch()<CR>
 nmap <Leader>pn :call PinyinNext()<CR>
 let g:PinyinSearch_Dict = $HOME . "/.vim/bundle/vim-PinyinSearch/PinyinSearch.dict"
-"let g:PinyinSearch_Dict = $HOME . "/Work/projects/vim-PinyinSearch/PinyinSearch.dict"
 
 " ---------------------------------------------------------------------f]]
 " Delete Trailing Whitespaces On Saving:
@@ -870,7 +869,6 @@ func! Tex_init()
   hi clear Conceal
   let &conceallevel=has("gui_running") ? 1: 2        " conceal problem for gvim
   set concealcursor=
-  setl expandtab
   setl textwidth=99999
   set makeef=/dev/null
 
@@ -946,9 +944,8 @@ endfunc
 func! Cpp_init()
   iabbr #i #include
   iabbr #I #include
-  "set expandtab
   set syntax=cpp11.doxygen
-  setl ts=2 sw=2 sts=2 expandtab
+  setl ts=2 sw=2 sts=2
 
   let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
   if filereadable(getcwd() . "/Makefile")
@@ -968,7 +965,6 @@ func! Matlab_init()
 endfunc
 func! Python_init()
   let &makeprg="pylint --reports=n --output-format=parseable %"
-  setl expandtab
   setl ts=4 sw=4 sts=4
   setl textwidth=78
   iabbr ipeb import IPython as IP; IP.embed()
@@ -978,7 +974,6 @@ endfunc
 func! Ruby_init()
   let &makeprg="ruby -c %"
   imap <C-CR> <CR><CR>end<Esc>-cc
-  setl expandtab
   setl ts=2 sw=2 sts=2
   iabbr ipeb require 'pry'; binding.pry
 endfunc
@@ -1003,7 +998,6 @@ func! Js_init()
 endfunc
 func! MarkDown_init()
   " call Tex_Formula_init()
-  setl expandtab
   set ofu=
   set nofoldenable
   inoremap {% {%  %}<Left><Left>
@@ -1016,7 +1010,6 @@ endfunc
 func! Lua_init()
   set makeef=/dev/null
   let &makeprg="lua %"
-  setl expandtab
   setl ts=2 sw=2 sts=2
   iabbr ipeb require("fb.debugger").enter()
 endfunc
@@ -1045,7 +1038,7 @@ au BufWritePost .xbindkeysrc silent !bash -c 'killall xbindkeys; sleep 0.5; xbin
 au BufRead tmux.conf,.tmux* setf tmux
 au BufRead /usr/include/* setf cpp
 au BufRead SConstruct setf python
-au BufRead TARGETS,WORKSPACE setf syntax=python | set expandtab
+au BufRead TARGETS,WORKSPACE setf syntax=python
 au BufNewFile,BufRead config.fish set ft=sh               " syntax for fish config file
 au BufNewFile,BufRead *.json setl ft=json syntax=txt
 au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt           " for vidir / vimv
@@ -1064,13 +1057,10 @@ au BufNewFile,BufRead *.lrc setf lrc
 au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
-au Filetype coffee,jade,stylus,javascript,html,css,yaml,typescript,vim,json,javascriptreact setl expandtab
-au BufNewFile,BufRead *.hwdb setl expandtab
 au FileType json setl foldmethod=syntax
 au Filetype txt,crontab setl textwidth=500
 let g:tex_flavor = 'latex'                                         " default filetype for tex
 au FileType sh,zsh inoremap ` ``<Left>
-au FileType sh,zsh setl expandtab
 au BufNewFile,BufRead *.elv setl ft=zsh syntax=zsh
 au BufWritePost *
       \ if getline(1) =~ "^#!/bin/[a-z]*sh" |
