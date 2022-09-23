@@ -46,7 +46,6 @@ if !exists('g:vscode')
   Plug 'powerman/vim-plugin-viewdoc'
 endif
 " Editing Tools:
-Plug 'qstrahl/vim-matchmaker'
 Plug 'rhysd/accelerated-jk'
 Plug 'yonchu/accelerated-smooth-scroll'
 Plug 'tsaleh/vim-align'
@@ -58,6 +57,7 @@ endif
 Plug 'jayflo/vim-skip'
 Plug 'terryma/vim-expand-region'
 if !exists('g:vscode')
+  Plug 'qstrahl/vim-matchmaker'
   Plug 'terryma/vim-multiple-cursors'
 endif
 Plug 'scrooloose/nerdcommenter'
