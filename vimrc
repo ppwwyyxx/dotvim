@@ -1171,22 +1171,24 @@ endfunc
 
 " f]]
 " UI And Format Plugin: f[[
-" highlight words under cursor
-let g:matchmaker_enable_startup = 1
+if !exists('g:vscode')
+  " highlight words under cursor, causes ghost in vscode
+  let g:matchmaker_enable_startup = 1
 
-if ! has('gui_running')            " to cooperate with gvim_color_css
-  let g:rbpt_max            = 16
-  let g:rbpt_loadcmd_toggle = 0
-  au VimEnter * silent! RainbowParenthesesToggle
-  au Syntax * silent! RainbowParenthesesLoadRound
-  au Syntax * silent! RainbowParenthesesLoadSquare
-  " to work with css3-syntax
-  au Syntax * if &ft != "css" | silent! RainbowParenthesesLoadBraces | endif
-  let g:rbpt_colorpairs = [['brown', 'RoyalBlue3'], ['Darkblue', 'SeaGreen3'],
-        \ ['darkgray', 'DarkOrchid3'], ['darkgreen', 'firebrick3'], ['darkcyan', 'RoyalBlue3'],
-        \ ['darkred', 'SeaGreen3'], ['darkmagenta', 'DarkOrchid3'], ['brown', 'firebrick3'],
-        \ ['gray', 'RoyalBlue3'], ['darkmagenta', 'DarkOrchid3'], ['darkred', 'DarkOrchid3'],
-        \ ['Darkblue', 'firebrick3'], ['darkgreen', 'RoyalBlue3'], ['darkcyan', 'SeaGreen3']]
+  if ! has('gui_running')            " to cooperate with gvim_color_css
+    let g:rbpt_max            = 16
+    let g:rbpt_loadcmd_toggle = 0
+    au VimEnter * silent! RainbowParenthesesToggle
+    au Syntax * silent! RainbowParenthesesLoadRound
+    au Syntax * silent! RainbowParenthesesLoadSquare
+    "" to work with css3-syntax
+    au Syntax * if &ft != "css" | silent! RainbowParenthesesLoadBraces | endif
+    let g:rbpt_colorpairs = [['brown', 'RoyalBlue3'], ['Darkblue', 'SeaGreen3'],
+          \ ['darkgray', 'DarkOrchid3'], ['darkgreen', 'firebrick3'], ['darkcyan', 'RoyalBlue3'],
+          \ ['darkred', 'SeaGreen3'], ['darkmagenta', 'DarkOrchid3'], ['brown', 'firebrick3'],
+          \ ['gray', 'RoyalBlue3'], ['darkmagenta', 'DarkOrchid3'], ['darkred', 'DarkOrchid3'],
+          \ ['Darkblue', 'firebrick3'], ['darkgreen', 'RoyalBlue3'], ['darkcyan', 'SeaGreen3']]
+  endif
 endif
 
 nmap <Leader>xml :%s/></>\r</g<CR>gg=G
