@@ -965,7 +965,6 @@ func! Matlab_init()
 endfunc
 func! Python_init()
   let &makeprg="pylint --reports=n --output-format=parseable %"
-  setl ts=4 sw=4 sts=4
   setl textwidth=78
   iabbr ipeb import IPython as IP; IP.embed()
   syn keyword pythonDecorator self
