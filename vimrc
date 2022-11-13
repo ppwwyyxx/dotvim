@@ -1034,6 +1034,7 @@ au BufRead *.conf setf conf
 au BufWritePost .Xresources silent !xrdb %
 au BufWritePost .tmux.conf silent !tmux source %
 au BufWritePost .xbindkeysrc silent !bash -c 'killall xbindkeys; sleep 0.5; xbindkeys'
+au BufWritePost *.desktop,mimeapps.list silent !bash -c 'update-mime-database ~/.local/share/mime'
 au BufRead tmux.conf,.tmux* setf tmux
 au BufRead /usr/include/* setf cpp
 au BufRead SConstruct setf python
