@@ -57,6 +57,7 @@ endif
 Plug 'jayflo/vim-skip'
 Plug 'terryma/vim-expand-region'
 if !exists('g:vscode')
+  Plug 'ojroques/vim-oscyank', {'branch': 'main'}
   Plug 'qstrahl/vim-matchmaker'
   Plug 'terryma/vim-multiple-cursors'
 endif
@@ -384,7 +385,11 @@ endfunc
 nnoremap Y y$
 set pastetoggle=<F12>                  " toggle paste insert mode
 au VimEnter * set pastetoggle=<F12>     " workaround for bug in neovim #2843
-xnoremap <c-c> "+y
+if has("gui_running") || exists('g:neovide')   " for gvim/neovide
+  xnoremap <c-c> "+y
+else
+  xnoremap <C-c> :OSCYank<CR>
+endif
 inoremap <c-v> <Esc>:set paste<CR>"+p:set nopaste<CR>a
 inoremap <Leader><c-v> <Esc>:r !xsel -o -p<CR>
 " insert word of the line above
