@@ -74,7 +74,6 @@ if !exists('g:vscode')
 Plug 'ruanyl/vim-gh-line'
 Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
 Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': 'tex'}
-Plug 'Valloric/YouCompleteMe', {'do': 'python3 ./install.py --clangd-completer', 'for': ['cpp', 'java', 'python']}
 Plug 'critiqjo/lldb.nvim'  ", {'for': ['cpp', 'c'] }
 Plug 'othree/html5.vim', {'for': 'html'}
 Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
@@ -599,7 +598,7 @@ func! DeleteTrailingWhiteSpace()
   %s/\s\+$//e
   normal `Z
 endfunc
-au BufWrite * if &ft != 'mkd' && &ft != 'tex' | call DeleteTrailingWhiteSpace() | endif
+"au BufWrite * if &ft != 'mkd' && &ft != 'tex' | call DeleteTrailingWhiteSpace() | endif
 
 " ---------------------------------------------------------------------
 " Log For Debugging Vimscript:
