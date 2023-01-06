@@ -144,6 +144,7 @@ set title
 set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:~:.:h\")})%)%(\ %a%)
 
 colo default
+set termguicolors
 if !exists('g:vscode')
   set guicursor=    " neovim mess up with terminal cursor
   if has("nvim")
@@ -155,30 +156,28 @@ if !exists('g:vscode')
 endif
 if has("gui_running") || exists('g:neovide')   " for gvim/neovide
   colo codedark
-  hi CursorColumn guibg=Green
-  hi Matchmaker guibg=#444444
   cnoremap <C-S-v> <C-r>*
-endif
-if exists('g:vscode')
-  hi Matchmaker guibg=#444444
 endif
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
-hi Search guibg=#8ca509
+hi Matchmaker guibg=#444444
+hi Folded guibg=#444444
+hi Search ctermfg=red ctermbg=cyan guibg=#8ca509
+hi Visual ctermbg=81 ctermfg=black cterm=none  guibg=#8ae8f6 guifg=black
+hi MatchParen ctermbg=yellow ctermfg=black
+
 hi LineNr ctermfg=134 guifg=#d426ff
 hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=purple
-hi CursorLineNr ctermfg=red
-hi Statement ctermfg=3
-hi Visual ctermbg=81 ctermfg=black cterm=none
-hi MatchParen ctermbg=yellow ctermfg=black
-hi Pmenu ctermfg=81 ctermbg=16
-hi Cursorline ctermfg=117 cterm=italic guifg=Cyan
+hi Pmenu ctermfg=81 ctermbg=16 guibg=NONE guifg=cyan
+
 hi Comment ctermfg=blue guifg=#145ecc
-hi Search ctermfg=red ctermbg=cyan
+hi String ctermfg=13 guifg=#fd26f8
+hi Statement ctermfg=3 gui=none
+hi Type gui=none
 hi DiffAdd ctermbg=none ctermfg=LightBlue
 hi DiffChange ctermbg=none ctermfg=yellow
 hi DiffText ctermbg=none ctermfg=55
-let g:zenburn_high_Contrast = 1
+hi gitcommitSummary guifg=white
 
 " Highlight Class and Function names
 if !exists('g:vscode')
@@ -186,7 +185,7 @@ func! HighlightClasses()
   syn match cCustomClass     "\w\+\s*\(::\)\@="
   hi def link cCustomClass     cppType
 endfunc
-au syntax * call HighlightClasses()
+au syntax c,cpp call HighlightClasses()
 
 " Spell Check:
 set spellfile=~/.vim/static/spell.utf-8.add
@@ -671,9 +670,6 @@ nmap <Leader>syn :vsplit<bar>wincmd l<bar>exe "norm! Ljz<c-v><cr>"<cr>:set scb<c
 
 nnoremap <Leader>-- o<C-R>=printf('%s%s', printf(&commentstring, ' '), repeat('-', 90))<CR><Home><Esc>
 
-nnoremap <Leader>sH :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-      \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-      \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 " change current line to title case
 nnoremap <Leader>tc :s/\<\(\w\)\(\w*\)\>/\u\1\L\2/g
 
@@ -1230,6 +1226,11 @@ require("nvim-tree").setup({
       { key = "l", action = "edit" },
       { key = "h", action = "close_node" },
     }}
+  },
+  renderer = {
+    icons = { glyphs = {
+      git = { untracked = "" }
+    }}
   }
 })
 -- https://github.com/kyazdani42/nvim-tree.lua/discussions/1115
@@ -1242,6 +1243,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
   end
 })
 EOF
+  hi NvimTreeSymlink gui=none
   nmap <Leader>fm :NvimTreeToggle <CR>
 else
   nmap <Leader>fm :NERDTreeToggle <CR>
@@ -1311,4 +1313,3 @@ else
     endif
   endif
 endif
-
