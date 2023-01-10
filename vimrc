@@ -144,6 +144,11 @@ set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:~:.:h\")})%)%(\ %a%)
 
 colo default
 set termguicolors
+if !has("nvim")
+  " https://github.com/vim/vim/issues/993#issuecomment-255651605
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+endif
 if !exists('g:vscode')
   set guicursor=    " neovim mess up with terminal cursor
   if has("nvim")
@@ -160,7 +165,7 @@ endif
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
 hi Matchmaker guibg=#444444
-hi Folded guibg=#444444
+hi Folded guibg=#444444 guifg=lightblue
 hi Search ctermfg=red ctermbg=cyan guibg=#8ca509
 hi Visual ctermbg=81 ctermfg=black cterm=none  guibg=#8ae8f6 guifg=black
 hi MatchParen ctermbg=yellow ctermfg=black
@@ -173,9 +178,10 @@ hi Comment ctermfg=blue guifg=#145ecc
 hi String ctermfg=13 guifg=#fd26f8
 hi Statement ctermfg=3 gui=none
 hi Type gui=none
-hi DiffAdd ctermbg=none ctermfg=LightBlue
-hi DiffChange ctermbg=none ctermfg=yellow
-hi DiffText ctermbg=none ctermfg=55
+hi DiffAdd ctermbg=none ctermfg=LightBlue guifg=Green guibg=#2a2a2a
+hi DiffDelete guibg=#5a5a5a
+hi DiffChange ctermbg=none ctermfg=yellow guifg=orange guibg=#2a2a2a
+hi DiffText ctermbg=grey ctermfg=red guifg=#df005f guibg=#0a0a0a
 hi gitcommitSummary guifg=white
 
 " Highlight Class and Function names
