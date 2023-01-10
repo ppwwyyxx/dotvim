@@ -10,12 +10,12 @@ call plug#begin('~/.vim/bundle')
 if !exists('g:vscode')
   Plug 'jlanzarotta/colorSchemeExplorer'
   Plug 'Yggdroot/indentLine'
-  Plug 'uguu-org/vim-matrix-screensaver'
   Plug 'kien/rainbow_parentheses.vim'
   Plug 'vim-scripts/searchfold.vim'
   Plug 'vim-scripts/LargeFile'
   Plug 'tomasiser/vim-code-dark'
   if has('nvim')
+    Plug 'folke/which-key.nvim', {'branch': 'main'}
     Plug 'lambdalisue/suda.vim'
     Plug 'nvim-lualine/lualine.nvim'
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -35,6 +35,7 @@ if !exists('g:vscode')
   if has('nvim')
     Plug 'nvim-lua/plenary.nvim'
     Plug 'nvim-telescope/telescope.nvim'
+    Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make', 'branch': 'main' }
     Plug 'kyazdani42/nvim-tree.lua'
   else
     Plug 'ctrlpvim/ctrlp.vim'
@@ -59,22 +60,18 @@ Plug 'terryma/vim-expand-region'
 if !exists('g:vscode')
   Plug 'ojroques/vim-oscyank', {'branch': 'main'}
   Plug 'qstrahl/vim-matchmaker'
-  Plug 'terryma/vim-multiple-cursors'
 endif
 Plug 'scrooloose/nerdcommenter'
 Plug 'glts/vim-textobj-comment'
 Plug 'lucapette/vim-textobj-underscore'
 Plug 'kana/vim-textobj-indent'
 Plug 'kana/vim-textobj-user'
-Plug 'kana/vim-operator-user'
 Plug 'jeetsukumaran/vim-indentwise'
-Plug 'vim-scripts/VisIncr'
 " Programming:
 if !exists('g:vscode')
 Plug 'ruanyl/vim-gh-line'
 Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
 Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': 'tex'}
-Plug 'critiqjo/lldb.nvim'  ", {'for': ['cpp', 'c'] }
 Plug 'othree/html5.vim', {'for': 'html'}
 Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
 Plug 'shime/vim-livedown', {'for': 'markdown'}
@@ -84,7 +81,7 @@ Plug 'wakatime/vim-wakatime'
 " Syntax:
 Plug 'dense-analysis/ale'
 Plug 'vim-scripts/gprof.vim'
-Plug 'smilekzs/vim-coffee-script'
+Plug 'smilekzs/vim-coffee-script', {'for': 'coffee'}
 Plug 'chrisbra/csv.vim', {'for': 'csv'}
 Plug 'mrtazz/DoxygenToolkit.vim'
 Plug 'digitaltoad/vim-jade', {'for': 'jade'}
@@ -92,7 +89,6 @@ Plug 'maksimr/vim-jsbeautify'
 Plug 'einars/js-beautify'
 Plug 'pangloss/vim-javascript', {'for': 'javascript'}
 Plug 'groenewege/vim-less'
-Plug 'vim-scripts/Mathematica-Syntax-File'
 Plug 'fs111/pydoc.vim'
 Plug 'ujihisa/rdoc.vim'
 Plug 'slim-template/vim-slim'
@@ -101,11 +97,7 @@ Plug 'jeroenbourgois/vim-actionscript'
 if !has('nvim')
   Plug 'tikhomirov/vim-glsl'
   Plug 'tpope/vim-markdown'
-  Plug 'hail2u/vim-css3-syntax', {'for': 'css'}
 endif
-
-" to learn
-" Plug 'rstacruz/sparkup'
 endif
 call plug#end()
 filetype plugin indent on
@@ -121,7 +113,7 @@ if exists('$TMUX')                 " fix keymap under screen
 endif
 
 set shell=zsh
-let g:my_term = 'urxvt'                " for plugins to open window
+let g:my_term = 'alacritty'                " for plugins to open window
 set iskeyword+=%,&,?,\|,\\,!
 set isfname-==
 set grepprg=grep\ -nH\ $*
@@ -133,7 +125,6 @@ set viewoptions=folds,options,cursor,slash,unix
 set virtualedit=onemore
 scriptencoding utf-8
 set ttyfast
-"let g:html_dynamic_folds = 1
 "set lazyredraw
 
 " --------------------------------------------------------------------- f]]
@@ -194,20 +185,9 @@ au syntax c,cpp call HighlightClasses()
 
 " Spell Check:
 set spellfile=~/.vim/static/spell.utf-8.add
-hi clear SpellBad
-hi SpellBad term=standout term=underline cterm=italic ctermfg=none ctermbg=black guifg=red
-hi clear SpellCap
-hi SpellCap term=standout term=underline cterm=italic ctermfg=blue guifg=blue
-hi clear SpellLocal
-hi SpellLocal term=standout term=underline cterm=italic ctermfg=blue guifg=blue
-hi clear SpellRare
-hi SpellRare term=standout term=underline cterm=italic ctermfg=Blue guifg=blue
-" Statusline Highlight:
-" Having these two lines in vscode causes newline (o) to sometimes not work correctly
-au InsertEnter * hi StatusLine term=reverse ctermbg=5 gui=undercurl guisp=Magenta
-au InsertLeave * hi StatusLine term=reverse ctermfg=0 ctermbg=2 gui=bold,reverse
+hi SpellCap guisp=yellow
 let g:tex_conceal='adgmb'
-endif
+endif  " vscode
 
 set mouse=a
 set showcmd                            " display incomplete commands right_bottom
@@ -219,6 +199,7 @@ set ruler
 set rulerformat=%35(%=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %m\ %l/%L%)
 set laststatus=2
 set expandtab
+set noshowmode
 
 if has('nvim')
   lua << END
@@ -273,15 +254,13 @@ if has('nvim')
 END
 else
   let g:airline_theme='durant'
-  "let g:airline_powerline_fonts=1
   let g:airline_mode_map = {'n': 'N', 'i': 'I', 'R': 'R', 'v': 'V', 'V': 'V'}
   let g:airline_left_sep = '»'
   let g:airline_right_sep = '«'
   let g:airline#extensions#whitespace#enabled = 0
   let g:airline#extensions#ale#enabled = 1
 endif
-set noshowmode
-endif
+endif  " vscode
 
 set scrolljump=5                       " lines to scroll with cursor
 set scrolloff=5                        " minimum lines to keep at border
@@ -301,7 +280,6 @@ set backspace=indent,eol,start         " allow backspace over everything
 set smarttab
 set autoindent smartindent
 set cino=N-s
-command! INDENT :pyf ~/.vim/static/clang-format.py
 set textwidth=0
 set tabstop=2 softtabstop=2 shiftwidth=2
 set showmatch matchtime=0
@@ -309,6 +287,7 @@ set showmatch matchtime=0
 if has('nvim') && !exists('g:vscode')
   lua <<EOF
   require'nvim-treesitter.configs'.setup {
+    -- Do not enable for comment
     ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'scss', 'typescript', 'vim', 'yaml' },
     highlight = { enable = true, },
   }
@@ -349,10 +328,14 @@ set updatetime=500                     " time threshold for CursorHold event
 " Basic Maps:
 let mapleader=" "
 let maplocalleader=","
-let g:no_viewdoc_maps = 1
 set timeoutlen=300                     " wait for ambiguous mapping
 set ttimeoutlen=0                      " wait for xterm key escape
+if has('nvim')
+  lua require("which-key").setup {}
+endif
+
 nnoremap ; :
+let g:no_viewdoc_maps = 1  " Disable the builtin mapping
 command! -bang -nargs=* Q q<bang>
 command! -bang -nargs=* -complete=file W w<bang> <args>
 command! -bang -nargs=* -complete=file Wq wq<bang> <args>
@@ -395,7 +378,6 @@ else
   xnoremap <C-c> :OSCYank<CR>
 endif
 inoremap <c-v> <Esc>:set paste<CR>"+p:set nopaste<CR>a
-inoremap <Leader><c-v> <Esc>:r !xsel -o -p<CR>
 " insert word of the line above
 inoremap <C-Y> <C-C>:let @z = @"<CR>mz
       \:exec 'normal!' (col('.')==1 && col('$')==1 ? 'k' : 'kl')<CR>
@@ -474,7 +456,7 @@ au BufReadPost *
       \ if line("'\"") > 0 && line("'\"") <= line("$") |
       \   exe "normal g`\"" |
       \ endif
-" Hint On Moving Cursor:
+" Hint On Moving Cursor f[[
 func! HintCursorLine(opr)
   if a:opr == 0            " clear cursorline
     set nocursorline
@@ -495,6 +477,9 @@ func! HintCursorLine(opr)
   let g:last_line = cur_line
   let g:last_win  = winnr()
 endfunc
+"au CursorMoved,BufWinEnter * call HintCursorLine(1)    " this greatly affects performance ...
+"au CursorHold,CursorHoldI,BufLeave,WinLeave * call HintCursorLine(0)
+" f]]
 " Highlight Chosen Columns:
 func! ToggleColorColumn(col)
   let col_num = (a:col == 0) ? virtcol(".") : a:col
@@ -506,8 +491,6 @@ func! ToggleColorColumn(col)
   endif
 endfunc
 hi ColorColumn ctermbg=red
-"au CursorMoved,BufWinEnter * call HintCursorLine(1)    " this greatly affects performance ...
-au CursorHold,CursorHoldI,BufLeave,WinLeave * call HintCursorLine(0)
 nmap <LocalLeader>c :call ToggleColorColumn(0)<CR>
 endif
 
@@ -604,7 +587,7 @@ func! DeleteTrailingWhiteSpace()
   %s/\s\+$//e
   normal `Z
 endfunc
-"au BufWrite * if &ft != 'mkd' && &ft != 'tex' | call DeleteTrailingWhiteSpace() | endif
+nnoremap <Leader>ws :call DeleteTrailingWhiteSpace()<CR>
 
 " ---------------------------------------------------------------------
 " Log For Debugging Vimscript:
@@ -640,7 +623,7 @@ func! Browser ()
   if line==""
     let line = matchstr (line0, "www\.[^ ,;\t)]*")
   endif
-  exec "!chromium ".line
+  exec "!xdg-open ".line
   " TODO chrome cannot be run as root
 endfunc
 nnoremap <Leader>ch :call Browser ()<CR>
@@ -648,7 +631,7 @@ nnoremap <Leader>ch :call Browser ()<CR>
 " ---------------------------------------------------------------------
 " Misc Functions:
 " Copy,Backup,Evening,Nowrap,VirtualEdit,Line,Noh,Sync,pagejoin,pageq
-nmap <Leader>cp :!xclip -i -selection clipboard % <CR><CR>
+nmap <Leader>cp :!yank % <CR>
 nnoremap <Leader>bk :!mkdir -p vim_backup; cp % vim_backup/%_bk --backup=numbered <CR>
 
 nmap <Leader>tw :set wrap!<CR>
@@ -664,17 +647,13 @@ func! ClearMyHighlight()
     return ":let v:hlsearch=0\<CR>:silent! SearchReset\<CR>"
   endif
 endfunc
-"nnoremap <silent> <Leader>no :noh <CR>:call clearmatches()<CR>:silent! SearchBuffersReset<CR>
 nnoremap <expr> <Leader>no ClearMyHighlight()
 
-nnoremap <Leader>sd :! sdcv `echo <cword> \| sed -e 's/[^[:alnum:]]//g'` <CR>
-
+" Paragraph join
 nnoremap <Leader>pj v}Jj0O
 nnoremap <leader>pq gqip
-nmap <Leader>syn :vsplit<bar>wincmd l<bar>exe "norm! Ljz<c-v><cr>"<cr>:set scb<cr>:wincmd h<cr> :set scb<cr>
 
 nnoremap <Leader>-- o<C-R>=printf('%s%s', printf(&commentstring, ' '), repeat('-', 90))<CR><Home><Esc>
-
 " change current line to title case
 nnoremap <Leader>tc :s/\<\(\w\)\(\w*\)\>/\u\1\L\2/g
 
@@ -697,22 +676,10 @@ set tags=.tags
 nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <CR><CR>
 
 let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
-"let g:ycm_key_detailed_diagnostics = "<Leader>yd"
-"let g:ycm_complete_in_comments = 1
 let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_autoclose_preview_window_after_insertion = 1
-"let g:ycm_collect_identifiers_from_tags_files = 0    " slow
 let g:ycm_confirm_extra_conf = 0
-"let g:ycm_cache_omnifunc = 1
-"let g:ycm_min_num_identifier_candidate_chars = 3
-"nnoremap <leader>jd :YcmCompleter GoTo<CR>
-
-let g:EclimCompletionMethod = 'omnifunc'
-
-let g:sparkup = '~/.vim/bundle/sparkup/sparkup'
-let g:sparkupExecuteMapping = '<C-z>'
-" <C-n> to jump to next empty tag
 
 let g:clang_format#code_style = 'google'
 let g:clang_format#style_options = {
@@ -777,10 +744,6 @@ func! SetTitle()
     0put=\"!/usr/bin/env ruby\<nl> coding: utf-8\"
     call GenerateHead(2)
     normal G
-  "elseif &ft == 'html'
-    "call setline(1, "html:5")
-    "normal $
-    "call feedkeys("\<C-z>")                                " call sparkup
   elseif &ft == 'java'
     call GenerateHead(0)
     call append(line("$"), ["public class ". file_head . " {", "\tpublic static void main(String[] args) {", "\t}", "}"])
@@ -791,7 +754,6 @@ func! SetTitle()
   endif
 endfunc
 au BufNewFile *.* call SetTitle()
-au BufNewFile Makefile exec ":r ~/Work/projects/image_stitching/src/Makefile"
 
 " ---------------------------------------------------------------------f]]
 " Make For Programming: f[[
@@ -944,13 +906,10 @@ func! C_grammar_init()
   inoremap <buffer> {{ {}<Left><CR><CR><Up><Tab>
   inoremap <buffer> if<Space> if<Space>()<Left>
   inoremap <buffer> for<Space> for<Space>()<Left>
-  "command! INDENT :!indent -linux -l80 -brf %
-  "nnoremap <Leader>id :w<CR>:INDENT<CR><CR>:e<CR>
 endfunc
 func! Cpp_init()
   iabbr #i #include
   iabbr #I #include
-  set syntax=cpp11.doxygen
   setl ts=2 sw=2 sts=2
 
   let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
@@ -961,7 +920,7 @@ func! Cpp_init()
   endif
 
   call C_grammar_init()
-  syn keyword cppType real_t Vec Vec2D Vector Matrix Plane Sphere Geometry Ray Color Img imgptr PII PDB PDD PDI PID PIF
+  syn keyword cppType real_t Vec Vec2D Vector Matrix Color PII PDD
   syn keyword cppSTLType T
 endfunc
 func! Matlab_init()
@@ -971,7 +930,7 @@ func! Matlab_init()
 endfunc
 func! Python_init()
   let &makeprg="pylint --reports=n --output-format=parseable %"
-  setl textwidth=78
+  setl textwidth=90
   iabbr ipeb import IPython as IP; IP.embed()
   syn keyword pythonDecorator self
   nmap <buffer> <F8> :ALEFix<CR>
@@ -1016,7 +975,6 @@ func! Lua_init()
   set makeef=/dev/null
   let &makeprg="lua %"
   setl ts=2 sw=2 sts=2
-  iabbr ipeb require("fb.debugger").enter()
 endfunc
 " pdf auto refresh preview
 if has('nvim')
@@ -1147,6 +1105,7 @@ require('telescope').setup{
     }
   },
 }
+require('telescope').load_extension('fzf')
 EOF
 elseif !exists('g:vscode')
   nmap <Leader>fr :CtrlPMRU<CR>
@@ -1164,16 +1123,6 @@ elseif !exists('g:vscode')
       \ 'PtrCurRight()': ['<right>'],
       \ }
 endif
-
-func! RangerChooser()
-  let arg0 = has('gui_running') ? "urxvt -e " : " "
-  exec "silent !" . arg0 . " ranger --choosefile=/tmp/chosenfile " . expand("%:p:h")
-  if filereadable('/tmp/chosenfile')
-    exec 'edit ' . system('cat /tmp/chosenfile')
-    call system('rm /tmp/chosenfile')
-  endif
-  redraw!
-endfunc
 
 " f]]
 " UI And Format Plugin: f[[
