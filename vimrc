@@ -19,6 +19,8 @@ if !exists('g:vscode')
     Plug 'lambdalisue/suda.vim'
     Plug 'nvim-lualine/lualine.nvim'
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    " playground provides :TSHighlightCapturesUnderCursor
+    Plug 'nvim-treesitter/playground'
     Plug 'kyazdani42/nvim-web-devicons'
   else
     Plug 'vim-scripts/sudo.vim'
@@ -54,8 +56,6 @@ Plug 'tpope/vim-surround'
 if !exists('g:vscode') && has('nvim')
   Plug 'phaazon/hop.nvim'
 endif
-" Use S/s to skip halfway in a line
-Plug 'jayflo/vim-skip'
 Plug 'terryma/vim-expand-region'
 if !exists('g:vscode')
   Plug 'ojroques/vim-oscyank', {'branch': 'main'}
@@ -296,10 +296,7 @@ if has('nvim') && !exists('g:vscode')
     highlight = { enable = true, },
   }
 EOF
-  hi clear TSVariable
-  hi clear pythonTSParameter
-  hi TSVariable ctermfg=white
-  hi pythonTSParameter ctermfg=white
+  hi link TSConstructor Type
 endif
 
 set ignorecase smartcase incsearch hlsearch
@@ -984,6 +981,7 @@ au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
 au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
 au FileType json setl foldmethod=syntax
+au FileType yaml setl foldmethod=indent foldlevel=99 fml=1
 au Filetype txt,crontab setl textwidth=500
 let g:tex_flavor = 'latex'                                         " default filetype for tex
 au FileType sh,zsh inoremap ` ``<Left>
