@@ -1,4 +1,4 @@
-.vim/.netrwhist
+vim/.netrwhist
 *.pyc
 doc/tags
 .tags
@@ -6,3 +6,5 @@ doc/tags
 *.o
 
 vim/static/dict_with_cases
+vim/bundle
+vim/init.vim

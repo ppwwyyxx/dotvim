@@ -78,6 +78,10 @@ Plug 'shime/vim-livedown', {'for': 'markdown'}
 Plug 'neomake/neomake'
 Plug 'airblade/vim-gitgutter'
 Plug 'wakatime/vim-wakatime'
+if has('nvim')
+  Plug 'neovim/nvim-lspconfig'
+  Plug 'onsails/lspkind.nvim'
+endif
 " Syntax:
 Plug 'dense-analysis/ale'
 Plug 'vim-scripts/gprof.vim'
@@ -531,50 +535,8 @@ au Filetype mkd,tex,txt,lrc silent! iunmap '
 au Filetype vim silent! iunmap "
 au Filetype vim silent! iunmap ""
 " ---------------------------------------------------------------------
-" About Chinese: f[[
-" punctuations auto changing has unexpected problems
-imap （ (
-imap ） )
-imap 』 }
-imap 『 {
-imap 【 [
-imap 】 ]
-imap 。 .
-imap ， ,
-imap ； ;
-imap ： :
-imap “ "
-imap ” "
-imap ‘ '
-imap ’ '
-imap ？ ?
-imap ！ !
-imap 》 >
-imap 《 <
-imap 、 /
-imap ￥ $
-imap 》 >
-imap 《 <
-map ： :
-
-func! Replace_Chn()                     " for writing latex
-  let chinese={"（" : "(" , "）" : ")" , "，" : ",", "；" : ";", "：" : ":",
-  "？" : "?", "！" : "!", "“" : "\"", "’" : "'" ,
-  ""”" : "\"", "℃" : "\\\\textcelsius", "μ" : "$\\\\mu$"}
-  for i in keys(chinese)
-    silent! exec '%substitute/' . i . '/'. chinese[i] . '/g'
-  endfor
-endfunc
-nnoremap <leader>sch :call Replace_Chn()<cr>
-
-" Fcitx:
-func! Fcitx_enter()
-  if (getline('.')[col('.') - 1] >= "\x80" || getline('.')[col('.') - 2] >= "\x80")
-    call system("fcitx-remote -o")
-  endif
-endfun
-autocmd InsertEnter * call Fcitx_enter()
-
+" Pinyin
+source $HOME/.vim/chinese.vim
 nmap <Leader>ps :call PinyinSearch()<CR>
 nnoremap ? :call PinyinSearch()<CR>
 nmap <Leader>pn :call PinyinNext()<CR>
@@ -1252,18 +1214,4 @@ if exists('g:vscode')
   au FileType python nnoremap <Leader>rr :call VSCodeNotify('python.execInTerminal')<CR>
 endif
 
-" local vimrc overwrite the global one
-if filereadable(expand("~/.vimrc.local"))
-  execute 'so' expand("~/.vimrc.local")
-endif
-if filereadable(getcwd() . "/.vimrc.local")
-  so .vimrc.local
-else
-  if filereadable(getcwd() . "/../.vimrc.local")
-    so ../.vimrc.local
-  else
-    if filereadable(getcwd() . "/../../.vimrc.local")
-      so ../../.vimrc.local
-    endif
-  endif
-endif
+source $HOME/.vim/source_local.vim
