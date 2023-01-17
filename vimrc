@@ -2,109 +2,135 @@
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
 syntax on
-" Plugins: f[[
-filetype off            " for vundle
+if has('nvim') " Plugins for neovim: f[[
+set packpath+=$XDG_CONFIG_HOME/nvim/nvim
+lua << EOF
+local ensure_packer = function()
+  local fn = vim.fn
+  local install_path = fn.stdpath('config')..'nvim/pack/packer/start/packer.nvim'
+  if fn.empty(fn.glob(install_path)) > 0 then
+    fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
+    vim.cmd [[packadd packer.nvim]]
+    return true
+  end
+  return false
+end
+local packer_bootstrap = ensure_packer()
+packer = require('packer')
+local util = require('packer.util')
+local use = packer.use
+packer.init({
+  package_root = util.join_paths(vim.fn.stdpath('config'), 'nvim', 'pack'),
+})
+use 'wbthomason/packer.nvim'
 
+-- UI And Basic:
+if not vim.g.vscode then
+  use 'Yggdroot/indentLine' -- https://github.com/Yggdroot/indentLine/issues/345
+  use 'vim-scripts/searchfold.vim'
+  use 'vim-scripts/LargeFile'
+  use {'folke/which-key.nvim', branch = 'main'}
+  use {'lambdalisue/suda.vim', opt = true, cmd = 'SudaWrite'}
+  use 'nvim-lualine/lualine.nvim'
+  use {'nvim-treesitter/nvim-treesitter', run = ':TSUpdate'}
+  use {'nvim-treesitter/playground', opt = true, cmd = 'TSHighlightCapturesUnderCursor'}
+end
+use 'vim-scripts/MultipleSearch'
+use 'ppwwyyxx/vim-PinyinSearch'
+
+-- Window Tools:
+if not vim.g.vscode then
+  use {'mbbill/undotree', opt = true, cmd = 'UndotreeToggle'}
+  use 'nvim-lua/plenary.nvim'
+  use 'nvim-telescope/telescope.nvim'
+  use {'nvim-telescope/telescope-fzf-native.nvim', run = 'make', branch = 'main' }
+  use {'nvim-tree/nvim-tree.lua', requires = 'nvim-tree/nvim-web-devicons'}
+  use {'preservim/tagbar', opt = true, cmd = 'TagbarToggle'}
+end
+
+-- Editing Tools:
+use 'rhysd/accelerated-jk'
+use 'yonchu/accelerated-smooth-scroll'
+use 'tsaleh/vim-align'
+use 'tpope/vim-surround'
+use 'terryma/vim-expand-region'
+if not vim.g.vscode then
+  use 'phaazon/hop.nvim'
+  use {'ojroques/vim-oscyank', branch = 'main'}
+  use 'qstrahl/vim-matchmaker'
+end
+use 'scrooloose/nerdcommenter'
+use {'glts/vim-textobj-comment', requires = 'kana/vim-textobj-user'}
+use {'lucapette/vim-textobj-underscore', requires = 'kana/vim-textobj-user'}
+use {'kana/vim-textobj-indent', requires = 'kana/vim-textobj-user'}
+use 'jeetsukumaran/vim-indentwise'
+
+-- Programming:
+if not vim.g.vscode then
+  use 'ruanyl/vim-gh-line'
+  use {'LaTeX-Box-Team/LaTeX-Box', ft = 'tex'}
+  use {'derekwyatt/vim-fswitch', ft = {'cpp', 'c'}}
+  use {'shime/vim-livedown', ft = 'markdown'}
+  use 'neomake/neomake'
+  use 'airblade/vim-gitgutter'
+  use 'wakatime/vim-wakatime'
+  -- LSP:
+  use 'neovim/nvim-lspconfig'
+  use 'onsails/lspkind.nvim'
+
+  -- Syntax:
+  use 'dense-analysis/ale'
+  use 'vim-scripts/gprof.vim'
+  use {'smilekzs/vim-coffee-script', ft = 'coffee'}
+  use {'chrisbra/csv.vim', ft = 'csv'}
+  use {'digitaltoad/vim-jade', ft = 'jade'}
+  use {'maksimr/vim-jsbeautify', ft = {'html', 'javascript', 'css', 'json'}, rtp = ""}
+  use {'pangloss/vim-javascript', ft = 'javascript'}
+  use {'groenewege/vim-less', ft = 'less'}
+  use {'fs111/pydoc.vim', ft = 'python'}
+  use 'ujihisa/rdoc.vim'
+  use {'slim-template/vim-slim', ft = 'slim'}
+  use {'wavded/vim-stylus', ft = 'stylus'}
+  use {'jeroenbourgois/vim-actionscript', ft = 'actionscript'}
+end
+if packer_bootstrap then
+  require('packer').sync()
+end
+EOF
+else  " f]]
+" Plugins for pure vim: f[[
+filetype off            " for vundle
 call plug#begin('~/.vim/bundle')
 " UI And Basic:
-if !exists('g:vscode')
-  Plug 'jlanzarotta/colorSchemeExplorer'
-  Plug 'Yggdroot/indentLine'
-  Plug 'kien/rainbow_parentheses.vim'
-  Plug 'vim-scripts/searchfold.vim'
-  Plug 'vim-scripts/LargeFile'
-  Plug 'tomasiser/vim-code-dark'
-  if has('nvim')
-    Plug 'folke/which-key.nvim', {'branch': 'main'}
-    Plug 'lambdalisue/suda.vim'
-    Plug 'nvim-lualine/lualine.nvim'
-    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-    " playground provides :TSHighlightCapturesUnderCursor
-    Plug 'nvim-treesitter/playground'
-    Plug 'kyazdani42/nvim-web-devicons'
-  else
-    Plug 'vim-scripts/sudo.vim'
-    Plug 'vim-airline/vim-airline'
-    Plug 'vim-airline/vim-airline-themes'
-  endif
-endif
-Plug 'vim-scripts/MultipleSearch'
+Plug 'vim-scripts/LargeFile'
+Plug 'vim-scripts/sudo.vim'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 Plug 'ppwwyyxx/vim-PinyinSearch'
 
 " Window Tools:
-if !exists('g:vscode')
-  Plug 'sjl/gundo.vim'
-  if has('nvim')
-    Plug 'nvim-lua/plenary.nvim'
-    Plug 'nvim-telescope/telescope.nvim'
-    Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make', 'branch': 'main' }
-    Plug 'kyazdani42/nvim-tree.lua'
-  else
-    Plug 'ctrlpvim/ctrlp.vim'
-    Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-  endif
-  Plug 'preservim/tagbar'
-  Plug 'sjl/clam.vim'
-  Plug 'ervandew/screen'
-  Plug 'powerman/vim-plugin-viewdoc'
-endif
+Plug 'mbbill/undotree'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'preservim/tagbar'
+
 " Editing Tools:
 Plug 'rhysd/accelerated-jk'
 Plug 'yonchu/accelerated-smooth-scroll'
-Plug 'tsaleh/vim-align'
-Plug 'tpope/vim-surround'
-if !exists('g:vscode') && has('nvim')
-  Plug 'phaazon/hop.nvim'
-endif
-Plug 'terryma/vim-expand-region'
-if !exists('g:vscode')
-  Plug 'ojroques/vim-oscyank', {'branch': 'main'}
-  Plug 'qstrahl/vim-matchmaker'
-endif
+Plug 'ojroques/vim-oscyank', {'branch': 'main'}
+Plug 'qstrahl/vim-matchmaker'
 Plug 'scrooloose/nerdcommenter'
-Plug 'glts/vim-textobj-comment'
-Plug 'lucapette/vim-textobj-underscore'
-Plug 'kana/vim-textobj-indent'
-Plug 'kana/vim-textobj-user'
-Plug 'jeetsukumaran/vim-indentwise'
 " Programming:
-if !exists('g:vscode')
 Plug 'ruanyl/vim-gh-line'
-Plug 'myhere/vim-nodejs-complete', {'for': 'javascript'}
-Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': 'tex'}
-Plug 'othree/html5.vim', {'for': 'html'}
 Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
-Plug 'shime/vim-livedown', {'for': 'markdown'}
 Plug 'neomake/neomake'
 Plug 'airblade/vim-gitgutter'
 Plug 'wakatime/vim-wakatime'
-if has('nvim')
-  Plug 'neovim/nvim-lspconfig'
-  Plug 'onsails/lspkind.nvim'
-endif
 " Syntax:
 Plug 'dense-analysis/ale'
-Plug 'vim-scripts/gprof.vim'
-Plug 'smilekzs/vim-coffee-script', {'for': 'coffee'}
-Plug 'chrisbra/csv.vim', {'for': 'csv'}
-Plug 'mrtazz/DoxygenToolkit.vim'
-Plug 'digitaltoad/vim-jade', {'for': 'jade'}
-Plug 'maksimr/vim-jsbeautify'
-Plug 'einars/js-beautify'
-Plug 'pangloss/vim-javascript', {'for': 'javascript'}
-Plug 'groenewege/vim-less'
-Plug 'fs111/pydoc.vim'
-Plug 'ujihisa/rdoc.vim'
-Plug 'slim-template/vim-slim'
-Plug 'wavded/vim-stylus'
-Plug 'jeroenbourgois/vim-actionscript'
-if !has('nvim')
-  Plug 'tikhomirov/vim-glsl'
-  Plug 'tpope/vim-markdown'
-endif
-endif
 call plug#end()
 filetype plugin indent on
+endif "f]]
 " --------------------------------------------------------------------- f]]
 
 " Environment: f[[
@@ -1108,13 +1134,9 @@ endif
 
 nmap <Leader>xml :%s/></>\r</g<CR>gg=G
 " vim-jsbeautify
-nmap <Leader>js :call JsBeautify()<CR>:set ft=js<CR>
+nmap <Leader>js :call JsBeautify()<CR>
 nmap <Leader>css :call CSSBeautify()<CR>
 nmap <Leader>html :call HtmlBeautify()<CR>
-let s:rootDir           = fnamemodify(expand("<sfile>"), ":h")
-let g:jsbeautify_file   = fnameescape(s:rootDir."/.vim/bundle/js-beautify/beautify.js")
-let g:htmlbeautify_file = fnameescape(s:rootDir."/.vim/bundle/js-beautify/beautify-html.js")
-let g:cssbeautify_file  = fnameescape(s:rootDir."/.vim/bundle/js-beautify/beautify-css.js")
 
 let g:indentLine_enabled = 0
 let g:indentLine_color_term = 239
@@ -1168,9 +1190,9 @@ else
   let NERDTreeIgnore          = ['\.pyc', '\~$', '\.swo$', '\.swp$', '\.git', '\.hg', '\.svn', '\.bzr']
 endif
 
-nmap <Leader>ut :GundoToggle<CR>
-let g:gundo_width = g:win_width
-let g:gundo_preview_bottom = 1
+nmap <Leader>ut :UndotreeToggle<CR>
+let g:undotree_SplitWidth = g:win_width
+let g:undotree_WindowLayout = 2
 
 let g:pydoc_open_cmd = 'vsplit'
 let g:pydoc_cmd = '/usr/bin/pydoc'

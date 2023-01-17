@@ -1,4 +1,4 @@
-" About Chinese: f[[
+" About Chinese:
 " punctuations auto changing has unexpected problems
 imap （ (
 imap ） )
