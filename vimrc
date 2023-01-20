@@ -1,69 +1,80 @@
 " Author: Yuxin Wu
 
 set nocompatible                    " Use Vim Settings (Not Vi). This must be first, because it changes other options as a side effect.
-syntax on
+" Needs to be set before lazy.
+let mapleader=" "
+let maplocalleader=","
 if has('nvim') " Plugins for neovim: f[[
-set packpath+=$XDG_CONFIG_HOME/nvim/nvim
 lua << EOF
-local ensure_packer = function()
-  local fn = vim.fn
-  local install_path = fn.stdpath('config')..'nvim/pack/packer/start/packer.nvim'
-  if fn.empty(fn.glob(install_path)) > 0 then
-    fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
-    vim.cmd [[packadd packer.nvim]]
-    return true
-  end
-  return false
+local lazypath = vim.fn.stdpath("config") .. "/bundle/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", lazypath,
+  })
 end
-local packer_bootstrap = ensure_packer()
-packer = require('packer')
-local util = require('packer.util')
-local use = packer.use
-packer.init({
-  package_root = util.join_paths(vim.fn.stdpath('config'), 'nvim', 'pack'),
-})
-use 'wbthomason/packer.nvim'
+vim.opt.rtp:prepend(lazypath)
+local plugins = {}
+local use = function(x) table.insert(plugins, x) end
 
 -- UI And Basic:
 if not vim.g.vscode then
-  use 'Yggdroot/indentLine' -- https://github.com/Yggdroot/indentLine/issues/345
+  -- https://github.com/Yggdroot/indentLine/issues/345
+  use {'Yggdroot/indentLine', config = function()
+    vim.g.indentLine_enabled = 0
+    vim.g.indentLine_color_term = 239
+    vim.g.indentLine_color_gui = '#A4E57E'
+  end }
   use 'vim-scripts/searchfold.vim'
   use 'vim-scripts/LargeFile'
-  use {'folke/which-key.nvim', branch = 'main'}
-  use {'lambdalisue/suda.vim', opt = true, cmd = 'SudaWrite'}
+  use {'folke/which-key.nvim', branch = 'main', config = true}
+  use {'lambdalisue/suda.vim', cmd = 'SudaWrite'}
   use 'nvim-lualine/lualine.nvim'
-  -- https://github.com/wbthomason/packer.nvim/issues/1180
-  use {'nvim-treesitter/nvim-treesitter', run = 'require("nvim-treesitter.install").update({ with_sync = true })()'}
-  use {'nvim-treesitter/playground', opt = true, cmd = 'TSHighlightCapturesUnderCursor'}
+  -- https://github.com/folke/lazy.nvim/issues/389
+  use {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = "BufReadPost",
+    opts = {
+      -- Do not enable for comment
+      ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'scss', 'typescript', 'vim', 'yaml' },
+      highlight = { enable = true, },
+    },
+    config = function(plugin, opts)
+      require("nvim-treesitter.configs").setup(opts)
+      vim.cmd [[hi link TSConstructor Type]]
+    end,
+  }
+  use {'nvim-treesitter/playground', cmd = 'TSHighlightCapturesUnderCursor'}
+  use {'dstein64/vim-startuptime', cmd = 'StartupTime'}
 end
 use 'vim-scripts/MultipleSearch'
 use 'ppwwyyxx/vim-PinyinSearch'
 
 -- Window Tools:
 if not vim.g.vscode then
-  use {'mbbill/undotree', opt = true, cmd = 'UndotreeToggle'}
+  use {'mbbill/undotree', cmd = 'UndotreeToggle'}
   use 'nvim-lua/plenary.nvim'
   use 'nvim-telescope/telescope.nvim'
-  use {'nvim-telescope/telescope-fzf-native.nvim', run = 'make', branch = 'main' }
-  use {'nvim-tree/nvim-tree.lua', requires = 'nvim-tree/nvim-web-devicons'}
-  use {'preservim/tagbar', opt = true, cmd = 'TagbarToggle'}
+  use {'nvim-telescope/telescope-fzf-native.nvim', build = 'make', branch = 'main' }
+  use {'nvim-tree/nvim-tree.lua', dependencies = 'nvim-tree/nvim-web-devicons'}
+  use {'preservim/tagbar', cmd = 'TagbarToggle'}
 end
 
 -- Editing Tools:
 use 'rhysd/accelerated-jk'
 use 'yonchu/accelerated-smooth-scroll'
-use 'tsaleh/vim-align'
+use {'tsaleh/vim-align', cmd = {'Align', 'AlignCtrl'} }
 use 'tpope/vim-surround'
 use 'terryma/vim-expand-region'
 if not vim.g.vscode then
-  use 'phaazon/hop.nvim'
+  use {'phaazon/hop.nvim',
+    opts = { keys = 'etovxqpdygfblzhckisuran', jump_on_sole_occurrence = false },
+    keys = {{',w', ':HopWord<cr>', mode='n'}}
+  }
   use {'ojroques/vim-oscyank', branch = 'main'}
-  use 'qstrahl/vim-matchmaker'
+  use {'qstrahl/vim-matchmaker', event = "BufReadPost"} -- delay loading so it can read the config
 end
 use 'scrooloose/nerdcommenter'
-use {'glts/vim-textobj-comment', requires = 'kana/vim-textobj-user'}
-use {'lucapette/vim-textobj-underscore', requires = 'kana/vim-textobj-user'}
-use {'kana/vim-textobj-indent', requires = 'kana/vim-textobj-user'}
+use {'glts/vim-textobj-comment', dependencies = 'kana/vim-textobj-user'}
+use {'kana/vim-textobj-indent', dependencies = 'kana/vim-textobj-user'}
 use 'jeetsukumaran/vim-indentwise'
 
 -- Programming:
@@ -85,7 +96,7 @@ if not vim.g.vscode then
   use {'smilekzs/vim-coffee-script', ft = 'coffee'}
   use {'chrisbra/csv.vim', ft = 'csv'}
   use {'digitaltoad/vim-jade', ft = 'jade'}
-  use {'maksimr/vim-jsbeautify', ft = {'html', 'javascript', 'css', 'json'}, rtp = ""}
+  use {'maksimr/vim-jsbeautify', ft = {'html', 'javascript', 'css', 'json'}}
   use {'pangloss/vim-javascript', ft = 'javascript'}
   use {'groenewege/vim-less', ft = 'less'}
   use {'fs111/pydoc.vim', ft = 'python'}
@@ -94,12 +105,17 @@ if not vim.g.vscode then
   use {'wavded/vim-stylus', ft = 'stylus'}
   use {'jeroenbourgois/vim-actionscript', ft = 'actionscript'}
 end
-if packer_bootstrap then
-  require('packer').sync()
+if vim.fn.filereadable(vim.fn.stdpath("config") .. "/lua/local_plugin.lua") then
+  use {import = 'local_plugin'}
 end
+require("lazy").setup(plugins, {
+  root = vim.fn.stdpath("config") .. "/bundle"
+})
+
 EOF
 else  " f]]
 " Plugins for pure vim: f[[
+syntax on
 filetype off            " for vundle
 call plug#begin('~/.vim/bundle')
 " UI And Basic:
@@ -132,7 +148,6 @@ Plug 'dense-analysis/ale'
 call plug#end()
 filetype plugin indent on
 endif "f]]
-" --------------------------------------------------------------------- f]]
 
 " Environment: f[[
 if exists('$TMUX')                 " fix keymap under screen
@@ -157,7 +172,6 @@ set virtualedit=onemore
 scriptencoding utf-8
 set ttyfast
 "set lazyredraw
-
 " --------------------------------------------------------------------- f]]
 " UI: f[[
 set background=light
@@ -317,17 +331,6 @@ set textwidth=0
 set tabstop=2 softtabstop=2 shiftwidth=2
 set showmatch matchtime=0
 
-if has('nvim') && !exists('g:vscode')
-  lua <<EOF
-  require'nvim-treesitter.configs'.setup {
-    -- Do not enable for comment
-    ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'scss', 'typescript', 'vim', 'yaml' },
-    highlight = { enable = true, },
-  }
-EOF
-  hi link TSConstructor Type
-endif
-
 set ignorecase smartcase incsearch hlsearch
 set magic                              " for regular expressions
 xnoremap / <Esc>/\%V
@@ -356,13 +359,8 @@ set updatetime=500                     " time threshold for CursorHold event
 
 " ---------------------------------------------------------------------
 " Basic Maps:
-let mapleader=" "
-let maplocalleader=","
 set timeoutlen=300                     " wait for ambiguous mapping
 set ttimeoutlen=0                      " wait for xterm key escape
-if has('nvim')
-  lua require("which-key").setup {}
-endif
 
 nnoremap ; :
 let g:no_viewdoc_maps = 1  " Disable the builtin mapping
@@ -375,6 +373,7 @@ nnoremap <S-Tab> ^i<Tab><Esc>
 if !exists('g:vscode')  " cmap slows down vscode
   cnoremap %% <C-R>=expand('%:h').'/'<cr>
   if has('nvim')
+    tnoremap <Esc> <C-\><C-n>
     cmap w!! SudaWrite %
   else
     cmap w!! SudoWrite %
@@ -486,7 +485,7 @@ au BufReadPost *
       \ if line("'\"") > 0 && line("'\"") <= line("$") |
       \   exe "normal g`\"" |
       \ endif
-" Hint On Moving Cursor f[[
+" Hint On Moving Cursor
 func! HintCursorLine(opr)
   if a:opr == 0            " clear cursorline
     set nocursorline
@@ -509,7 +508,6 @@ func! HintCursorLine(opr)
 endfunc
 "au CursorMoved,BufWinEnter * call HintCursorLine(1)    " this greatly affects performance ...
 "au CursorHold,CursorHoldI,BufLeave,WinLeave * call HintCursorLine(0)
-" f]]
 " Highlight Chosen Columns:
 func! ToggleColorColumn(col)
   let col_num = (a:col == 0) ? virtcol(".") : a:col
@@ -568,7 +566,6 @@ nnoremap ? :call PinyinSearch()<CR>
 nmap <Leader>pn :call PinyinNext()<CR>
 let g:PinyinSearch_Dict = $HOME . "/.vim/bundle/vim-PinyinSearch/PinyinSearch.dict"
 
-" ---------------------------------------------------------------------f]]
 " Delete Trailing Whitespaces On Saving:
 func! DeleteTrailingWhiteSpace()
   normal mZ
@@ -600,7 +597,6 @@ endfunc
 command! DiffSaved call DiffWithSaved()
 nnoremap <Leader>df :call DiffWithSaved()<CR>
 
-" ---------------------------------------------------------------------f]]
 " Open Browser:
 func! Browser ()
   let line0 = getline (".")
@@ -645,7 +641,6 @@ nnoremap <Leader>-- o<C-R>=printf('%s%s', printf(&commentstring, ' '), repeat('-
 " change current line to title case
 nnoremap <Leader>tc :s/\<\(\w\)\(\w*\)\>/\u\1\L\2/g
 
-" ---------------------------------------------------------------------f]]
 " Completetion And Tags: f[[
 set wildmenu                                         " command-line completion
 set wildmode=list:longest,full
@@ -958,6 +953,7 @@ func! MarkDown_init()
   xmap <Leader>l s]%a()
   " emphasis
   xmap <Leader>e s*gvs*
+  nnoremap md :LivedownToggle<CR>
 endfunc
 func! Lua_init()
   set makeef=/dev/null
@@ -1023,16 +1019,13 @@ au BufWritePost *
 
 " ---------------------------------------------------------------------
 " Misc Plugins: f[[
-" :ColorSchemeExplorer to use colorschemeexplorer
 " <Leader>mar to mark
 " surround: ds/cs in normal mode, s in visual mode
-" :I in block-visual mode to use VisIncr
 " <Leader>tt to Align latex table
 " <Leader>t=  <Leader>T=  to Align = (left or right)
 " <Leader>z/Z/iz to fold/restore/reverse_fold search result
 " Tyank, Twrite, Tput to use tbone for tmux
 " {count}zS to show highlight
-nnoremap md :LivedownToggle<CR>
 " <leader>gO to open github repo
 if !$DISPLAY | let g:gh_open_command = '' | endif
 let g:gh_line_map_default = 0  " disable default map
@@ -1043,11 +1036,6 @@ au BufEnter *.hh let b:fswitchdst = 'cc,cpp' | let b:fswitchlocs = './,../'
 au BufEnter *.h let b:fswitchdst = 'cc,cpp' | let b:fswitchlocs = './,../'
 command! A FSHere
 command! AV FSSplitRight
-
-if !exists('g:vscode') && has('nvim')
-lua require'hop'.setup { keys = 'etovxqpdygfblzhckisuran', jump_on_sole_occurrence = false }
-nnoremap ,w :HopWord<CR>
-endif
 
 xmap s <Plug>VSurround
 let g:html_indent_inctags = "body,head,tbody"
@@ -1143,13 +1131,9 @@ nmap <Leader>js :call JsBeautify()<CR>
 nmap <Leader>css :call CSSBeautify()<CR>
 nmap <Leader>html :call HtmlBeautify()<CR>
 
-let g:indentLine_enabled = 0
-let g:indentLine_color_term = 239
-let g:indentLine_color_gui = '#A4E57E'
 " toggle indent
 nnoremap <leader>ti :IndentLinesToggle<CR>:set list! lcs=tab:\\|\<Space><CR>
 " f]]
-
 " Window Plugins: f[[
 let g:win_width = 22
 nmap <Leader>tl :TagbarToggle<CR>
@@ -1202,20 +1186,7 @@ let g:undotree_WindowLayout = 2
 let g:pydoc_open_cmd = 'vsplit'
 let g:pydoc_cmd = '/usr/bin/pydoc'
 let g:pydoc_highlight = 0                             " don't highlight searching word
-
-" <LocalLeader>r to refresh output window
-nnoremap ! :Clam<space>
-vnoremap ! :ClamVisual<space>
-
-" Use `:ScreenShell ipython` to open a parallel python shell
-let g:ScreenImpl = 'Tmux'
-let g:ScreenShellHeight = 20
-let g:ScreenShellTerminal = g:my_term
-nnoremap <LocalLeader>se :ScreenSend<CR>
-
-if has('nvim')
-    tnoremap <Esc> <C-\><C-n>
-endif
+" f]]
 
 " VSCode specifics:
 if exists('g:vscode')

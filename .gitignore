@@ -10,3 +10,5 @@ vim/bundle
 vim/init.vim
 vim/nvim
 vim/plugin/packer_compiled.lua
+vim/lua/local_plugin.lua
+vim/lazy
