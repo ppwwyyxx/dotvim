@@ -32,7 +32,8 @@ if not vim.g.vscode then
   use {'folke/which-key.nvim', branch = 'main'}
   use {'lambdalisue/suda.vim', opt = true, cmd = 'SudaWrite'}
   use 'nvim-lualine/lualine.nvim'
-  use {'nvim-treesitter/nvim-treesitter', run = ':TSUpdate'}
+  -- https://github.com/wbthomason/packer.nvim/issues/1180
+  use {'nvim-treesitter/nvim-treesitter', run = 'require("nvim-treesitter.install").update({ with_sync = true })()'}
   use {'nvim-treesitter/playground', opt = true, cmd = 'TSHighlightCapturesUnderCursor'}
 end
 use 'vim-scripts/MultipleSearch'
@@ -265,11 +266,13 @@ if has('nvim')
     lualine_a = {{'mode', fmt = function(str) return str:sub(1,1) end }},
     lualine_b = {'branch', 'diff'},
     lualine_c = {
-      {'filename', path = 1, fmt = function(str)
+      {'filename', shorting_target = 0, path = 1, fmt = function(str)
           -- shorten the path
+          local idx = str:find('/google3/')
+          if idx ~= nil then str = str:sub(idx + 9) end
           local parts = split(str, '[\\/]+')
           for i=1,#parts-2 do
-            parts[i] = parts[i]:sub(1, 3)
+            parts[i] = parts[i]:sub(1, 4)
           end
           return table.concat(parts, "/")
         end },
@@ -436,7 +439,7 @@ func! QuickfixToggle()
   endfor
   copen
 endfunc
-nnoremap <Leader>q :call QuickfixToggle()<CR>
+nnoremap <C-g> :call QuickfixToggle()<CR>
 nnoremap ]e :lnext<CR>
 nnoremap [e :lprev<CR>
 endif
@@ -1031,6 +1034,8 @@ au BufWritePost *
 " {count}zS to show highlight
 nnoremap md :LivedownToggle<CR>
 " <leader>gO to open github repo
+if !$DISPLAY | let g:gh_open_command = '' | endif
+let g:gh_line_map_default = 0  " disable default map
 let g:gh_line_map = '<Leader>gC'
 au BufEnter *.cpp let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './,./include,../include'
 au BufEnter *.cc let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './include,./,../include'
