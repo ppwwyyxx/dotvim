@@ -89,6 +89,10 @@ if not vim.g.vscode then
   -- LSP:
   use 'neovim/nvim-lspconfig'
   use 'onsails/lspkind.nvim'
+  use { "SmiteshP/nvim-navic", 
+        requires = "neovim/nvim-lspconfig",
+        opts = { separator = "  " }
+      }
 
   -- Syntax:
   use 'dense-analysis/ale'
@@ -179,8 +183,7 @@ set title
 set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:~:.:h\")})%)%(\ %a%)
 
 colo default
-set termguicolors
-if !has("nvim")
+if has("nvim") | set termguicolors | else
   " https://github.com/vim/vim/issues/993#issuecomment-255651605
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
@@ -220,6 +223,15 @@ hi DiffChange ctermbg=none ctermfg=yellow guifg=orange guibg=#2a2a2a
 hi DiffText ctermbg=grey ctermfg=red guifg=#df005f guibg=#0a0a0a
 hi gitcommitSummary guifg=white
 
+" treesitter hlgroups:
+if has('nvim')
+  hi @variable guifg=white ctermfg=white
+  hi @field guifg=white ctermfg=white
+  hi link @variable.builtin Special
+  hi link @attribute.builtin Special
+  au FileType python :hi link @constructor @function  " cannot distinguish
+endif
+
 " Highlight Class and Function names
 if !exists('g:vscode')
 func! HighlightClasses()
@@ -247,28 +259,21 @@ set expandtab
 set noshowmode
 
 if has('nvim')
+  set cmdheight=0
   lua << END
   local theme = require'lualine.themes.powerline_dark'
   theme.inactive.c.fg = theme.normal.c.fg
   theme.inactive.c.bg = theme.normal.c.bg
-  -- http://lua-users.org/wiki/SplitJoin
-  local split = function(str, pat)
-    local t = {}  -- NOTE: use {n = 0} in Lua-5.0
-    local fpat = "(.-)" .. pat
-    local last_end = 1
-    local s, e, cap = str:find(fpat, 1)
-    while s do
-       if s ~= 1 or cap ~= "" then
-          table.insert(t, cap)
-       end
-       last_end = e+1
-       s, e, cap = str:find(fpat, last_end)
+  local navic = require("nvim-navic")
+  local filenamefmt = function(str)
+    -- shorten the path
+    local idx = str:find('/google3/')
+    if idx ~= nil then str = str:sub(idx + 9) end
+    local parts = vim.split(str, '[\\/]+', {trimempty = true})
+    for i=1,#parts-2 do
+      parts[i] = parts[i]:sub(1, 4)
     end
-    if last_end <= #str then
-       cap = str:sub(last_end)
-       table.insert(t, cap)
-    end
-    return t
+    return table.concat(parts, "/")
   end
   require('lualine').setup {
   options = {
@@ -280,23 +285,22 @@ if has('nvim')
     lualine_a = {{'mode', fmt = function(str) return str:sub(1,1) end }},
     lualine_b = {'branch', 'diff'},
     lualine_c = {
-      {'filename', shorting_target = 0, path = 1, fmt = function(str)
-          -- shorten the path
-          local idx = str:find('/google3/')
-          if idx ~= nil then str = str:sub(idx + 9) end
-          local parts = split(str, '[\\/]+')
-          for i=1,#parts-2 do
-            parts[i] = parts[i]:sub(1, 4)
-          end
-          return table.concat(parts, "/")
-        end },
-      {'diagnostics', sources = {'nvim_diagnostic', 'ale'}}
+      {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = '+'} },
+      {'diagnostics', sources = {'nvim_diagnostic', 'ale'}},
     },
-    lualine_x = {'encoding', 'filetype'},
-    lualine_y = {'progress'},
-    lualine_z = {'location'}
+    lualine_x = {'filetype'}, lualine_y = {}, lualine_z = {'location'}
   },
-  inactive_sections = { lualine_x = {'progress'}, },
+  winbar = {
+    lualine_c = {
+      {'filename', symbols = { modified = '+'}, cond = navic.is_available },
+      { navic.get_location, cond = navic.is_available },
+    },
+  },
+  inactive_sections = { 
+    lualine_c = {
+      {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = '+'} },
+    },
+    lualine_x = {'encoding', 'filetype'}, },
 }
 END
 else
