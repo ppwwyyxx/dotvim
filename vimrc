@@ -20,6 +20,7 @@ local use = function(x) table.insert(plugins, x) end
 -- UI And Basic:
 if not vim.g.vscode then
   -- https://github.com/Yggdroot/indentLine/issues/345
+  use 'folke/tokyonight.nvim'
   use {'Yggdroot/indentLine', config = function()
     vim.g.indentLine_enabled = 0
     vim.g.indentLine_color_term = 239
@@ -88,7 +89,8 @@ if not vim.g.vscode then
   use 'wakatime/vim-wakatime'
   -- LSP:
   use 'neovim/nvim-lspconfig'
-  use 'onsails/lspkind.nvim'
+  use 'folke/lsp-colors.nvim'
+  --use 'onsails/lspkind.nvim'
   use { "SmiteshP/nvim-navic", 
         requires = "neovim/nvim-lspconfig",
         opts = { separator = "  " }
@@ -209,7 +211,7 @@ hi Search ctermfg=red ctermbg=cyan guibg=#8ca509
 hi Visual ctermbg=81 ctermfg=black cterm=none  guibg=#8ae8f6 guifg=black
 hi MatchParen ctermbg=yellow ctermfg=black
 
-hi LineNr ctermfg=134 guifg=#d426ff
+hi LineNr ctermfg=134 guifg=#d426ff guibg=#24283b
 hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=purple
 hi Pmenu ctermfg=81 ctermbg=16 guibg=NONE guifg=cyan
 
@@ -223,14 +225,33 @@ hi DiffChange ctermbg=none ctermfg=yellow guifg=orange guibg=#2a2a2a
 hi DiffText ctermbg=grey ctermfg=red guifg=#df005f guibg=#0a0a0a
 hi gitcommitSummary guifg=white
 
-" treesitter hlgroups:
 if has('nvim')
+  " treesitter hlgroups:
   hi @variable guifg=white ctermfg=white
   hi @field guifg=white ctermfg=white
   hi link @variable.builtin Special
   hi link @attribute.builtin Special
   au FileType python :hi link @constructor @function  " cannot distinguish
+
+  hi SignColumn guibg=#24283b
+  hi DiagnosticError guibg=#24283b
+  hi DiagnosticWarn guibg=#24283b
+  hi DiagnosticInfo guibg=#24283b
+  hi DiagnosticHint guibg=#24283b
+  hi link ALEErrorSign DiagnosticSignError
+  hi link ALEWarningSign DiagnosticSignWarn
+  lua << EOF
+  -- https://github.com/neovim/neovim/issues/14295#issuecomment-950037927
+  local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+  for type, icon in pairs(signs) do
+    local hl = "DiagnosticSign" .. type
+    vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
+  end
+EOF
 endif
+let g:ale_sign_error = ''
+let g:ale_sign_warning = ''
+
 
 " Highlight Class and Function names
 if !exists('g:vscode')
@@ -275,6 +296,11 @@ if has('nvim')
     end
     return table.concat(parts, "/")
   end
+
+  local show_winbar = function()
+    -- show only if window is at top
+    return navic.is_available() and vim.fn.winnr('1k') == vim.fn.winnr()
+  end
   require('lualine').setup {
   options = {
     theme = theme,
@@ -292,8 +318,8 @@ if has('nvim')
   },
   winbar = {
     lualine_c = {
-      {'filename', symbols = { modified = '+'}, cond = navic.is_available },
-      { navic.get_location, cond = navic.is_available },
+      {'filename', symbols = { modified = '+'}, cond = show_winbar },
+      { navic.get_location, cond = show_winbar },
     },
   },
   inactive_sections = { 
