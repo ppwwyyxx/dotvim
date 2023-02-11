@@ -111,7 +111,7 @@ if not vim.g.vscode then
   use {'wavded/vim-stylus', ft = 'stylus'}
   use {'jeroenbourgois/vim-actionscript', ft = 'actionscript'}
 end
-if vim.fn.filereadable(vim.fn.stdpath("config") .. "/lua/local_plugin.lua") then
+if vim.fn.filereadable(vim.fn.stdpath("config") .. "/lua/local_plugin.lua") == 1 then
   use {import = 'local_plugin'}
 end
 require("lazy").setup(plugins, {
@@ -233,11 +233,11 @@ if has('nvim')
   hi link @attribute.builtin Special
   au FileType python :hi link @constructor @function  " cannot distinguish
 
-  hi SignColumn guibg=#24283b
-  hi DiagnosticError guibg=#24283b
-  hi DiagnosticWarn guibg=#24283b
-  hi DiagnosticInfo guibg=#24283b
-  hi DiagnosticHint guibg=#24283b
+  for group in ["SignColumn", "DiagnosticError", "DiagnosticWarn", "DiagnosticInfo", "DiagnosticHint", "GitGutterAdd", "GitGutterChange", "GitGutterDelete"]
+    exec "hi" group "guibg=#24283b"
+  endfor
+  hi DiagnosticUnderlineError gui=undercurl
+  hi DiagnosticUnderlineWarn gui=undercurl
   hi link ALEErrorSign DiagnosticSignError
   hi link ALEWarningSign DiagnosticSignWarn
   lua << EOF
@@ -252,6 +252,9 @@ endif
 let g:ale_sign_error = ''
 let g:ale_sign_warning = ''
 
+hi GitGutterDelete guifg=red
+hi GitGutterAdd guifg=green
+hi GitGutterChange guifg=orange
 
 " Highlight Class and Function names
 if !exists('g:vscode')

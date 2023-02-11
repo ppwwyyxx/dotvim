@@ -1,11 +1,22 @@
 #!/bin/bash -e
-echo "Backup original vimfiles to ~/backup_vim* ..."
+echo "Cleanup original vimfiles to ~/backup_vim* ..."
 [[ -f ~/.vimrc ]] && mv -v ~/.vimrc ~/backup_vimrc
 [[ -d ~/.vim ]] && mv ~/.vim ~/backup_vim
+rm -rf ~/.config/nvim
+rm -rf ~/.vim
 
-echo "Copying files..."
-cp vimrc ~/.vimrc
-rm ~/.vim -rvf && cp vim ~/.vim -rvf
+REPO_ROOT=$(dirname "$0")
+
+echo "Linking files..."
+pushd
+cd $HOME
+ln -sfv $REPO_ROOT/vim ./.vim
+ln -svf $REPO_ROOT/vimrc ./.vimrc
+
+mkdir -p ~/.config/
+ln -svf $REPO_ROOT/vim ./.config/nvim
+ln -svf $REPO_ROOT/vimrc ./.config/nvim/init.vim
+popd
 
 echo "Generating dict..."
 cd ~/.vim/static/
@@ -13,18 +24,9 @@ python3 dict_to_cases.py
 
 mkdir -p ~/.vimtmp/undo
 mkdir -p ~/.vimtmp/vim-fuf-data
-mkdir -p ~/.config/
-rm -rf ~/.config/nvim
 
-cd ~/.config
-ln -sfv ~/.vim ./nvim
-cd -
-
-cd ~/.vim
-ln -svf ~/.vimrc ./init.vim
-cd -
-
-vim +PlugInstall +qall
+#vim +PlugInstall +qall
+#nvim -c "PackerInstall"
 
 #echo "Patching..."
 #for i in ~/.vim/patch/*; do
