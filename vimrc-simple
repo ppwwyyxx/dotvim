@@ -47,10 +47,10 @@ if has("gui_running")                  " for gvim
 	hi Matchmaker guibg=#333
 endif
 set t_Co=256
+hi LineNr ctermfg=134 guifg=#d426ff
+hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=#65ec9b
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
 hi Search guibg=#8ca509
-hi LineNr ctermfg=134 guifg=#d426ff
-hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=purple
 hi CursorLineNr ctermfg=red
 hi Statement ctermfg=3
 hi Visual ctermbg=81 ctermfg=black cterm=none

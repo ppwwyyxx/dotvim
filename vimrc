@@ -28,7 +28,7 @@ if not vim.g.vscode then
   end }
   use 'vim-scripts/searchfold.vim'
   use 'vim-scripts/LargeFile'
-  use {'folke/which-key.nvim', branch = 'main', config = true}
+  use {'folke/which-key.nvim', branch = 'main'}
   use {'lambdalisue/suda.vim', cmd = 'SudaWrite'}
   use 'nvim-lualine/lualine.nvim'
   -- https://github.com/folke/lazy.nvim/issues/389
@@ -38,10 +38,7 @@ if not vim.g.vscode then
       ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'scss', 'typescript', 'vim', 'yaml' },
       highlight = { enable = true, },
     },
-    config = function(plugin, opts)
-      require("nvim-treesitter.configs").setup(opts)
-      vim.cmd [[hi link TSConstructor Type]]
-    end,
+    config = function(p, opts) require("nvim-treesitter.configs").setup(opts) end,
   }
   use {'nvim-treesitter/playground', cmd = 'TSHighlightCapturesUnderCursor'}
   use {'dstein64/vim-startuptime', cmd = 'StartupTime'}
@@ -53,8 +50,23 @@ use 'ppwwyyxx/vim-PinyinSearch'
 if not vim.g.vscode then
   use {'mbbill/undotree', cmd = 'UndotreeToggle'}
   use 'nvim-lua/plenary.nvim'
-  use 'nvim-telescope/telescope.nvim'
-  use {'nvim-telescope/telescope-fzf-native.nvim', build = 'make', branch = 'main' }
+  use {'nvim-telescope/telescope.nvim', lazy = true, opts = {
+    defaults = {
+      mappings = {
+        i = {
+          ["<C-s>"] = "file_split",
+          ["<Esc>"] = "close",
+          ["<C-j>"] = "move_selection_next",
+          ["<C-k>"] = "move_selection_previous",
+        }
+      }
+    },
+    config = function(p, opts) 
+      require('telescope').setup(opts)
+      require('telescope').load_extension('fzf')
+    end
+  }}
+  use {'nvim-telescope/telescope-fzf-native.nvim', build = 'make', branch = 'main', lazy = true }
   use {'nvim-tree/nvim-tree.lua', dependencies = 'nvim-tree/nvim-web-devicons'}
   use {'preservim/tagbar', cmd = 'TagbarToggle'}
 end
@@ -71,7 +83,9 @@ if not vim.g.vscode then
     keys = {{',w', ':HopWord<cr>', mode='n'}}
   }
   use {'ojroques/vim-oscyank', branch = 'main'}
-  use {'qstrahl/vim-matchmaker', event = "BufReadPost"} -- delay loading so it can read the config
+  -- highlight words under cursor, causes ghost in vscode
+  vim.g.matchmaker_enable_startup = 1
+  use {'qstrahl/vim-matchmaker'} -- delay loading so it can read the config
 end
 use 'scrooloose/nerdcommenter'
 use {'glts/vim-textobj-comment', dependencies = 'kana/vim-textobj-user'}
@@ -85,6 +99,7 @@ if not vim.g.vscode then
   use {'derekwyatt/vim-fswitch', ft = {'cpp', 'c'}}
   use {'shime/vim-livedown', ft = 'markdown'}
   use 'neomake/neomake'
+  vim.g.gitgutter_sign_modified_removed = '~'
   use 'airblade/vim-gitgutter'
   use 'wakatime/vim-wakatime'
   -- LSP:
@@ -92,9 +107,18 @@ if not vim.g.vscode then
   use 'folke/lsp-colors.nvim'
   --use 'onsails/lspkind.nvim'
   use { "SmiteshP/nvim-navic", 
-        requires = "neovim/nvim-lspconfig",
-        opts = { separator = "  " }
-      }
+    requires = "neovim/nvim-lspconfig",
+    opts = { separator = "  " }
+  }
+
+  use {'folke/trouble.nvim', lazy = true, dependencies = 'nvim-tree/nvim-web-devicons', opts = {        
+    action_keys = {                                                                                     
+      open_split = { "<c-s>" }, -- open buffer in new split                                             
+      open_tab = {},                                                                                    
+    },                                                                                                  
+    auto_close = true, -- automatically close the list when you have no diagnostics                     
+    use_diagnostic_signs =true, -- enabling this will use the signs defined in your lsp client          
+  }, cmd = {'Trouble', 'TroubleToggle'}}                                                                
 
   -- Syntax:
   use 'dense-analysis/ale'
@@ -212,7 +236,7 @@ hi Visual ctermbg=81 ctermfg=black cterm=none  guibg=#8ae8f6 guifg=black
 hi MatchParen ctermbg=yellow ctermfg=black
 
 hi LineNr ctermfg=134 guifg=#d426ff guibg=#24283b
-hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=purple
+hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=#65ec9b
 hi Pmenu ctermfg=81 ctermbg=16 guibg=NONE guifg=cyan
 
 hi Comment ctermfg=blue guifg=#145ecc
@@ -233,9 +257,12 @@ if has('nvim')
   hi link @attribute.builtin Special
   au FileType python :hi link @constructor @function  " cannot distinguish
 
-  for group in ["SignColumn", "DiagnosticError", "DiagnosticWarn", "DiagnosticInfo", "DiagnosticHint", "GitGutterAdd", "GitGutterChange", "GitGutterDelete"]
+  for group in ["SignColumn", "DiagnosticSignError", "DiagnosticSignWarn", "DiagnosticSignInfo", "DiagnosticSignHint", "GitGutterAdd", "GitGutterChange", "GitGutterDelete"]
     exec "hi" group "guibg=#24283b"
   endfor
+  hi DiagnosticSignError guifg=red
+  hi DiagnosticSignWarn guifg=orange
+  hi DiagnosticSignInfo guifg=lightblue
   hi DiagnosticUnderlineError gui=undercurl
   hi DiagnosticUnderlineWarn gui=undercurl
   hi link ALEErrorSign DiagnosticSignError
@@ -248,13 +275,16 @@ if has('nvim')
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
   end
 EOF
+  hi GitGutterDelete guifg=red
+  hi GitGutterAdd guifg=green
+  hi GitGutterChange guifg=orange
+  let g:ale_sign_error = ''
+  let g:ale_sign_warning = ''
+else
+  hi clear ALEError
+  hi clear ALEWarning
 endif
-let g:ale_sign_error = ''
-let g:ale_sign_warning = ''
 
-hi GitGutterDelete guifg=red
-hi GitGutterAdd guifg=green
-hi GitGutterChange guifg=orange
 
 " Highlight Class and Function names
 if !exists('g:vscode')
@@ -276,6 +306,7 @@ set numberwidth=1
 if !exists('g:vscode')
 set relativenumber
 set number
+set signcolumn=number
 set ruler
 set rulerformat=%35(%=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %m\ %l/%L%)
 set laststatus=2
@@ -349,7 +380,7 @@ set sidescrolloff=3
 set nowrap                             " do not wrap long lines
 set whichwrap=b,s,<,>,[,]
 "set listchars=nbsp:¬,eol:¶,tab:>-,extends:»,precedes:«,trail:•
-set fillchars=vert:*,fold:-,diff:-
+set fillchars=vert:\|,fold:-,diff:-
 if v:version > 703 || has("patch541")
   set formatoptions+=nMjm            " m: linebreak for Chinese
 else
@@ -462,16 +493,7 @@ nnoremap zo zO
 " QuickFix:
 if !exists('g:vscode')
 set switchbuf=split
-func! QuickfixToggle()
-  for i in range(1, winnr('$'))
-    if getbufvar(winbufnr(i), '&buftype') == 'quickfix'
-      cclose | lclose
-      return
-    endif
-  endfor
-  copen
-endfunc
-nnoremap <C-g> :call QuickfixToggle()<CR>
+nnoremap <C-g> <cmd>TroubleToggle loclist<CR>
 nnoremap ]e :lnext<CR>
 nnoremap [e :lprev<CR>
 endif
@@ -691,12 +713,6 @@ set dict+=$HOME/.vim/static/dict_with_cases          " use c-X c-K to open dicti
 set tags=.tags
 nmap <Leader>tag :!ctags -R -f .tags --c++-kinds=+p --fields=+iaS --extra=+q . <CR><CR>
 
-let g:ycm_global_ycm_extra_conf = $HOME . "/.vim/static/ycm_extra_conf.py"
-let g:ycm_seed_identifiers_with_syntax = 1
-let g:ycm_autoclose_preview_window_after_completion = 1
-let g:ycm_autoclose_preview_window_after_insertion = 1
-let g:ycm_confirm_extra_conf = 0
-
 let g:clang_format#code_style = 'google'
 let g:clang_format#style_options = {
       \ "IndentWidth": "4",
@@ -791,6 +807,7 @@ au Filetype dot let &makeprg="dot -Tpng -O -v % ; feh %.png"
 au Filetype php let &makeprg="php %"
 au Filetype r let &makeprg="R <% --vanilla"
 au Filetype sh let &makeprg="shellcheck -f gcc %"
+au FileType javascript let &makeprg="node %"
 if !exists('g:vscode')
 func! InstantRun()
   if &ft == 'python'
@@ -813,204 +830,8 @@ nnoremap <Leader>mk :call Make()<CR>
 nnoremap <Leader>mr :!make run <CR>
 " --------------------------------------------------------------------- f]]
 
-" Mapping For Programming: (These should've been moved to ftplugin) f[[
-func! Tex_Block(label)
-  let Blk_Dict={"e": "enumerate","d": "description", "m": "matrix", "c": "cases",
-        \ "f": "figure", "t": "table", "tt": "tabular", "eq": "equation*", "mp": "minipage"}
-  let blk_text = (has_key(Blk_Dict, a:label)) ? Blk_Dict[a:label ] : a:label
-  call append(line('.') - 1,["\\begin{". blk_text ."}","","\\end{". blk_text ."}"])
-  normal kk
-  startinsert
-endfunc
-func! Tex_Formula_init()
-  inoremap <buffer> <c-f> \dfrac{}{}<Esc>2hi
-  inoremap <buffer> <Leader>bf \mathbf{}<Left>
-  inoremap <buffer> <c-r> \sqrt{}<Left>
-  inoremap <buffer> <c-Left> \Leftrightarrow<Space>
-  inoremap <buffer> <c-Right> \Rightarrow<Space>
-  inoremap <buffer> \left \left<Space>\right<Esc>5hi
-
-  " Symbol:
-  inoremap <buffer> `a \alpha
-  inoremap <buffer> `b \beta
-  inoremap <buffer> `c ^\circ
-  inoremap <buffer> `D \Delta
-  inoremap <buffer> `d \mathrm{d}
-  inoremap <buffer> `G \Gamma
-  inoremap <buffer> `l \lambda
-  inoremap <buffer> `m \mu
-  inoremap <buffer> `O \Omega
-  inoremap <buffer> `o \omega
-  inoremap <buffer> `p \pi
-  inoremap <buffer> `r \rho
-  inoremap <buffer> `t \theta
-  inoremap <buffer> `R \mathbb{R}
-  inoremap <buffer> `s \sigma
-  inoremap <buffer> `v \varphi
-endfunc
-func! Tex_init()
-  setl nocursorline                                " for performance
-  hi clear Conceal
-  let &conceallevel=has("gui_running") ? 1: 2        " conceal problem for gvim
-  set concealcursor=
-  setl textwidth=99999
-  set makeef=/dev/null
-
-  inoremap <buffer> $$ $<Space>$<Left>
-  inoremap <buffer> " ``''<Left><Left>
-  nmap <buffer> <Leader>" xi``<Esc>,f"axi''<Esc>
-  inoremap <buffer> ... \cdots<Space>
-  call Tex_Formula_init()
-
-  inoremap <buffer> \[ \[<Space>\]<Left><Left>
-  inoremap <buffer> \{ \{<Space>\}<Left><Left>
-  inoremap <buffer> \langle \langle<Space><Space>\rangle<Esc>7hi
-  inoremap <buffer> \verb \verb<Bar><Bar><Left>
-  inoremap <buffer> \beg \begin{}<Left>
-  inoremap <buffer> \bb <Esc>:call Tex_Block("")<Left><Left>
-  inoremap <buffer> \bbt <Esc>:call Tex_Block("t")<CR><Up><End>[H]<Down>\centering<CR>\caption{\label{tab:}}<Esc>k:call Tex_Block("tabular")<CR>
-  inoremap <buffer> \bbf <Esc>:call Tex_Block("f")<CR><Up><End>[H]<Down>\centering<CR>\includegraphics[width=0.8\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
-  inoremap <buffer> \bbm <Esc>:call Tex_Block("mp")<CR><Up><End>[b]{0.46\linewidth}<Down>\centering<CR>\includegraphics[width=\textwidth]{res/}<CR>\caption{\label{fig:}}<Esc>
-  inoremap <buffer> \bmb \begin{bmatrix}\end{bmatrix}<Esc>12hi
-  inoremap <buffer> \bf \textbf{}<Left>
-  xmap <buffer> \ve s\|i\verb<BS><Del><Esc>
-  xmap <buffer> \bbe di\bbe<CR><Tab><Esc>pj
-  xmap <buffer> \bbd di\bbd<CR><Tab><Esc>pj
-  xmap <buffer> \bf s}i\textbf<Esc>
-  xmap <buffer> \em s}i\emph<Esc>
-  xmap <buffer> <Leader>tab :s/\s\+/ \&/g<CR>gv:s/$/\\\\/g<CR>gv<Space>tt
-
-  " Plugin: LaTeX-Box
-  let g:LatexBox_no_mappings = 1
-  inoremap <buffer> [[ \begin{}<Left>
-  imap <buffer> ]] <Plug>LatexCloseCurEnv
-  inoremap <buffer> <C-n> <Esc><Right>:call LatexBox_JumpToNextBraces(0)<CR>i
-  nmap <buffer> P l:call LatexBox_JumpToNextBraces(0)<CR>
-  nmap <buffer> Q :call LatexBox_JumpToNextBraces(1)<CR>
-
-  xmap <buffer> ie <Plug>LatexBox_SelectCurrentEnvInner
-  xmap <buffer> ae <Plug>LatexBox_SelectCurrentEnvOuter
-  omap <buffer> ie :normal vie<CR>
-  omap <buffer> ae :normal vae<CR>
-  xmap <buffer> im <Plug>LatexBox_SelectInlineMathInner
-  xmap <buffer> am <Plug>LatexBox_SelectInlineMathOuter
-  omap <buffer> im :normal vim<CR>
-  omap <buffer> am :normal vam<CR>
-
-  nmap <buffer> <Leader>ce <Plug>LatexChangeEnv
-  xmap <buffer> <Leader>tc <Plug>LatexWrapSelection
-  xmap <buffer> <Leader>te <Plug>LatexEnvWrapSelection
-
-  func! ToMatrix()
-python << EOF
-import vim, re
-buf = vim.current.buffer
-(lnum1, col1) = buf.mark('<')
-(lnum2, col2) = buf.mark('>')
-lines = vim.eval('getline({}, {})'.format(lnum1, lnum2))
-lines = [re.sub(' +', '&  ', x.strip()) + '\\\\' for x in lines]
-#lines.insert(0, '\\begin{bmatrix}')
-#lines.append('\\end{bmatrix}')
-buf[lnum1-1:lnum2] = lines
-EOF
-  endfunc
-  vnoremap <buffer> <Leader>M :<C-w>call ToMatrix()<CR>
-
-endfunc
-func! C_grammar_init()
-  inoremap <buffer> while<Space> while<Space>()<Left>
-  inoremap <buffer> {{ {}<Left><CR><CR><Up><Tab>
-  inoremap <buffer> if<Space> if<Space>()<Left>
-  inoremap <buffer> for<Space> for<Space>()<Left>
-endfunc
-func! Cpp_init()
-  iabbr #i #include
-  iabbr #I #include
-  setl ts=2 sw=2 sts=2
-
-  let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
-  if filereadable(getcwd() . "/Makefile")
-    let &makeprg="make"
-  elseif  filereadable(getcwd() . "/../Makefile")
-    let &makeprg="make -C .."
-  endif
-
-  call C_grammar_init()
-  syn keyword cppType real_t Vec Vec2D Vector Matrix Color PII PDD
-  syn keyword cppSTLType T
-endfunc
-func! Matlab_init()
-  inoremap <buffer> if<Space> if<Space><CR>end<Up>
-  inoremap <buffer> for<Space> for<Space><CR>end<Up><End>
-  inoremap <buffer> func<Space> function<Space><CR>end<Up><End>
-endfunc
-func! Python_init()
-  let &makeprg="pylint --reports=n --output-format=parseable %"
-  setl textwidth=90
-  iabbr ipeb import IPython as IP; IP.embed()
-  syn keyword pythonDecorator self
-  nmap <buffer> <F8> :ALEFix<CR>
-endfunc
-func! Ruby_init()
-  let &makeprg="ruby -c %"
-  imap <C-CR> <CR><CR>end<Esc>-cc
-  setl ts=2 sw=2 sts=2
-  iabbr ipeb require 'pry'; binding.pry
-endfunc
-func! Java_init()
-  let &makeprg="javac %"
-  syn keyword javaType String Integer Double Pair Collection Collections List Boolean Triple ArrayList Entry LinkedList Map HashMap Set HashSet TreeSet TreeMap Iterator Iterable Comparator Arrays ListIterator Vector File Character Object Exception Random
-  " TODO match java class name with regex
-  let java_comment_strings = 1
-  let java_mark_braces_in_parens_as_errors= 1
-  let java_ignore_javadoc = 1
-  let java_minlines = 150
-  call C_grammar_init()
-endfunc
-func! CS_init()
-  call C_grammar_init()
-  syn keyword csType var
-endfunc
-func! Js_init()
-  let &makeprg="node %"
-  setl ts=2 sw=2 sts=2
-  call C_grammar_init()
-endfunc
-func! MarkDown_init()
-  " call Tex_Formula_init()
-  set ofu=
-  set nofoldenable
-  inoremap {% {%  %}<Left><Left>
-  inoremap ``` ```<CR>```<Up><End><Esc>
-  " surround with link
-  xmap <Leader>l s]%a()
-  " emphasis
-  xmap <Leader>e s*gvs*
-  nnoremap md :LivedownToggle<CR>
-endfunc
-func! Lua_init()
-  set makeef=/dev/null
-  let &makeprg="lua %"
-  setl ts=2 sw=2 sts=2
-endfunc
-" pdf auto refresh preview
-if has('nvim')
-  au BufWritePost *.tex call jobstart("make try")
-endif
-au FileType tex :call Tex_init()
-au FileType markdown :call MarkDown_init()
-au FileType cpp :call Cpp_init()
-au FileType matlab :call Matlab_init()
-au FileType cs :call CS_init()
-au FileType python :call Python_init()
-au FileType ruby :call Ruby_init()
-au FileType java :call Java_init()
-au FileType javascript :call Js_init()
-au FileType r,c :call C_grammar_init()
-au FileType lua :call Lua_init()
-
 " ---------------------------------------------------------------------f]]
-" FileType Commands:
+" Misc FileType Commands:
 au BufRead *.conf setf conf
 au BufWritePost .Xresources silent !xrdb %
 au BufWritePost .tmux.conf silent !tmux source %
@@ -1030,20 +851,19 @@ au BufNewFile,BufRead *.ejs set syntax=html ft=html
 au BufNewFile,BufRead *.ispc set syntax=cpp
 au BufNewFile,BufRead *.gprof setf gprof
 au BufNewFile,BufRead *.txt,*.doc,*.pdf setf txt
+au BufNewFile,BufRead *.lrc setf lrc
+au BufNewFile,BufRead *.elv setl ft=zsh syntax=zsh
 au BufReadPre *.doc,*.class,*.pdf setl ro
 au BufReadPost *.doc silent %!antiword "%"
 au BufReadPost *.pdf silent %!pdftotext -nopgbrk "%" -
 au BufRead *.class exe 'silent %!javap -c "%"' | setf java
-au BufNewFile,BufRead *.lrc setf lrc
+au FileType javascript setl ts=2 sw=2 sts=2
 au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
-au Filetype coffee setl omnifunc=nodejscomplete#CompleteJS
 au FileType json setl foldmethod=syntax
 au FileType yaml setl foldmethod=indent foldlevel=99 fml=1
 au Filetype txt,crontab setl textwidth=500
-let g:tex_flavor = 'latex'                                         " default filetype for tex
 au FileType sh,zsh inoremap ` ``<Left>
-au BufNewFile,BufRead *.elv setl ft=zsh syntax=zsh
 au BufWritePost *
       \ if getline(1) =~ "^#!/bin/[a-z]*sh" |
       \   exe "silent !chmod a+x <afile>" |
@@ -1104,21 +924,6 @@ if has('nvim') && !exists('g:vscode')
   nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers{prompt_prefix='🔍'}<cr>
   nnoremap <leader>fr <cmd>lua require('telescope.builtin').oldfiles{prompt_prefix='🔍'}<cr>
   nnoremap <leader>ft <cmd>lua require('telescope.builtin').treesitter{prompt_prefix='🔍'}<cr>
-  lua << EOF
-require('telescope').setup{
-  defaults = {
-    mappings = {
-      i = {
-        ["<C-s>"] = "file_split",
-        ["<Esc>"] = "close",
-        ["<C-j>"] = "move_selection_next",
-        ["<C-k>"] = "move_selection_previous",
-      }
-    }
-  },
-}
-require('telescope').load_extension('fzf')
-EOF
 elseif !exists('g:vscode')
   nmap <Leader>fr :CtrlPMRU<CR>
   nmap <Leader>fb :CtrlPBuffer<CR>
@@ -1138,25 +943,6 @@ endif
 
 " f]]
 " UI And Format Plugin: f[[
-if !exists('g:vscode')
-  " highlight words under cursor, causes ghost in vscode
-  let g:matchmaker_enable_startup = 1
-
-  if ! has('gui_running')            " to cooperate with gvim_color_css
-    let g:rbpt_max            = 16
-    let g:rbpt_loadcmd_toggle = 0
-    au VimEnter * silent! RainbowParenthesesToggle
-    au Syntax * silent! RainbowParenthesesLoadRound
-    au Syntax * silent! RainbowParenthesesLoadSquare
-    "" to work with css3-syntax
-    au Syntax * if &ft != "css" | silent! RainbowParenthesesLoadBraces | endif
-    let g:rbpt_colorpairs = [['brown', 'RoyalBlue3'], ['Darkblue', 'SeaGreen3'],
-          \ ['darkgray', 'DarkOrchid3'], ['darkgreen', 'firebrick3'], ['darkcyan', 'RoyalBlue3'],
-          \ ['darkred', 'SeaGreen3'], ['darkmagenta', 'DarkOrchid3'], ['brown', 'firebrick3'],
-          \ ['gray', 'RoyalBlue3'], ['darkmagenta', 'DarkOrchid3'], ['darkred', 'DarkOrchid3'],
-          \ ['Darkblue', 'firebrick3'], ['darkgreen', 'RoyalBlue3'], ['darkcyan', 'SeaGreen3']]
-  endif
-endif
 
 nmap <Leader>xml :%s/></>\r</g<CR>gg=G
 " vim-jsbeautify
@@ -1221,9 +1007,51 @@ let g:pydoc_cmd = '/usr/bin/pydoc'
 let g:pydoc_highlight = 0                             " don't highlight searching word
 " f]]
 
+" LSP f[[]]
+if has('nvim')
+lua << EOF
+
+my_lsp_on_attach = function(client, bufnr)
+  vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+  if vim.lsp.formatexpr then -- Neovim v0.6.0+ only.
+    vim.api.nvim_buf_set_option(bufnr, "formatexpr", "v:lua.vim.lsp.formatexpr")
+  end
+  if vim.lsp.tagfunc then
+    vim.api.nvim_buf_set_option(bufnr, "tagfunc", "v:lua.vim.lsp.tagfunc")
+  end
+
+  local opts = { noremap = true, silent = true }
+  vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
+  vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
+  vim.api.nvim_buf_set_keymap(bufnr, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+  vim.api.nvim_buf_set_keymap(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+  vim.api.nvim_buf_set_keymap(bufnr, "n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+  vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
+  vim.api.nvim_buf_set_keymap(bufnr, "n", "gr", "<cmd>TroubleToggle lsp_references<CR>", opts)
+
+  if client.server_capabilities.document_highlight then
+    vim.api.nvim_command("augroup LSP")
+    vim.api.nvim_command("autocmd!")
+    vim.api.nvim_command("autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()")
+    vim.api.nvim_command("autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()")
+    vim.api.nvim_command("autocmd CursorMoved <buffer> lua vim.lsp.util.buf_clear_references()")
+    vim.api.nvim_command("augroup END")
+  end
+
+  -- https://github.com/SmiteshP/nvim-navic#%EF%B8%8F-setup
+  if client.server_capabilities.documentSymbolProvider then
+    require("nvim-navic").attach(client, bufnr)
+  end
+
+  vim.api.nvim_buf_set_keymap(bufnr, "n", "<C-g>", "<cmd>TroubleToggle workspace_diagnostics<CR>", opts)
+  vim.api.nvim_buf_set_keymap(bufnr, "n", "[e", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
+  vim.api.nvim_buf_set_keymap(bufnr, "n", "]e", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
+end
+EOF
+endif
+
 " VSCode specifics:
 if exists('g:vscode')
-  let g:python_recommended_style = 0  " https://github.com/asvetliakov/vscode-neovim/issues/152
   nnoremap <Leader>fm :call VSCodeNotify('workbench.action.toggleSidebarVisibility')<CR>
   nnoremap <Leader>mm :call VSCodeNotify('editor.action.toggleMinimap')<CR>
   nnoremap <Leader>tl :call VSCodeNotify('breadcrumbs.focusAndSelect')<CR>
@@ -1239,8 +1067,6 @@ if exists('g:vscode')
 
   " reload file from disk:, what about :e file?
   "command! e call VSCodeNotify('workbench.action.files.revert')
-
-  au FileType python nnoremap <Leader>rr :call VSCodeNotify('python.execInTerminal')<CR>
 endif
 
 source $HOME/.vim/source_local.vim
