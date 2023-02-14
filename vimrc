@@ -41,6 +41,9 @@ if not vim.g.vscode then
     config = function(p, opts) require("nvim-treesitter.configs").setup(opts) end,
   }
   use {'nvim-treesitter/playground', cmd = 'TSHighlightCapturesUnderCursor'}
+  use {'nvim-treesitter/nvim-treesitter-context', opts = {
+      min_window_height = 20, max_lines = 3,
+    }, event = "BufReadPost" }
   use {'dstein64/vim-startuptime', cmd = 'StartupTime'}
 end
 use 'vim-scripts/MultipleSearch'
@@ -87,7 +90,7 @@ if not vim.g.vscode then
   vim.g.matchmaker_enable_startup = 1
   use {'qstrahl/vim-matchmaker'} -- delay loading so it can read the config
 end
-use 'scrooloose/nerdcommenter'
+use 'preservim/nerdcommenter'
 use {'glts/vim-textobj-comment', dependencies = 'kana/vim-textobj-user'}
 use {'kana/vim-textobj-indent', dependencies = 'kana/vim-textobj-user'}
 use 'jeetsukumaran/vim-indentwise'
@@ -106,11 +109,7 @@ if not vim.g.vscode then
   -- LSP:
   use 'neovim/nvim-lspconfig'
   use 'folke/lsp-colors.nvim'
-  --use 'onsails/lspkind.nvim'
-  use { "SmiteshP/nvim-navic", 
-    requires = "neovim/nvim-lspconfig",
-    opts = { separator = "  " }
-  }
+  use { 'onsails/lspkind.nvim', config = function() require("lspkind").init() end, event = "LspAttach" }
 
   use {'folke/trouble.nvim', lazy = true, dependencies = 'nvim-tree/nvim-web-devicons', opts = {        
     action_keys = {                                                                                     
@@ -167,7 +166,7 @@ Plug 'rhysd/accelerated-jk'
 Plug 'yonchu/accelerated-smooth-scroll'
 Plug 'ojroques/vim-oscyank', {'branch': 'main'}
 Plug 'qstrahl/vim-matchmaker'
-Plug 'scrooloose/nerdcommenter'
+Plug 'preservim/nerdcommenter'
 " Programming:
 Plug 'ruanyl/vim-gh-line'
 Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
@@ -257,6 +256,8 @@ if has('nvim')
   hi link @variable.builtin Special
   hi link @attribute.builtin Special
   au FileType python :hi link @constructor @function  " cannot distinguish
+  hi TreesitterContextBottom gui=underdashed guisp=lightgreen
+  hi TreesitterContextLineNumber guifg=#24283b guibg=#24283b
 
   for group in ["SignColumn", "DiagnosticSignError", "DiagnosticSignWarn", "DiagnosticSignInfo", "DiagnosticSignHint", "GitGutterAdd", "GitGutterChange", "GitGutterDelete"]
     exec "hi" group "guibg=#24283b"
@@ -320,7 +321,6 @@ if has('nvim')
   local theme = require'lualine.themes.powerline_dark'
   theme.inactive.c.fg = theme.normal.c.fg
   theme.inactive.c.bg = theme.normal.c.bg
-  local navic = require("nvim-navic")
   local filenamefmt = function(str)
     -- shorten the path
     local idx = str:find('/google3/')
@@ -332,10 +332,6 @@ if has('nvim')
     return table.concat(parts, "/")
   end
 
-  local show_winbar = function()
-    -- show only if window is at top
-    return navic.is_available() and vim.fn.winnr('1k') == vim.fn.winnr()
-  end
   require('lualine').setup {
   options = {
     theme = theme,
@@ -350,12 +346,6 @@ if has('nvim')
       {'diagnostics', sources = {'nvim_diagnostic', 'ale'}},
     },
     lualine_x = {'filetype'}, lualine_y = {}, lualine_z = {'location'}
-  },
-  winbar = {
-    lualine_c = {
-      {'filename', symbols = { modified = '+'}, cond = show_winbar },
-      { navic.get_location, cond = show_winbar },
-    },
   },
   inactive_sections = { 
     lualine_c = {
@@ -1008,7 +998,7 @@ let g:pydoc_cmd = '/usr/bin/pydoc'
 let g:pydoc_highlight = 0                             " don't highlight searching word
 " f]]
 
-" LSP f[[]]
+" LSP f[[
 if has('nvim')
 lua << EOF
 
@@ -1021,14 +1011,17 @@ my_lsp_on_attach = function(client, bufnr)
     vim.api.nvim_buf_set_option(bufnr, "tagfunc", "v:lua.vim.lsp.tagfunc")
   end
 
-  local opts = { noremap = true, silent = true }
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "gr", "<cmd>TroubleToggle lsp_references<CR>", opts)
+  local opts = { noremap = true, silent = true, buffer = bufnr }
+  vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+  vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+  vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+  vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+  vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+  vim.keymap.set("n", "[e", vim.diagnostic.goto_prev, opts)
+  vim.keymap.set("n", "]e", vim.diagnostic.goto_next, opts)
+  vim.keymap.set("n", "gr", "<cmd>TroubleToggle lsp_references<CR>", opts)
+  vim.keymap.set("n", "<C-g>", "<cmd>TroubleToggle workspace_diagnostics<CR>", opts)
 
   if client.server_capabilities.document_highlight then
     vim.api.nvim_command("augroup LSP")
@@ -1038,18 +1031,10 @@ my_lsp_on_attach = function(client, bufnr)
     vim.api.nvim_command("autocmd CursorMoved <buffer> lua vim.lsp.util.buf_clear_references()")
     vim.api.nvim_command("augroup END")
   end
-
-  -- https://github.com/SmiteshP/nvim-navic#%EF%B8%8F-setup
-  if client.server_capabilities.documentSymbolProvider then
-    require("nvim-navic").attach(client, bufnr)
-  end
-
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "<C-g>", "<cmd>TroubleToggle workspace_diagnostics<CR>", opts)
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "[e", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "]e", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
 end
 EOF
 endif
+" ------------------------------------------------------------------------------------------ f]]
 
 " VSCode specifics:
 if exists('g:vscode')
