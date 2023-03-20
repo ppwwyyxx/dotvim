@@ -5,10 +5,9 @@ echo "Cleanup original vimfiles to ~/backup_vim* ..."
 rm -rf ~/.config/nvim
 rm -rf ~/.vim
 
-REPO_ROOT=$(dirname "$0")
+REPO_ROOT=$(readlink -f $(dirname "$0"))
 
 echo "Linking files..."
-pushd
 cd $HOME
 ln -sfv $REPO_ROOT/vim ./.vim
 ln -svf $REPO_ROOT/vimrc ./.vimrc
@@ -16,7 +15,6 @@ ln -svf $REPO_ROOT/vimrc ./.vimrc
 mkdir -p ~/.config/
 ln -svf $REPO_ROOT/vim ./.config/nvim
 ln -svf $REPO_ROOT/vimrc ./.config/nvim/init.vim
-popd
 
 echo "Generating dict..."
 cd ~/.vim/static/

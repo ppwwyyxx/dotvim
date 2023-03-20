@@ -101,7 +101,8 @@ if not vim.g.vscode then
   use 'neomake/neomake'
   vim.g.gitgutter_sign_modified_removed = '~'
   use 'airblade/vim-gitgutter'
-  use 'wakatime/vim-wakatime'
+  use {'wakatime/vim-wakatime', cond = vim.fn.filereadable(vim.fn.expand('$HOME/.wakatime.cfg')) == 1 }
+  use {'github/copilot.vim', cmd = 'Copilot'}
   -- LSP:
   use 'neovim/nvim-lspconfig'
   use 'folke/lsp-colors.nvim'

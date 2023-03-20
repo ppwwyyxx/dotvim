@@ -25,9 +25,7 @@ imap 《 <
 map ： :
 
 func! Replace_Chn()                     " for writing latex
-  let chinese={"（" : "(" , "）" : ")" , "，" : ",", "；" : ";", "：" : ":",
-  "？" : "?", "！" : "!", "“" : "\"", "’" : "'" ,
-  ""”" : "\"", "℃" : "\\\\textcelsius", "μ" : "$\\\\mu$"}
+  let chinese={"（" : "(" , "）" : ")" , "，" : ",", "；" : ";", "：" : ":","？" : "?", "！" : "!", "“" : "\"", "’" : "'" , "”" : "\"", "℃" : "\\\\textcelsius", "μ" : "$\\\\mu$"}
   for i in keys(chinese)
     silent! exec '%substitute/' . i . '/'. chinese[i] . '/g'
   endfor
