@@ -12,3 +12,7 @@ if exists('g:vscode')
   let g:python_recommended_style = 0  " https://github.com/asvetliakov/vscode-neovim/issues/152
   au FileType python nnoremap <Leader>rr :call VSCodeNotify('python.execInTerminal')<CR>
 endif
+
+" Google style:
+set ts=2 sw=2 sts=2
+let g:python_recommended_style = 0

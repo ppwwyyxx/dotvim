@@ -35,7 +35,7 @@ if not vim.g.vscode then
   use {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = "BufReadPost",
     opts = {
       -- Do not enable for comment
-      ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'scss', 'typescript', 'vim', 'yaml' },
+      ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'rst', 'scss', 'typescript', 'vim', 'yaml' },
       highlight = { enable = true, },
     },
     config = function(p, opts) require("nvim-treesitter.configs").setup(opts) end,
@@ -484,7 +484,8 @@ nnoremap zo zO
 " QuickFix:
 if !exists('g:vscode')
 set switchbuf=split
-nnoremap <C-g> <cmd>TroubleToggle loclist<CR>
+nnoremap <C-g> <cmd>TroubleClose<CR><cmd>cclose<CR><cmd>pclose<CR>
+nnoremap <Leader>xx <cmd>Trouble<CR>
 nnoremap ]e :lnext<CR>
 nnoremap [e :lprev<CR>
 endif
@@ -724,7 +725,7 @@ set statusline+=%*
 let g:ale_linters_explicit = 1
 let g:ale_linters = {'python': ['flake8'], 'sh': ['shellcheck']}
 let g:ale_fixers = {'python': ['black']}
-let g:ale_python_flake8_options = '--max-line-length 120'
+let g:ale_python_flake8_options = '--max-line-length 120 --ignore=E111,E114'
 let g:ale_python_black_options = '-l 100'
 
 " ---------------------------------------------------------------------f]]
