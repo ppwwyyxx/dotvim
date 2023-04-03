@@ -67,7 +67,8 @@ if not vim.g.vscode then
     config = function(p, opts) 
       require('telescope').setup(opts)
       require('telescope').load_extension('fzf')
-    end
+    end,
+    cmd = 'Telescope'
   }}
   use {'nvim-telescope/telescope-fzf-native.nvim', build = 'make', branch = 'main', lazy = true }
   use {'nvim-tree/nvim-tree.lua', dependencies = 'nvim-tree/nvim-web-devicons'}
@@ -232,12 +233,13 @@ au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
 hi Matchmaker guibg=#444444
 hi Folded guibg=#444444 guifg=lightblue
 hi Search ctermfg=red ctermbg=cyan guibg=#8ca509
-hi Visual ctermbg=81 ctermfg=black cterm=none  guibg=#8ae8f6 guifg=black
 hi MatchParen ctermbg=yellow ctermfg=black
+hi Visual ctermbg=81 ctermfg=black cterm=none guibg=#0a6886 guifg=NONE
 
 hi LineNr ctermfg=134 guifg=#d426ff guibg=#24283b
 hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=#65ec9b
-hi Pmenu ctermfg=81 ctermbg=16 guibg=NONE guifg=cyan
+hi Pmenu ctermfg=81 ctermbg=16 guibg=NONE guifg=#c9f0f0
+hi TelescopeSelection ctermbg=81 ctermfg=black cterm=none gui=underdashed guifg=#6e68ee
 
 hi Comment ctermfg=blue guifg=#145ecc
 hi String ctermfg=13 guifg=#fd26f8
@@ -566,7 +568,7 @@ func! ToggleColorColumn(col)
   endif
 endfunc
 hi ColorColumn ctermbg=red
-nmap <LocalLeader>c :call ToggleColorColumn(0)<CR>
+command ToggleColorColumn call ToggleColorColumn(0)
 endif
 
 " ---------------------------------------------------------------------
@@ -619,18 +621,18 @@ func! DeleteTrailingWhiteSpace()
   %s/\s\+$//e
   normal `Z
 endfunc
-nnoremap <Leader>ws :call DeleteTrailingWhiteSpace()<CR>
+command DeleteTrailingWhiteSpace call DeleteTrailingWhiteSpace()
 
 " ---------------------------------------------------------------------
 " Log For Debugging Vimscript:
-func! ToggleVerbose()
+func! ToggleVimscriptVerbose()
   if !&verbose
     exe "!rm /tmp/vimlog"
     set verbosefile=/tmp/vimlog
     set verbose=10
   else | set verbose=0 | set verbosefile= | endif
 endfunc
-nmap <Leader>tv :call ToggleVerbose()<CR>
+command ToggleVimscriptVerbose call ToggleVimscriptVerbose()<CR>
 
 " ---------------------------------------------------------------------
 " Diff Current Buffer With Correspondent Saved File:
@@ -641,23 +643,8 @@ func! DiffWithSaved()
   diffthis
   exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . ft
 endfunc
-command! DiffSaved call DiffWithSaved()
+command! DiffWithSaved call DiffWithSaved()
 nnoremap <Leader>df :call DiffWithSaved()<CR>
-
-" Open Browser:
-func! Browser ()
-  let line0 = getline (".")
-  let line  = matchstr (line0, "http[^ ,;\t)]*")
-  if line==""
-    let line = matchstr (line0, "ftp[^ ,;\t)]*")
-  endif
-  if line==""
-    let line = matchstr (line0, "www\.[^ ,;\t)]*")
-  endif
-  exec "!xdg-open ".line
-  " TODO chrome cannot be run as root
-endfunc
-nnoremap <Leader>ch :call Browser ()<CR>
 
 " ---------------------------------------------------------------------
 " Misc Functions:
@@ -725,7 +712,8 @@ set statusline+=%*
 let g:ale_linters_explicit = 1
 let g:ale_linters = {'python': ['flake8'], 'sh': ['shellcheck']}
 let g:ale_fixers = {'python': ['black']}
-let g:ale_python_flake8_options = '--max-line-length 120 --ignore=E111,E114'
+" Only enable hard errors https://flake8.pycqa.org/en/latest/user/error-codes.html
+let g:ale_python_flake8_options = '--max-line-length 120 --select F8,F402,F404,F405'
 let g:ale_python_black_options = '-l 100'
 
 " ---------------------------------------------------------------------f]]
@@ -912,6 +900,7 @@ let g:MultipleSearchMaxColors = 16
 
 if has('nvim') && !exists('g:vscode')
   nnoremap <C-P> <cmd>lua require('telescope.builtin').find_files{prompt_prefix='🔍'}<cr>
+  nnoremap <M-x> <cmd>lua require('telescope.builtin').commands{prompt_prefix='🔍'}<cr>
   nnoremap <leader>/ <cmd>lua require('telescope.builtin').live_grep{prompt_prefix='🔍'}<cr>
   nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers{prompt_prefix='🔍'}<cr>
   nnoremap <leader>fr <cmd>lua require('telescope.builtin').oldfiles{prompt_prefix='🔍'}<cr>
@@ -939,8 +928,11 @@ endif
 nmap <Leader>xml :%s/></>\r</g<CR>gg=G
 " vim-jsbeautify
 nmap <Leader>js :call JsBeautify()<CR>
+command JsBeautify call JsBeautify()
 nmap <Leader>css :call CSSBeautify()<CR>
+command CssBeautify call CSSBeautify()
 nmap <Leader>html :call HtmlBeautify()<CR>
+command HtmlBeautify call HtmlBeautify()
 
 " toggle indent
 nnoremap <leader>ti :IndentLinesToggle<CR>:set list! lcs=tab:\\|\<Space><CR>
@@ -1033,7 +1025,18 @@ my_lsp_on_attach = function(client, bufnr)
     vim.api.nvim_command("augroup END")
   end
 end
+vim.api.nvim_create_autocmd('LspAttach', {
+  -- https://neovim.io/doc/user/lsp.html
+  group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+  callback = function(args)
+    local bufnr = args.buf
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    my_lsp_on_attach(client, bufnr)
+  end
+})
 EOF
+command LspAddWorkspaceFolder lua vim.lsp.buf.add_workspace_folder()
+command LspListWorkspaceFolder lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
 endif
 " ------------------------------------------------------------------------------------------ f]]
 
