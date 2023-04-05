@@ -6,6 +6,7 @@ endif
 iabbr #i #include
 iabbr #I #include
 setl ts=2 sw=2 sts=2
+setl expandtab
 
 let &makeprg="clang++ % -g -Wall -Wextra -O0 -std=c++11 -o %<"
 if filereadable(getcwd() . "/Makefile")

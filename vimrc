@@ -314,7 +314,7 @@ set signcolumn=number
 set ruler
 set rulerformat=%35(%=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %m\ %l/%L%)
 set laststatus=2
-set expandtab
+set noexpandtab
 set noshowmode
 
 if has('nvim')

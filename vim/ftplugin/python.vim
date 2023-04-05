@@ -3,6 +3,7 @@ if exists("b:did_ftplugin")
 endif
 
 setl textwidth=90
+setl expandtab
 iabbr ipeb import IPython as IP; IP.embed()
 syn keyword pythonDecorator self
 nmap <buffer> <F8> :ALEFix<CR>
