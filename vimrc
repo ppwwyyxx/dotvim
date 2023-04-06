@@ -98,7 +98,7 @@ use 'jeetsukumaran/vim-indentwise'
 
 -- Programming:
 if not vim.g.vscode then
-  use 'ruanyl/vim-gh-line'
+  use {'ruanyl/vim-gh-line', event = 'VimEnter'} -- delay init to pickup configs.
   use {'LaTeX-Box-Team/LaTeX-Box', ft = 'tex'}
   use {'derekwyatt/vim-fswitch', ft = {'cpp', 'c'}}
   use {'shime/vim-livedown', ft = 'markdown'}
