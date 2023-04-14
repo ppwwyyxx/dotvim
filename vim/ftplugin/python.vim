@@ -17,3 +17,10 @@ endif
 " Google style:
 set ts=2 sw=2 sts=2
 let g:python_recommended_style = 0
+
+
+if executable('pyright')
+lua << END
+	require'lspconfig'.pyright.setup{ }
+END
+endif

@@ -19,8 +19,20 @@ local use = function(x) table.insert(plugins, x) end
 
 -- UI And Basic:
 if not vim.g.vscode then
+  use {'folke/tokyonight.nvim', opts = {
+    on_highlights = function(hl, c)
+      for k in pairs(hl) do 
+        -- Only keep the following, others are set by 'default' colorscheme.
+        -- See https://github.com/folke/tokyonight.nvim/blob/main/lua/tokyonight/theme.lua
+        if vim.startswith(k, "Cmp") or vim.startswith(k, "Pmenu") then goto continue end
+        if vim.startswith(k, "Lsp") or vim.startswith(k, "@lsp") then goto continue end
+        if vim.startswith(k, "Diagnostic") then goto continue end
+        if vim.startswith(k, "@string") or vim.startswith(k, "@text") then goto continue end
+        hl[k] = nil 
+        ::continue::
+      end
+    end }}
   -- https://github.com/Yggdroot/indentLine/issues/345
-  use 'folke/tokyonight.nvim'
   use {'Yggdroot/indentLine', config = function()
     vim.g.indentLine_enabled = 0
     vim.g.indentLine_color_term = 239
@@ -55,6 +67,13 @@ if not vim.g.vscode then
   use 'nvim-lua/plenary.nvim'
   use {'nvim-telescope/telescope.nvim', lazy = true, opts = {
     defaults = {
+      layout_strategy = 'flex',
+      layout_config = { 
+        width = 0.9, 
+        flex = { flip_columns = 120 },
+        horizontal = { preview_width = 0.6 } 
+      },
+      path_display = { truncate = 2 },
       mappings = {
         i = {
           ["<C-s>"] = "file_split",
@@ -209,7 +228,9 @@ set background=light
 set title
 set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:~:.:h\")})%)%(\ %a%)
 
+" First load default, then overwrite misc with tokyonight
 colo default
+colo tokyonight-night
 if has("nvim") | set termguicolors | else
   " https://github.com/vim/vim/issues/993#issuecomment-255651605
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
@@ -258,6 +279,8 @@ if has('nvim')
   hi link @variable.builtin Special
   hi link @attribute.builtin Special
   au FileType python :hi link @constructor @function  " cannot distinguish
+  hi CmpPmenu guibg=#24283b guifg=#c9f0f0  " For nvim-cmp completion
+  hi TreesitterContext guibg=#24283b
   hi TreesitterContextBottom gui=underdashed guisp=lightgreen
   hi TreesitterContextLineNumber guifg=#24283b guibg=#24283b
 
@@ -267,8 +290,6 @@ if has('nvim')
   hi DiagnosticSignError guifg=red
   hi DiagnosticSignWarn guifg=orange
   hi DiagnosticSignInfo guifg=lightblue
-  hi DiagnosticUnderlineError gui=undercurl
-  hi DiagnosticUnderlineWarn gui=undercurl
   hi link ALEErrorSign DiagnosticSignError
   hi link ALEWarningSign DiagnosticSignWarn
   lua << EOF
@@ -314,7 +335,7 @@ set signcolumn=number
 set ruler
 set rulerformat=%35(%=%r%Y\|%{&ff}\|%{strlen(&fenc)?&fenc:'none'}\ %m\ %l/%L%)
 set laststatus=2
-set noexpandtab
+set expandtab
 set noshowmode
 
 if has('nvim')
@@ -490,6 +511,9 @@ nnoremap <C-g> <cmd>TroubleClose<CR><cmd>cclose<CR><cmd>pclose<CR>
 nnoremap <Leader>xx <cmd>Trouble<CR>
 nnoremap ]e :lnext<CR>
 nnoremap [e :lprev<CR>
+" TODO: cycle https://github.com/airblade/vim-gitgutter#cycle-through-hunks-in-current-buffer
+nnoremap ]d :silent GitGutterNextHunk<CR>
+nnoremap [d :silent GitGutterPrevHunk<CR>
 endif
 
 " ---------------------------------------------------------------------
@@ -682,7 +706,7 @@ set wildignore+=*.o,main,*.pyc,*.aux,*.toc,*.bin     " don't add .class for java
 set wildignore+=*.git,*.svn,*.hg
 set wildignore+=*.sqlite3
 set wildignore+=*~,*.bak,*.sw,*.gif
-set completeopt=menu,preview,longest
+set completeopt=menu,menuone,preview,longest
 set complete=.,w,b,u
 set path+=./include,                                 " path containing included files for searching variables
 " Prevent the first completion result to be chosen, only needed for C++?
@@ -820,7 +844,7 @@ au BufWritePost *.desktop,mimeapps.list silent !bash -c 'update-mime-database ~/
 au BufRead tmux.conf,.tmux* setf tmux
 au BufRead /usr/include/* setf cpp
 au BufRead SConstruct setf python
-au BufRead TARGETS,WORKSPACE setf syntax=python
+au BufRead TARGETS,WORKSPACE setf syntax=python | setl expandtab
 au BufNewFile,BufRead config.fish set ft=sh               " syntax for fish config file
 au BufNewFile,BufRead *.json setl ft=json syntax=txt
 au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt           " for vidir / vimv
@@ -841,6 +865,7 @@ au FileType javascript setl ts=2 sw=2 sts=2
 au Filetype lrc :match Underlined /.\%45v.\+/
 au Filetype lrc setl textwidth=45                                  " for display in iphone
 au FileType json setl foldmethod=syntax
+au FileType make setl noexpandtab
 au FileType yaml setl foldmethod=indent foldlevel=99 fml=1
 au Filetype txt,crontab setl textwidth=500
 au FileType sh,zsh inoremap ` ``<Left>
@@ -859,8 +884,9 @@ au BufWritePost *
 " <Leader>z/Z/iz to fold/restore/reverse_fold search result
 " Tyank, Twrite, Tput to use tbone for tmux
 " {count}zS to show highlight
-" <leader>gO to open github repo
+" <leader>gC to open github repo
 if !$DISPLAY | let g:gh_open_command = '' | endif
+let g:gh_git_remote = 'origin'  " default remote
 let g:gh_line_map_default = 0  " disable default map
 let g:gh_line_map = '<Leader>gC'
 au BufEnter *.cpp let b:fswitchdst = 'hh,h' | let b:fswitchlocs = './,./include,../include'
