@@ -131,6 +131,12 @@ if not vim.g.vscode then
   use 'folke/lsp-colors.nvim'
   use { 'onsails/lspkind.nvim', config = function() require("lspkind").init() end, event = "LspAttach" }
 
+  use { 'hrsh7th/cmp-path' }
+  use { 'hrsh7th/cmp-buffer' }
+  use { 'hrsh7th/cmp-nvim-lsp', dependencies = {'hrsh7th/cmp-vsnip', 'hrsh7th/vim-vsnip' }, event = "LspAttach" }
+  use { 'hrsh7th/cmp-nvim-lua', ft = {'lua', 'vim'}}
+  use { 'hrsh7th/nvim-cmp' }
+
   use {'folke/trouble.nvim', lazy = true, dependencies = 'nvim-tree/nvim-web-devicons', opts = {        
     action_keys = {                                                                                     
       open_split = { "<c-s>" }, -- open buffer in new split                                             
@@ -739,6 +745,50 @@ let g:ale_fixers = {'python': ['black']}
 " Only enable hard errors https://flake8.pycqa.org/en/latest/user/error-codes.html
 let g:ale_python_flake8_options = '--max-line-length 120 --select F8,F402,F404,F405'
 let g:ale_python_black_options = '-l 100'
+
+
+if has('nvim') && !exists('g:vscode')
+  lua << EOF
+local cmp = require("cmp")
+cmp.setup({
+  snippet = { expand = function(args) vim.fn["vsnip#anonymous"](args.body) end, },
+  mapping = cmp.mapping.preset.insert({
+    ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+    ["<C-u>"] = cmp.mapping.scroll_docs(4),
+    ["<C-e>"] = cmp.mapping.close(),
+    ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
+    ["<CR>"] = cmp.mapping.confirm({ select = false }),
+		["<Tab>"] = cmp.mapping(cmp.mapping.confirm({ select = true }), {"i"}),
+  }),
+
+  sources = {
+    { name = "nvim_lsp" },
+    { name = "path" },
+    { name = "buffer", keyword_length = 5 },
+    { name = "nvim_lua" },
+  },
+
+	window = {
+		completion = { winhighlight = "Normal:CmpPmenu,FloatBorder:CmpPmenu" },
+		documentation = { winhighlight = "Normal:CmpPmenu,FloatBorder:CmpPmenu" }
+	},
+
+  formatting = {
+    format = require("lspkind").cmp_format({
+      with_text = true,
+      maxwidth = 40, -- half max width
+      menu = {
+        buffer = "[Buf]", path = "[Path]",
+        nvim_lsp = "[LSP]", nvim_lua = "[Vim]",
+      },
+    }),
+  },
+
+  experimental = { ghost_text = true },
+})
+
+EOF
+endif
 
 " ---------------------------------------------------------------------f]]
 " Set Title:        " TODO for normal type of file f[[
