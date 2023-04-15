@@ -20,17 +20,36 @@ local use = function(x) table.insert(plugins, x) end
 -- UI And Basic:
 if not vim.g.vscode then
   use {'folke/tokyonight.nvim', opts = {
+    on_colors = function(c)
+      c.gitSigns = { add = '#00dd00', change = '#00c0ff', delete = '#ff3030' }
+      c.ui_bg = '#24283b'
+    end,
     on_highlights = function(hl, c)
       for k in pairs(hl) do 
         -- Only keep the following, others are set by 'default' colorscheme.
         -- See https://github.com/folke/tokyonight.nvim/blob/main/lua/tokyonight/theme.lua
-        if vim.startswith(k, "Cmp") or vim.startswith(k, "Pmenu") then goto continue end
+        if vim.startswith(k, "Cmp") then goto continue end
         if vim.startswith(k, "Lsp") or vim.startswith(k, "@lsp") then goto continue end
         if vim.startswith(k, "Diagnostic") then goto continue end
         if vim.startswith(k, "@string") or vim.startswith(k, "@text") then goto continue end
+        if vim.startswith(k, "GitGutter") then
+          hl[k]["bg"] = c.ui_bg; goto continue
+        end
         hl[k] = nil 
         ::continue::
       end
+      for _, k in ipairs({"Pmenu", "TreesitterContext", "TreesitterContextLineNumber", "SignColumn"}) do
+        hl[k] = { bg = c.ui_bg }
+      end
+      for _, k in ipairs({"Error", "Warn", "Hint", "Info"}) do
+        hl["DiagnosticSign" .. k] = { bg = c.ui_bg, fg = hl["Diagnostic" .. k ].fg}
+      end
+      hl["CmpPmenu"] = {bg = c.ui_bg, fg = '#c9f0f0'} -- For nvim-cmp completion
+      hl["TreesitterContextLineNumber"]["fg"] = c.ui_bg  -- Hide line number
+      hl["GitGutterAddLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.add } -- https://github.com/ppwwyyxx/tokyonight.nvim/commit/06fa42cf7d15ae5378e827bd645573fc3060508d
+      hl["GitGutterChangeLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.change }
+      hl["GitGutterDeleteLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.delete }
+      hl["GitGutterChangeDeleteLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.change }  -- https://github.com/airblade/vim-gitgutter/pull/854
     end }}
   -- https://github.com/Yggdroot/indentLine/issues/345
   use {'Yggdroot/indentLine', config = function()
@@ -82,13 +101,13 @@ if not vim.g.vscode then
           ["<C-k>"] = "move_selection_previous",
         }
       }
-    },
+    }},
     config = function(p, opts) 
       require('telescope').setup(opts)
       require('telescope').load_extension('fzf')
     end,
     cmd = 'Telescope'
-  }}
+  }
   use {'nvim-telescope/telescope-fzf-native.nvim', build = 'make', branch = 'main', lazy = true }
   use {'nvim-tree/nvim-tree.lua', dependencies = 'nvim-tree/nvim-web-devicons'}
   use {'preservim/tagbar', cmd = 'TagbarToggle'}
@@ -122,18 +141,19 @@ if not vim.g.vscode then
   use {'derekwyatt/vim-fswitch', ft = {'cpp', 'c'}}
   use {'shime/vim-livedown', ft = 'markdown'}
   use 'neomake/neomake'
-  vim.g.gitgutter_sign_modified_removed = '~'
-  use 'airblade/vim-gitgutter'
+  use {'airblade/vim-gitgutter', event = 'VimEnter'}
   use {'wakatime/vim-wakatime', cond = vim.fn.filereadable(vim.fn.expand('$HOME/.wakatime.cfg')) == 1 }
   use {'github/copilot.vim', cmd = 'Copilot'}
   -- LSP:
   use 'neovim/nvim-lspconfig'
   use 'folke/lsp-colors.nvim'
-  use { 'onsails/lspkind.nvim', config = function() require("lspkind").init() end, event = "LspAttach" }
+  use { 'onsails/lspkind.nvim', config = function() 
+    require("lspkind").init({ symbol_map = { Class = "", Struct = "" } }) 
+  end, event = "LspAttach" }
 
   use { 'hrsh7th/cmp-path' }
   use { 'hrsh7th/cmp-buffer' }
-  use { 'hrsh7th/cmp-nvim-lsp', dependencies = {'hrsh7th/cmp-vsnip', 'hrsh7th/vim-vsnip' }, event = "LspAttach" }
+  use { 'hrsh7th/cmp-nvim-lsp', dependencies = {'hrsh7th/cmp-vsnip', 'hrsh7th/vim-vsnip', 'hrsh7th/cmp-nvim-lsp-signature-help' }, event = "LspAttach" }
   use { 'hrsh7th/cmp-nvim-lua', ft = {'lua', 'vim'}}
   use { 'hrsh7th/nvim-cmp' }
 
@@ -265,7 +285,7 @@ hi Visual ctermbg=81 ctermfg=black cterm=none guibg=#0a6886 guifg=NONE
 
 hi LineNr ctermfg=134 guifg=#d426ff guibg=#24283b
 hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=#65ec9b
-hi Pmenu ctermfg=81 ctermbg=16 guibg=NONE guifg=#c9f0f0
+hi PmenuSel guifg=lightgreen
 hi TelescopeSelection ctermbg=81 ctermfg=black cterm=none gui=underdashed guifg=#6e68ee
 
 hi Comment ctermfg=blue guifg=#145ecc
@@ -285,19 +305,8 @@ if has('nvim')
   hi link @variable.builtin Special
   hi link @attribute.builtin Special
   au FileType python :hi link @constructor @function  " cannot distinguish
-  hi CmpPmenu guibg=#24283b guifg=#c9f0f0  " For nvim-cmp completion
-  hi TreesitterContext guibg=#24283b
   hi TreesitterContextBottom gui=underdashed guisp=lightgreen
-  hi TreesitterContextLineNumber guifg=#24283b guibg=#24283b
 
-  for group in ["SignColumn", "DiagnosticSignError", "DiagnosticSignWarn", "DiagnosticSignInfo", "DiagnosticSignHint", "GitGutterAdd", "GitGutterChange", "GitGutterDelete"]
-    exec "hi" group "guibg=#24283b"
-  endfor
-  hi DiagnosticSignError guifg=red
-  hi DiagnosticSignWarn guifg=orange
-  hi DiagnosticSignInfo guifg=lightblue
-  hi link ALEErrorSign DiagnosticSignError
-  hi link ALEWarningSign DiagnosticSignWarn
   lua << EOF
   -- https://github.com/neovim/neovim/issues/14295#issuecomment-950037927
   local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
@@ -306,11 +315,6 @@ if has('nvim')
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
   end
 EOF
-  hi GitGutterDelete guifg=red
-  hi GitGutterAdd guifg=green
-  hi GitGutterChange guifg=orange
-  let g:ale_sign_error = ''
-  let g:ale_sign_warning = ''
 else
   hi clear ALEError
   hi clear ALEWarning
@@ -369,7 +373,7 @@ if has('nvim')
   },
   sections = {
     lualine_a = {{'mode', fmt = function(str) return str:sub(1,1) end }},
-    lualine_b = {'branch', 'diff'},
+    lualine_b = {'branch', {'diff', symbols = {added = ' ', modified = ' ', removed = ' '} } },
     lualine_c = {
       {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = '+'} },
       {'diagnostics', sources = {'nvim_diagnostic', 'ale'}},
@@ -517,9 +521,6 @@ nnoremap <C-g> <cmd>TroubleClose<CR><cmd>cclose<CR><cmd>pclose<CR>
 nnoremap <Leader>xx <cmd>Trouble<CR>
 nnoremap ]e :lnext<CR>
 nnoremap [e :lprev<CR>
-" TODO: cycle https://github.com/airblade/vim-gitgutter#cycle-through-hunks-in-current-buffer
-nnoremap ]d :silent GitGutterNextHunk<CR>
-nnoremap [d :silent GitGutterPrevHunk<CR>
 endif
 
 " ---------------------------------------------------------------------
@@ -551,7 +552,7 @@ if !exists('g:vscode')
   cmap <c-b> <S-Left>
   cmap <a-b> <S-Left>
   cmap <c-e> <End>
-  cmap <c-d> <Home>
+  cmap <c-a> <Home>
 endif
 " undoable C-U, C-W
 inoremap <c-u> <c-g>u<c-u>
@@ -740,6 +741,7 @@ set statusline+=%#warningmsg#
 set statusline+=%*
 
 let g:ale_linters_explicit = 1
+let g:ale_use_neovim_diagnostics_api = 1
 let g:ale_linters = {'python': ['flake8'], 'sh': ['shellcheck']}
 let g:ale_fixers = {'python': ['black']}
 " Only enable hard errors https://flake8.pycqa.org/en/latest/user/error-codes.html
@@ -763,6 +765,7 @@ cmp.setup({
 
   sources = {
     { name = "nvim_lsp" },
+    { name = 'nvim_lsp_signature_help' },
     { name = "path" },
     { name = "buffer", keyword_length = 5 },
     { name = "nvim_lua" },
@@ -770,11 +773,12 @@ cmp.setup({
 
 	window = {
 		completion = { winhighlight = "Normal:CmpPmenu,FloatBorder:CmpPmenu" },
-		documentation = { winhighlight = "Normal:CmpPmenu,FloatBorder:CmpPmenu" }
+		documentation = { winhighlight = "Normal:CmpPmenu,FloatBorder:CmpPmenu", border = "rounded" }
 	},
 
   formatting = {
     format = require("lspkind").cmp_format({
+      mode = "symbol",
       with_text = true,
       maxwidth = 40, -- half max width
       menu = {
@@ -1012,6 +1016,18 @@ command HtmlBeautify call HtmlBeautify()
 
 " toggle indent
 nnoremap <leader>ti :IndentLinesToggle<CR>:set list! lcs=tab:\\|\<Space><CR>
+
+" GitGutter
+" TODO: cycle https://github.com/airblade/vim-gitgutter#cycle-through-hunks-in-current-buffer
+nnoremap ]d :silent GitGutterNextHunk<CR>
+nnoremap [d :silent GitGutterPrevHunk<CR>
+" Disable symbols and use linenr
+let g:gitgutter_highlight_linenrs = 1
+let g:gitgutter_signs = 0
+let g:gitgutter_sign_modified = ''
+let g:gitgutter_sign_added = ''
+let g:gitgutter_sign_removed = ''
+let g:gitgutter_sign_modified_removed = g:gitgutter_sign_modified
 " f]]
 " Window Plugins: f[[
 let g:win_width = 22
