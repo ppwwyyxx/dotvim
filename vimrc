@@ -18,174 +18,204 @@ local plugins = {}
 local use = function(x) table.insert(plugins, x) end
 
 -- UI And Basic:
-if not vim.g.vscode then
-  use {'folke/tokyonight.nvim', opts = {
-    on_colors = function(c)
-      c.gitSigns = { add = '#00dd00', change = '#00c0ff', delete = '#ff3030' }
-      c.ui_bg = '#24283b'
-    end,
-    on_highlights = function(hl, c)
-      for k in pairs(hl) do 
-        -- Only keep the following, others are set by 'default' colorscheme.
-        -- See https://github.com/folke/tokyonight.nvim/blob/main/lua/tokyonight/theme.lua
-        if vim.startswith(k, "Cmp") then goto continue end
-        if vim.startswith(k, "Lsp") or vim.startswith(k, "@lsp") then goto continue end
-        if vim.startswith(k, "Diagnostic") then goto continue end
-        if vim.startswith(k, "@string") or vim.startswith(k, "@text") then goto continue end
-        if vim.startswith(k, "GitGutter") then
-          hl[k]["bg"] = c.ui_bg; goto continue
-        end
-        hl[k] = nil 
-        ::continue::
+use {'folke/tokyonight.nvim', lazy = false, opts = {
+  on_colors = function(c)
+    c.gitSigns = { add = '#00dd00', change = '#00c0ff', delete = '#ff3030' }
+    c.ui_bg = '#24283b'
+  end,
+  on_highlights = function(hl, c)
+    for k in pairs(hl) do 
+      -- Only keep the following, others are set by 'default' colorscheme.
+      -- See https://github.com/folke/tokyonight.nvim/blob/main/lua/tokyonight/theme.lua
+      if vim.startswith(k, "Cmp") or vim.startswith(k, "WhichKey") then goto continue end
+      if vim.startswith(k, "Lsp") or vim.startswith(k, "@lsp") then goto continue end
+      if vim.startswith(k, "Diagnostic") then goto continue end
+      if vim.startswith(k, "@string") or vim.startswith(k, "@text") then goto continue end
+      if vim.startswith(k, "GitGutter") then
+        hl[k]["bg"] = c.ui_bg; goto continue
       end
-      for _, k in ipairs({"Pmenu", "TreesitterContext", "TreesitterContextLineNumber", "SignColumn"}) do
-        hl[k] = { bg = c.ui_bg }
-      end
-      for _, k in ipairs({"Error", "Warn", "Hint", "Info"}) do
-        hl["DiagnosticSign" .. k] = { bg = c.ui_bg, fg = hl["Diagnostic" .. k ].fg}
-      end
-      hl["CmpPmenu"] = {bg = c.ui_bg, fg = '#c9f0f0'} -- For nvim-cmp completion
-      hl["TreesitterContextLineNumber"]["fg"] = c.ui_bg  -- Hide line number
-      hl["GitGutterAddLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.add } -- https://github.com/ppwwyyxx/tokyonight.nvim/commit/06fa42cf7d15ae5378e827bd645573fc3060508d
-      hl["GitGutterChangeLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.change }
-      hl["GitGutterDeleteLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.delete }
-      hl["GitGutterChangeDeleteLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.change }  -- https://github.com/airblade/vim-gitgutter/pull/854
-    end }}
-  -- https://github.com/Yggdroot/indentLine/issues/345
-  use {'Yggdroot/indentLine', config = function()
-    vim.g.indentLine_enabled = 0
-    vim.g.indentLine_color_term = 239
-    vim.g.indentLine_color_gui = '#A4E57E'
-  end }
-  use 'vim-scripts/searchfold.vim'
-  use 'vim-scripts/LargeFile'
-  use {'folke/which-key.nvim', branch = 'main'}
-  use {'lambdalisue/suda.vim', cmd = 'SudaWrite'}
-  use 'nvim-lualine/lualine.nvim'
-  -- https://github.com/folke/lazy.nvim/issues/389
-  use {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = "BufReadPost",
-    opts = {
-      -- Do not enable for comment
-      ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'rst', 'scss', 'typescript', 'vim', 'yaml' },
-      highlight = { enable = true, },
+      hl[k] = nil 
+      ::continue::
+    end
+    for _, k in ipairs({"Pmenu", "TreesitterContext", "TreesitterContextLineNumber", "SignColumn"}) do
+      hl[k] = { bg = c.ui_bg }
+    end
+    for _, k in ipairs({"Error", "Warn", "Hint", "Info"}) do
+      hl["DiagnosticSign" .. k] = { bg = c.ui_bg, fg = hl["Diagnostic" .. k ].fg}
+    end
+    hl["CmpPmenu"] = {bg = c.ui_bg, fg = '#c9f0f0'} -- For nvim-cmp completion
+    hl["TreesitterContextLineNumber"]["fg"] = c.ui_bg  -- Hide line number
+    hl["GitGutterAddLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.add } -- https://github.com/ppwwyyxx/tokyonight.nvim/commit/06fa42cf7d15ae5378e827bd645573fc3060508d
+    hl["GitGutterChangeLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.change }
+    hl["GitGutterDeleteLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.delete }
+    hl["GitGutterChangeDeleteLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.change }  -- https://github.com/airblade/vim-gitgutter/pull/854
+  end }}
+use {'glepnir/dashboard-nvim', event = 'VimEnter', opts = {
+  theme = 'hyper',
+  config = {
+    week_header = { enable = true },
+    shortcut = {
+      { desc = ' Recent Files', group = 'Label',
+        action = 'Telescope oldfiles', key = 'r' },
+      {
+        desc = ' dotfiles', group = 'Number', key = 'd',
+        action = function()
+          local resolve = function(path)
+            local path = vim.fs.normalize(path)
+            local truepath = vim.fn.resolve(path)
+            return (truepath ~= path) and vim.fs.dirname(truepath) or ''
+          end
+          require('telescope.builtin').find_files{
+            layout_strategy = 'vertical',
+            find_command = { 
+              "rg", "--files", resolve('~/.vimrc'), resolve('~/.zshrc'), "--hidden", 
+              "--glob", "!pixmaps", "--glob", "!.git"
+            }}
+        end },
     },
-    config = function(p, opts) require("nvim-treesitter.configs").setup(opts) end,
-  }
-  use {'nvim-treesitter/playground', cmd = 'TSHighlightCapturesUnderCursor'}
-  use {'nvim-treesitter/nvim-treesitter-context', opts = {
-      min_window_height = 20, max_lines = 3,
-    }, event = "BufReadPost" }
-  use {'dstein64/vim-startuptime', cmd = 'StartupTime'}
-end
+  },
+}}
+-- https://github.com/Yggdroot/indentLine/issues/345
+use {'Yggdroot/indentLine', config = function()
+  vim.g.indentLine_enabled = 0
+  vim.g.indentLine_color_term = 239
+  vim.g.indentLine_color_gui = '#A4E57E'
+end }
+use {'vim-scripts/searchfold.vim', keys = {'<Leader>z'}}
+use 'vim-scripts/LargeFile'
+use {'folke/which-key.nvim', branch = 'main'}
+use {'lambdalisue/suda.vim', cmd = 'SudaWrite'}
+use 'nvim-lualine/lualine.nvim'
+-- https://github.com/folke/lazy.nvim/issues/389
+use {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = "BufReadPost",
+  opts = {
+    -- Do not enable for comment
+    ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'rst', 'scss', 'typescript', 'vim', 'yaml' },
+    highlight = { enable = true, },
+    context_commentstring = { enable = true },
+  },
+  config = function(p, opts) require("nvim-treesitter.configs").setup(opts) end,
+  dependencies = 'JoosepAlviste/nvim-ts-context-commentstring'
+}
+use {'nvim-treesitter/playground', cmd = 'TSHighlightCapturesUnderCursor'}
+use {'nvim-treesitter/nvim-treesitter-context', 
+     opts = { min_window_height = 20, max_lines = 3 },
+     event = "BufReadPost" }
+use {'dstein64/vim-startuptime', cmd = 'StartupTime'}
 use 'vim-scripts/MultipleSearch'
 use 'ppwwyyxx/vim-PinyinSearch'
 
 -- Window Tools:
-if not vim.g.vscode then
-  use {'mbbill/undotree', cmd = 'UndotreeToggle'}
-  use 'nvim-lua/plenary.nvim'
-  use {'nvim-telescope/telescope.nvim', lazy = true, opts = {
-    defaults = {
-      layout_strategy = 'flex',
-      layout_config = { 
-        width = 0.9, 
-        flex = { flip_columns = 120 },
-        horizontal = { preview_width = 0.6 } 
-      },
-      path_display = { truncate = 2 },
-      mappings = {
-        i = {
-          ["<C-s>"] = "file_split",
-          ["<Esc>"] = "close",
-          ["<C-j>"] = "move_selection_next",
-          ["<C-k>"] = "move_selection_previous",
-        }
+use {'mbbill/undotree', cmd = 'UndotreeToggle'}
+use 'nvim-lua/plenary.nvim'
+use {'nvim-telescope/telescope.nvim', lazy = true, opts = {
+  defaults = {
+    prompt_prefix = '🔍',
+    layout_strategy = 'flex',
+    layout_config = { 
+      width = 0.9, 
+      flex = { flip_columns = 120 },
+      horizontal = { preview_width = 0.6 },
+      vertical = { preview_height = 0.3 } 
+    },
+    path_display = { truncate = 2 },
+    mappings = {
+      i = {
+        ["<C-s>"] = "file_split",
+        ["<Esc>"] = "close",
+        ["<C-j>"] = "move_selection_next",
+        ["<C-k>"] = "move_selection_previous",
       }
-    }},
-    config = function(p, opts) 
-      require('telescope').setup(opts)
-      require('telescope').load_extension('fzf')
-    end,
-    cmd = 'Telescope'
-  }
-  use {'nvim-telescope/telescope-fzf-native.nvim', build = 'make', branch = 'main', lazy = true }
-  use {'nvim-tree/nvim-tree.lua', dependencies = 'nvim-tree/nvim-web-devicons'}
-  use {'preservim/tagbar', cmd = 'TagbarToggle'}
-end
+    },
+  }},
+  config = function(p, opts) 
+    require('telescope').setup(opts)
+    require('telescope').load_extension('fzf')
+    require('telescope').load_extension('aerial')
+  end,
+  cmd = 'Telescope'
+}
+use {'nvim-telescope/telescope-fzf-native.nvim', build = 'make', branch = 'main', lazy = true }
+use {'nvim-tree/nvim-tree.lua', dependencies = 'nvim-tree/nvim-web-devicons'}
+use {'preservim/tagbar', cmd = 'TagbarToggle'}
+use {'stevearc/aerial.nvim', opts = {
+  attach_mode = 'global',
+  placement = 'edge',
+  highlight_on_hover = true,
+  ignore = {filetypes = {'vim'}},
+  nav = { autojump = true },
+}}
+use {'ii14/neorepl.nvim', commit = 'bc819bb42edca9c4a6b6e5d00f09f94a49c3b735', lazy = true }
 
 -- Editing Tools:
-use 'rhysd/accelerated-jk'
-use 'yonchu/accelerated-smooth-scroll'
+use {'rhysd/accelerated-jk', lazy = false }
+use {'yonchu/accelerated-smooth-scroll', lazy = false }
 use {'tsaleh/vim-align', cmd = {'Align', 'AlignCtrl'} }
 use 'tpope/vim-surround'
 use 'terryma/vim-expand-region'
-if not vim.g.vscode then
-  use {'phaazon/hop.nvim',
-    opts = { keys = 'etovxqpdygfblzhckisuran', jump_on_sole_occurrence = false },
-    keys = {{',w', ':HopWord<cr>', mode='n'}}
-  }
-  use {'ojroques/vim-oscyank', branch = 'main'}
-  -- highlight words under cursor, causes ghost in vscode
-  vim.g.matchmaker_enable_startup = 1
-  use {'qstrahl/vim-matchmaker'} -- delay loading so it can read the config
-end
+use {'phaazon/hop.nvim',
+  opts = { keys = 'etovxqpdygfblzhckisuran', jump_on_sole_occurrence = false },
+  keys = {{',w', ':HopWord<cr>', mode='n'}}
+}
+use {'ojroques/vim-oscyank', branch = 'main'}
+vim.g.matchmaker_enable_startup = 1 -- highlight words under cursor
+use {'qstrahl/vim-matchmaker'} -- delay loading so it can read the config
 use 'preservim/nerdcommenter'
 use {'glts/vim-textobj-comment', dependencies = 'kana/vim-textobj-user'}
 use {'kana/vim-textobj-indent', dependencies = 'kana/vim-textobj-user'}
-use 'jeetsukumaran/vim-indentwise'
 
 -- Programming:
-if not vim.g.vscode then
-  use {'ruanyl/vim-gh-line', event = 'VimEnter'} -- delay init to pickup configs.
-  use {'LaTeX-Box-Team/LaTeX-Box', ft = 'tex'}
-  use {'derekwyatt/vim-fswitch', ft = {'cpp', 'c'}}
-  use {'shime/vim-livedown', ft = 'markdown'}
-  use 'neomake/neomake'
-  use {'airblade/vim-gitgutter', event = 'VimEnter'}
-  use {'wakatime/vim-wakatime', cond = vim.fn.filereadable(vim.fn.expand('$HOME/.wakatime.cfg')) == 1 }
-  use {'github/copilot.vim', cmd = 'Copilot'}
-  -- LSP:
-  use 'neovim/nvim-lspconfig'
-  use 'folke/lsp-colors.nvim'
-  use { 'onsails/lspkind.nvim', config = function() 
-    require("lspkind").init({ symbol_map = { Class = "", Struct = "" } }) 
-  end, event = "LspAttach" }
+use {'ruanyl/vim-gh-line', event = 'VimEnter'} -- delay init to pickup configs.
+use {'LaTeX-Box-Team/LaTeX-Box', ft = 'tex'}
+use {'derekwyatt/vim-fswitch', ft = {'cpp', 'c'}}
+use {'shime/vim-livedown', ft = 'markdown'}
+use 'neomake/neomake'
+use {'airblade/vim-gitgutter', event = 'VimEnter'}
+use {'wakatime/vim-wakatime', cond = vim.fn.filereadable(vim.fn.expand('$HOME/.wakatime.cfg')) == 1 }
+-- LSP:
+use {'neovim/nvim-lspconfig', lazy = true}
+use {'onsails/lspkind.nvim', config = function() 
+  require("lspkind").init({ symbol_map = { Class = "", Struct = "" } }) 
+end, event = "LspAttach" }
 
-  use { 'hrsh7th/cmp-path' }
-  use { 'hrsh7th/cmp-buffer' }
-  use { 'hrsh7th/cmp-nvim-lsp', dependencies = {'hrsh7th/cmp-vsnip', 'hrsh7th/vim-vsnip', 'hrsh7th/cmp-nvim-lsp-signature-help' }, event = "LspAttach" }
-  use { 'hrsh7th/cmp-nvim-lua', ft = {'lua', 'vim'}}
-  use { 'hrsh7th/nvim-cmp' }
+use { 'github/copilot.vim', cmd = 'Copilot', config = function() vim.g.copilot_no_tab_map = true end }
+use 'hrsh7th/cmp-path'
+use 'hrsh7th/cmp-buffer'
+use { 'hrsh7th/cmp-nvim-lsp', dependencies = {'hrsh7th/cmp-vsnip', 'hrsh7th/vim-vsnip', 'hrsh7th/cmp-nvim-lsp-signature-help' }, event = "LspAttach" }
+use { 'hrsh7th/cmp-nvim-lua', ft = {'lua', 'vim'}}
+use 'hrsh7th/cmp-cmdline'
+use { 'hrsh7th/nvim-cmp' }
 
-  use {'folke/trouble.nvim', lazy = true, dependencies = 'nvim-tree/nvim-web-devicons', opts = {        
-    action_keys = {                                                                                     
-      open_split = { "<c-s>" }, -- open buffer in new split                                             
-      open_tab = {},                                                                                    
-    },                                                                                                  
-    auto_close = true, -- automatically close the list when you have no diagnostics                     
-    use_diagnostic_signs =true, -- enabling this will use the signs defined in your lsp client          
-  }, cmd = {'Trouble', 'TroubleToggle'}}                                                                
+use {'folke/trouble.nvim', lazy = true, dependencies = 'nvim-tree/nvim-web-devicons', opts = {        
+  action_keys = {                                                                                     
+    open_split = { "<c-s>" }, -- open buffer in new split                                             
+    open_tab = {},                                                                                    
+  },                                                                                                  
+  auto_close = true, -- automatically close the list when you have no diagnostics                     
+  use_diagnostic_signs = true, -- enabling this will use the signs defined in your lsp client          
+}, cmd = {'Trouble', 'TroubleToggle', 'TroubleClose'}}
 
-  -- Syntax:
-  use 'dense-analysis/ale'
-  use 'vim-scripts/gprof.vim'
-  use {'smilekzs/vim-coffee-script', ft = 'coffee'}
-  use {'chrisbra/csv.vim', ft = 'csv'}
-  use {'digitaltoad/vim-jade', ft = 'jade'}
-  use {'maksimr/vim-jsbeautify', ft = {'html', 'javascript', 'css', 'json'}}
-  use {'pangloss/vim-javascript', ft = 'javascript'}
-  use {'groenewege/vim-less', ft = 'less'}
-  use {'fs111/pydoc.vim', ft = 'python'}
-  use 'ujihisa/rdoc.vim'
-  use {'slim-template/vim-slim', ft = 'slim'}
-  use {'wavded/vim-stylus', ft = 'stylus'}
-  use {'jeroenbourgois/vim-actionscript', ft = 'actionscript'}
-end
+-- Syntax:
+use 'dense-analysis/ale'
+use 'vim-scripts/gprof.vim'
+use {'smilekzs/vim-coffee-script', ft = 'coffee'}
+use {'chrisbra/csv.vim', ft = 'csv'}
+use {'digitaltoad/vim-jade', ft = 'jade'}
+use {'maksimr/vim-jsbeautify', ft = {'html', 'javascript', 'css', 'json'}}
+use {'pangloss/vim-javascript', ft = 'javascript'}
+use {'groenewege/vim-less', ft = 'less'}
+use {'fs111/pydoc.vim', ft = 'python'}
+use 'ujihisa/rdoc.vim'
+use {'slim-template/vim-slim', ft = 'slim'}
+use {'wavded/vim-stylus', ft = 'stylus'}
+use {'jeroenbourgois/vim-actionscript', ft = 'actionscript'}
+
 if vim.fn.filereadable(vim.fn.stdpath("config") .. "/lua/local_plugin.lua") == 1 then
   use {import = 'local_plugin'}
 end
 require("lazy").setup(plugins, {
-  root = vim.fn.stdpath("config") .. "/bundle"
+  root = vim.fn.stdpath("config") .. "/bundle",
+  -- defaults = { lazy = true },
 })
 
 EOF
@@ -252,29 +282,28 @@ set ttyfast
 " UI: f[[
 set background=light
 set title
-set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:~:.:h\")})%)%(\ %a%)
+set titlelen=20
+set titlestring=%f
 
 " First load default, then overwrite misc with tokyonight
 colo default
-colo tokyonight-night
 if has("nvim") | set termguicolors | else
   " https://github.com/vim/vim/issues/993#issuecomment-255651605
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 endif
-if !exists('g:vscode')
-  set guicursor=    " neovim mess up with terminal cursor
-  if has("nvim")
-    set guifont=Monospace:h18
-  else
-    set guifont=Monospace\ 16
+set guicursor=    " neovim mess up with terminal cursor
+if has("nvim")
+  colo tokyonight-night
+  set guifont=Monospace:h18
+else
+  set guifont=Monospace\ 16
+  if has("gui_running")   " for gvim/neovide
+    colo codedark
+    cnoremap <C-S-v> <C-r>*
   endif
-  set guioptions=aegi                " cleaner gui
 endif
-if has("gui_running") || exists('g:neovide')   " for gvim/neovide
-  colo codedark
-  cnoremap <C-S-v> <C-r>*
-endif
+set guioptions=aegi                " cleaner gui
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
 hi Matchmaker guibg=#444444
@@ -286,7 +315,6 @@ hi Visual ctermbg=81 ctermfg=black cterm=none guibg=#0a6886 guifg=NONE
 hi LineNr ctermfg=134 guifg=#d426ff guibg=#24283b
 hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=#65ec9b
 hi PmenuSel guifg=lightgreen
-hi TelescopeSelection ctermbg=81 ctermfg=black cterm=none gui=underdashed guifg=#6e68ee
 
 hi Comment ctermfg=blue guifg=#145ecc
 hi String ctermfg=13 guifg=#fd26f8
@@ -320,25 +348,14 @@ else
   hi clear ALEWarning
 endif
 
-
-" Highlight Class and Function names
-if !exists('g:vscode')
-func! HighlightClasses()
-  syn match cCustomClass     "\w\+\s*\(::\)\@="
-  hi def link cCustomClass     cppType
-endfunc
-au syntax c,cpp call HighlightClasses()
-
 " Spell Check:
 set spellfile=~/.vim/static/spell.utf-8.add
 hi SpellCap guisp=yellow
 let g:tex_conceal='adgmb'
-endif  " vscode
 
 set mouse=a
 set showcmd                            " display incomplete commands right_bottom
 set numberwidth=1
-if !exists('g:vscode')
 set relativenumber
 set number
 set signcolumn=number
@@ -375,14 +392,14 @@ if has('nvim')
     lualine_a = {{'mode', fmt = function(str) return str:sub(1,1) end }},
     lualine_b = {'branch', {'diff', symbols = {added = ' ', modified = ' ', removed = ' '} } },
     lualine_c = {
-      {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = '+'} },
+      {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = ''} },
       {'diagnostics', sources = {'nvim_diagnostic', 'ale'}},
     },
     lualine_x = {'filetype'}, lualine_y = {}, lualine_z = {'location'}
   },
   inactive_sections = { 
     lualine_c = {
-      {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = '+'} },
+      {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = ''} },
     },
     lualine_x = {'encoding', 'filetype'}, },
 }
@@ -395,7 +412,6 @@ else
   let g:airline#extensions#whitespace#enabled = 0
   let g:airline#extensions#ale#enabled = 1
 endif
-endif  " vscode
 
 set scrolljump=5                       " lines to scroll with cursor
 set scrolloff=5                        " minimum lines to keep at border
@@ -458,16 +474,14 @@ command! -bang -nargs=* -complete=file Wq wq<bang> <args>
 command! -bang -nargs=* -complete=file WQ wq<bang> <args>
 nnoremap <Tab> i<Tab><Esc>
 nnoremap <S-Tab> ^i<Tab><Esc>
-if !exists('g:vscode')  " cmap slows down vscode
-  cnoremap %% <C-R>=expand('%:h').'/'<cr>
-  if has('nvim')
-    tnoremap <Esc> <C-\><C-n>
-    cmap w!! SudaWrite %
-  else
-    cmap w!! SudoWrite %
-  endif
-  cnoremap cd. lcd %:p:h
+cnoremap %% <C-R>=expand('%:h').'/'<cr>
+if has('nvim')
+  tnoremap <Esc> <C-\><C-n>
+  cmap w!! SudaWrite %
+else
+  cmap w!! SudoWrite %
 endif
+cnoremap cd. lcd %:p:h
 nnoremap "gf <C-W>gf
 " disable ex mode, help and c-a
 nnoremap Q <Esc>
@@ -492,7 +506,7 @@ au VimEnter * set pastetoggle=<F12>     " workaround for bug in neovim #2843
 if has("gui_running") || exists('g:neovide')   " for gvim/neovide
   xnoremap <c-c> "+y
 else
-  xnoremap <C-c> :OSCYank<CR>
+  vnoremap <C-c> :OSCYankVisual<CR>
 endif
 inoremap <c-v> <Esc>:set paste<CR>"+p:set nopaste<CR>a
 " insert word of the line above
@@ -502,7 +516,7 @@ inoremap <C-Y> <C-C>:let @z = @"<CR>mz
       \`zp:let @" = @z<CR>a
 " delete to blackhole register
 nnoremap <Del> "_x
-xnoremap <Del> "_d
+vnoremap <Del> "_d
 " ---------------------------------------------------------------------
 " Folding:
 set foldmethod=marker
@@ -515,13 +529,11 @@ nnoremap zo zO
 
 " ---------------------------------------------------------------------
 " QuickFix:
-if !exists('g:vscode')
 set switchbuf=split
 nnoremap <C-g> <cmd>TroubleClose<CR><cmd>cclose<CR><cmd>pclose<CR>
 nnoremap <Leader>xx <cmd>Trouble<CR>
 nnoremap ]e :lnext<CR>
 nnoremap [e :lprev<CR>
-endif
 
 " ---------------------------------------------------------------------
 " Cursor Movement: f[[
@@ -532,10 +544,8 @@ endif
 let g:accelerated_jk_acceleration_limit = 500
 let g:accelerated_jk_acceleration_table = [10, 20, 30, 35, 40, 45, 50]
 
-if !exists('g:vscode')  " affect display
-  nnoremap n nzzzv
-  nnoremap N Nzzzv
-endif
+nnoremap n nzzzv
+nnoremap N Nzzzv
 inoremap <c-h> <Left>
 inoremap <c-j> <Down>
 inoremap <c-k> <Up>
@@ -545,22 +555,19 @@ imap <c-a> <Home>
 inoremap <c-b> <S-Left>
 inoremap <a-f> <Esc>lwi
 inoremap <a-b> <Esc>bi
-if !exists('g:vscode')
-  cmap <c-j> <Down>
-  cmap <c-k> <Up>
-  cmap <a-f> <S-Right>
-  cmap <c-b> <S-Left>
-  cmap <a-b> <S-Left>
-  cmap <c-e> <End>
-  cmap <c-a> <Home>
-endif
+cmap <c-j> <Down>
+cmap <c-k> <Up>
+cmap <a-f> <S-Right>
+cmap <c-b> <S-Left>
+cmap <a-b> <S-Left>
+cmap <c-e> <End>
+cmap <c-a> <Home>
 " undoable C-U, C-W
 inoremap <c-u> <c-g>u<c-u>
 inoremap <c-w> <c-g>u<c-w>
 vnoremap << <gv<gv
 vnoremap >> >gv>gv
 " Save Cursor Position:
-if !exists('g:vscode')
 au BufReadPost *
       \ if line("'\"") > 0 && line("'\"") <= line("$") |
       \   exe "normal g`\"" |
@@ -600,7 +607,6 @@ func! ToggleColorColumn(col)
 endfunc
 hi ColorColumn ctermbg=red
 command ToggleColorColumn call ToggleColorColumn(0)
-endif
 
 " ---------------------------------------------------------------------
 " Window:
@@ -689,12 +695,7 @@ nmap <Leader>rd :redraw!<CR>
 func! ClearMyHighlight()
   " https://vi.stackexchange.com/questions/3148/what-is-the-functional-difference-between-nohlsearch-and-set-nohlsearch
   call clearmatches()
-  if !exists('g:vscode')
-    " cause buggy buffer to create in vscode
-    return ":let v:hlsearch=0\<CR>:silent! SearchBuffersReset\<CR>"
-  else
-    return ":let v:hlsearch=0\<CR>:silent! SearchReset\<CR>"
-  endif
+  return ":let v:hlsearch=0\<CR>:silent! SearchBuffersReset\<CR>"
 endfunc
 nnoremap <expr> <Leader>no ClearMyHighlight()
 
@@ -749,7 +750,7 @@ let g:ale_python_flake8_options = '--max-line-length 120 --select F8,F402,F404,F
 let g:ale_python_black_options = '-l 100'
 
 
-if has('nvim') && !exists('g:vscode')
+if has('nvim')
   lua << EOF
 local cmp = require("cmp")
 cmp.setup({
@@ -760,7 +761,14 @@ cmp.setup({
     ["<C-e>"] = cmp.mapping.close(),
     ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
     ["<CR>"] = cmp.mapping.confirm({ select = false }),
-		["<Tab>"] = cmp.mapping(cmp.mapping.confirm({ select = true }), {"i"}),
+    ["<Tab>"] = cmp.mapping(cmp.mapping.select_next_item(), {"i", "c"}),
+    ["<M-Bslash>"] = cmp.mapping(
+      -- Close cmp and suggest from copilot.
+      function(fallback) 
+        if cmp.visible() then cmp.close() end
+        vim.cmd [[Copilot enable]]
+        vim.fn['copilot#Suggest']()
+      end, {"i"}),
   }),
 
   sources = {
@@ -771,10 +779,10 @@ cmp.setup({
     { name = "nvim_lua" },
   },
 
-	window = {
-		completion = { winhighlight = "Normal:CmpPmenu,FloatBorder:CmpPmenu" },
-		documentation = { winhighlight = "Normal:CmpPmenu,FloatBorder:CmpPmenu", border = "rounded" }
-	},
+  window = {
+    completion = { winhighlight = "Normal:CmpPmenu,FloatBorder:CmpPmenu" },
+    documentation = { winhighlight = "Normal:CmpPmenu,FloatBorder:CmpPmenu", border = "rounded" }
+  },
 
   formatting = {
     format = require("lspkind").cmp_format({
@@ -791,6 +799,16 @@ cmp.setup({
   experimental = { ghost_text = true },
 })
 
+cmp.setup.cmdline(':', {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = cmp.config.sources({
+    { name = 'cmdline', option = { ignore_cmds = { 'Man', '!' } } }
+  }),
+  matching = { disallow_fuzzy_matching = true, disallow_partial_matching = true },
+  completion = { keyword_length = 3 },
+  formatting = { fields = {'abbr'} },
+  window = { completion = { border = "rounded" } },
+})
 EOF
 endif
 
@@ -866,13 +884,8 @@ au Filetype php let &makeprg="php %"
 au Filetype r let &makeprg="R <% --vanilla"
 au Filetype sh let &makeprg="shellcheck -f gcc %"
 au FileType javascript let &makeprg="node %"
-if !exists('g:vscode')
 func! InstantRun()
-  if &ft == 'python'
-    if matchstr(getline(1), 'python2') == ""
-      :!python %
-    else | :!python2 %
-    endif
+  if &ft == 'python' | :!python %
   elseif &ft == 'ruby' | :!ruby %
   elseif &ft == 'sh' | :!bash %
   elseif &ft == 'cpp' | :!gdb %<
@@ -883,7 +896,6 @@ func! InstantRun()
   else | call Make() | endif
 endfunc
 nnoremap <Leader>rr :call InstantRun() <CR>
-endif
 nnoremap <Leader>mk :call Make()<CR>
 nnoremap <Leader>mr :!make run <CR>
 " --------------------------------------------------------------------- f]]
@@ -939,7 +951,7 @@ au BufWritePost *
 " Tyank, Twrite, Tput to use tbone for tmux
 " {count}zS to show highlight
 " <leader>gC to open github repo
-if !$DISPLAY | let g:gh_open_command = '' | endif
+let g:gh_open_command = ''
 let g:gh_git_remote = 'origin'  " default remote
 let g:gh_line_map_default = 0  " disable default map
 let g:gh_line_map = '<Leader>gC'
@@ -973,19 +985,21 @@ xmap H <Plug>(expand_region_shrink)
 
 " Use * to Multiple Search word under cusor
 nnoremap <silent> * :execute ':Search \<' . expand('<cword>') . '\>'<cr>
-if !exists('g:vscode') && !has('nvim')
+if !has('nvim')
   nnoremap <Leader>/ :Search<Space>
 endif
 let g:MultipleSearchMaxColors = 16
 
-if has('nvim') && !exists('g:vscode')
-  nnoremap <C-P> <cmd>lua require('telescope.builtin').find_files{prompt_prefix='🔍'}<cr>
-  nnoremap <M-x> <cmd>lua require('telescope.builtin').commands{prompt_prefix='🔍'}<cr>
-  nnoremap <leader>/ <cmd>lua require('telescope.builtin').live_grep{prompt_prefix='🔍'}<cr>
-  nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers{prompt_prefix='🔍'}<cr>
-  nnoremap <leader>fr <cmd>lua require('telescope.builtin').oldfiles{prompt_prefix='🔍'}<cr>
-  nnoremap <leader>ft <cmd>lua require('telescope.builtin').treesitter{prompt_prefix='🔍'}<cr>
-elseif !exists('g:vscode')
+if has('nvim')
+  hi TelescopeSelection gui=underdashed guifg=#6e68ee
+  hi TelescopePromptCounter guifg=orange
+  nnoremap <C-P> <cmd>Telescope find_files<cr>
+  nnoremap <M-x> <cmd>Telescope commands<cr>
+  nnoremap <leader>/ <cmd>Telescope live_grep<cr>
+  nnoremap <leader>fb <cmd>Telescope buffers<cr>
+  nnoremap <leader>fr <cmd>Telescope oldfiles<cr>
+  nnoremap <leader>ft <cmd>Telescope treesitter<cr>
+else
   nmap <Leader>fr :CtrlPMRU<CR>
   nmap <Leader>fb :CtrlPBuffer<CR>
   nmap <Leader>ff :CtrlP .<CR>
@@ -1031,13 +1045,14 @@ let g:gitgutter_sign_modified_removed = g:gitgutter_sign_modified
 " f]]
 " Window Plugins: f[[
 let g:win_width = 22
-nmap <Leader>tl :TagbarToggle<CR>
 let g:tagbar_width = g:win_width
 let g:tagbar_autofocus = 1
 let g:tagbar_indent = 1
+let g:tagbar_compact = 1
+nmap <Leader>tl :AerialToggle<CR>
 
 " toggle file
-if has('nvim') && !exists('g:vscode')
+if has('nvim')
   lua << EOF
 require("nvim-tree").setup({
   view = {
@@ -1053,12 +1068,21 @@ require("nvim-tree").setup({
     }}
   }
 })
--- https://github.com/kyazdani42/nvim-tree.lua/discussions/1115
-vim.api.nvim_create_autocmd("BufEnter", {
-  nested = true,
+
+-- https://github.com/nvim-tree/nvim-tree.lua/issues/1368
+vim.api.nvim_create_autocmd("QuitPre", {
   callback = function()
-    if #vim.api.nvim_list_wins() == 1 and vim.api.nvim_buf_get_name(0):match("NvimTree_") ~= nil then
-      vim.cmd "quit"
+    local invalid_win = {}
+    local wins = vim.api.nvim_list_wins()
+    for _, w in ipairs(wins) do
+      local bufname = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(w))
+      if bufname:match("NvimTree_") ~= nil then
+        table.insert(invalid_win, w)
+      end
+    end
+    if #invalid_win == #wins - 1 then
+      -- Should quit, so we close all invalid windows.
+      for _, w in ipairs(invalid_win) do vim.api.nvim_win_close(w, true) end
     end
   end
 })
@@ -1081,6 +1105,21 @@ let g:undotree_WindowLayout = 2
 let g:pydoc_open_cmd = 'vsplit'
 let g:pydoc_cmd = '/usr/bin/pydoc'
 let g:pydoc_highlight = 0                             " don't highlight searching word
+
+if has('nvim')
+lua << EOF
+  vim.api.nvim_create_user_command(
+    'NeoRepl',
+    function()
+      local buf = vim.api.nvim_get_current_buf()
+      local win = vim.api.nvim_get_current_win()
+      vim.cmd('split')
+      require('neorepl').new{lang = 'lua', buffer = buf, window = win}
+      vim.cmd('resize 10 | setl winfixheight')
+      require('cmp').setup.buffer({ enabled = false })
+    end, {})
+EOF
+endif
 " f]]
 
 " LSP f[[
@@ -1131,24 +1170,5 @@ command LspAddWorkspaceFolder lua vim.lsp.buf.add_workspace_folder()
 command LspListWorkspaceFolder lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
 endif
 " ------------------------------------------------------------------------------------------ f]]
-
-" VSCode specifics:
-if exists('g:vscode')
-  nnoremap <Leader>fm :call VSCodeNotify('workbench.action.toggleSidebarVisibility')<CR>
-  nnoremap <Leader>mm :call VSCodeNotify('editor.action.toggleMinimap')<CR>
-  nnoremap <Leader>tl :call VSCodeNotify('breadcrumbs.focusAndSelect')<CR>
-  nnoremap <C-q>z :call VSCodeNotify('workbench.action.toggleZenMode')<CR>
-  nnoremap <Leader>/ :call VSCodeNotify('search.action.openNewEditor')<CR>
-  nnoremap <Leader>pp :call VSCodeNotify('workbench.action.openRecent')<CR>
-  nnoremap <Leader>gC :call VSCodeNotify('gitlens.copyRemoteFileUrlToClipboard')<CR>
-  nnoremap ]e :call VSCodeNotify('editor.action.marker.nextInFiles')<CR>
-  nnoremap [e :call VSCodeNotify('editor.action.marker.prevInFiles')<CR>
-
-  command! -bang Quit call VSCodeNotify('workbench.action.closeEditorsInGroup')
-  command! -bang Wq call VSCodeCall('workbench.action.files.save') | call VSCodeNotify('workbench.action.closeEditorsInGroup')
-
-  " reload file from disk:, what about :e file?
-  "command! e call VSCodeNotify('workbench.action.files.revert')
-endif
 
 source $HOME/.vim/source_local.vim

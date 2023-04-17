@@ -3,3 +3,5 @@ inoremap <buffer> {{ {}<Left><CR><CR><Up><Tab>
 inoremap <buffer> if<Space> if<Space>()<Left>
 inoremap <buffer> for<Space> for<Space>()<Left>
 setl expandtab
+
+nmap <Leader>tl :TagbarToggle<CR>

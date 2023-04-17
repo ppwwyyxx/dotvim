@@ -7,6 +7,7 @@ doc/tags
 
 vim/static/dict_with_cases
 vim/bundle
+vim/bundle_vscode
 vim/init.vim
 vim/nvim
 vim/plugin/packer_compiled.lua

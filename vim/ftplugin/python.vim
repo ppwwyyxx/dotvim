@@ -21,6 +21,18 @@ let g:python_recommended_style = 0
 
 if executable('pyright')
 lua << END
-	require'lspconfig'.pyright.setup{ }
+  -- https://github.com/microsoft/pyright/blob/main/docs/settings.md
+  -- https://github.com/microsoft/pyright/blob/main/docs/configuration.md
+	require'lspconfig'.pyright.setup{ 
+    settings = { python = { analysis = {
+      diagnosticSeverityOverrides = { 
+        reportPrivateImportUsage = 'none', analyzeUnannotatedFunctions = 'false', 
+
+        reportOptionalMemberAccess = 'none', reportOptionalSubscript = 'none', reportOptionalCall = 'none',
+        reportOptionalIterable = 'none', reportOptionalOperand = 'none', reportOptionalContextManager = 'none'
+      },
+      typeCheckingMode = 'off'  -- or 'basic'
+    } } }
+  }
 END
 endif

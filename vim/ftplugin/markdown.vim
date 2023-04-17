@@ -15,3 +15,8 @@ nnoremap md :LivedownToggle<CR>
 
 let s:path = expand('<sfile>:p:h')
 exec 'source' s:path . '/tex_formula.vim'
+
+lua << EOF
+require('cmp').setup.buffer({ enabled = false })
+EOF
+
