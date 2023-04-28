@@ -45,10 +45,6 @@ use {'folke/tokyonight.nvim', lazy = false, opts = {
     end
     hl["CmpPmenu"] = {bg = c.ui_bg, fg = '#c9f0f0'} -- For nvim-cmp completion
     hl["TreesitterContextLineNumber"]["fg"] = c.ui_bg  -- Hide line number
-    hl["GitGutterAddLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.add } -- https://github.com/ppwwyyxx/tokyonight.nvim/commit/06fa42cf7d15ae5378e827bd645573fc3060508d
-    hl["GitGutterChangeLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.change }
-    hl["GitGutterDeleteLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.delete }
-    hl["GitGutterChangeDeleteLineNr"] = {bg = c.ui_bg, fg = c.gitSigns.change }  -- https://github.com/airblade/vim-gitgutter/pull/854
   end }}
 use {'glepnir/dashboard-nvim', event = 'VimEnter', opts = {
   theme = 'hyper',
@@ -140,6 +136,7 @@ use {'nvim-tree/nvim-tree.lua', dependencies = 'nvim-tree/nvim-web-devicons'}
 use {'preservim/tagbar', cmd = 'TagbarToggle'}
 use {'stevearc/aerial.nvim', opts = {
   attach_mode = 'global',
+  autojump = true,
   placement = 'edge',
   highlight_on_hover = true,
   ignore = {filetypes = {'vim'}},
@@ -213,6 +210,12 @@ use {'jeroenbourgois/vim-actionscript', ft = 'actionscript'}
 if vim.fn.filereadable(vim.fn.stdpath("config") .. "/lua/local_plugin.lua") == 1 then
   use {import = 'local_plugin'}
 end
+
+-- List vim-specific plugins so they don't get cleaned.
+for _, p in ipairs({'vim-airline/vim-airline', 'vim-airline/vim-airline-themes', 'ctrlpvim/ctrlp.vim', 'scrooloose/nerdtree'}) do
+  use {p, lazy = true}
+end
+
 require("lazy").setup(plugins, {
   root = vim.fn.stdpath("config") .. "/bundle",
   -- defaults = { lazy = true },
@@ -226,7 +229,7 @@ filetype off            " for vundle
 call plug#begin('~/.vim/bundle')
 " UI And Basic:
 Plug 'vim-scripts/LargeFile'
-Plug 'vim-scripts/sudo.vim'
+Plug 'lambdalisue/suda.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'ppwwyyxx/vim-PinyinSearch'
@@ -419,6 +422,7 @@ set sidescroll=3
 set sidescrolloff=3
 set nowrap                             " do not wrap long lines
 set whichwrap=b,s,<,>,[,]
+set breakat=\ ^I!@*-+;,.?
 "set listchars=nbsp:¬,eol:¶,tab:>-,extends:»,precedes:«,trail:•
 set fillchars=vert:\|,fold:-,diff:-
 if v:version > 703 || has("patch541")
@@ -477,10 +481,8 @@ nnoremap <S-Tab> ^i<Tab><Esc>
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
 if has('nvim')
   tnoremap <Esc> <C-\><C-n>
-  cmap w!! SudaWrite %
-else
-  cmap w!! SudoWrite %
 endif
+cmap w!! SudaWrite %
 cnoremap cd. lcd %:p:h
 nnoremap "gf <C-W>gf
 " disable ex mode, help and c-a
@@ -488,6 +490,7 @@ nnoremap Q <Esc>
 nnoremap <F1> <Esc>
 inoremap <F1> <Esc>
 nnoremap <C-a> <Esc>
+vnoremap <CR> <Esc>
 
 vnoremap <expr> I ForceBlockwiseVisual('I')
 vnoremap <expr> A ForceBlockwiseVisual('A')
@@ -742,7 +745,9 @@ set statusline+=%#warningmsg#
 set statusline+=%*
 
 let g:ale_linters_explicit = 1
-let g:ale_use_neovim_diagnostics_api = 1
+if has('nvim')
+  let g:ale_use_neovim_diagnostics_api = 1
+endif
 let g:ale_linters = {'python': ['flake8'], 'sh': ['shellcheck']}
 let g:ale_fixers = {'python': ['black']}
 " Only enable hard errors https://flake8.pycqa.org/en/latest/user/error-codes.html
@@ -758,13 +763,15 @@ cmp.setup({
   mapping = cmp.mapping.preset.insert({
     ["<C-d>"] = cmp.mapping.scroll_docs(-4),
     ["<C-u>"] = cmp.mapping.scroll_docs(4),
-    ["<C-e>"] = cmp.mapping.close(),
+    ["<C-e>"] = cmp.mapping(function(fallback) 
+      cmp.mapping.close()
+      fallback()
+    end, {"i"}),
     ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
     ["<CR>"] = cmp.mapping.confirm({ select = false }),
     ["<Tab>"] = cmp.mapping(cmp.mapping.select_next_item(), {"i", "c"}),
-    ["<M-Bslash>"] = cmp.mapping(
-      -- Close cmp and suggest from copilot.
-      function(fallback) 
+    ["<M-Bslash>"] = cmp.mapping(function(fallback) 
+        -- Close cmp and suggest from copilot.
         if cmp.visible() then cmp.close() end
         vim.cmd [[Copilot enable]]
         vim.fn['copilot#Suggest']()
@@ -1035,6 +1042,7 @@ nnoremap <leader>ti :IndentLinesToggle<CR>:set list! lcs=tab:\\|\<Space><CR>
 " TODO: cycle https://github.com/airblade/vim-gitgutter#cycle-through-hunks-in-current-buffer
 nnoremap ]d :silent GitGutterNextHunk<CR>
 nnoremap [d :silent GitGutterPrevHunk<CR>
+if has('nvim')
 " Disable symbols and use linenr
 let g:gitgutter_highlight_linenrs = 1
 let g:gitgutter_signs = 0
@@ -1042,6 +1050,7 @@ let g:gitgutter_sign_modified = ''
 let g:gitgutter_sign_added = ''
 let g:gitgutter_sign_removed = ''
 let g:gitgutter_sign_modified_removed = g:gitgutter_sign_modified
+endif
 " f]]
 " Window Plugins: f[[
 let g:win_width = 22
@@ -1049,19 +1058,20 @@ let g:tagbar_width = g:win_width
 let g:tagbar_autofocus = 1
 let g:tagbar_indent = 1
 let g:tagbar_compact = 1
-nmap <Leader>tl :AerialToggle<CR>
+nmap <Leader>tl :AerialToggle!<CR>
 
 " toggle file
 if has('nvim')
   lua << EOF
 require("nvim-tree").setup({
-  view = {
-    width = 25,
-    mappings = { list = {
-      { key = "l", action = "edit" },
-      { key = "h", action = "close_node" },
-    }}
-  },
+  view = { width = 25 },
+  on_attach = function(bufnr)
+    local api = require('nvim-tree.api')
+    local opts = { buffer = bufnr, silent = true, nowait = true }
+    api.config.mappings.default_on_attach(bufnr)
+    vim.keymap.set('n', 'l', api.node.open.edit, opts)
+    vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts)
+  end,
   renderer = {
     icons = { glyphs = {
       git = { untracked = "" }
