@@ -340,7 +340,8 @@ if has('nvim')
 
   lua << EOF
   -- https://github.com/neovim/neovim/issues/14295#issuecomment-950037927
-  local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+  --   looks weird in some terminals
+  local signs = { Error = " ", Warn = "", Hint = " ", Info = " " }
   for type, icon in pairs(signs) do
     local hl = "DiagnosticSign" .. type
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
@@ -920,7 +921,7 @@ au BufRead SConstruct setf python
 au BufRead TARGETS,WORKSPACE setf syntax=python | setl expandtab
 au BufNewFile,BufRead config.fish set ft=sh               " syntax for fish config file
 au BufNewFile,BufRead *.json setl ft=json syntax=txt
-au BufNewFile,BufRead /tmp/dir*,/tmp/tmp* setf txt           " for vidir / vimv
+au BufNewFile,BufRead /tmp/dir*,/tmp/tmp*,/tmp/*edir.sh setf txt | setl ts=4           " for vidir / vimv / edir
 au BufWritePost,BufWrite __doc__ setf txt
 au BufNewFile,BufRead *.mako setf mako
 au BufNewFile,BufRead *.g,*.y,*.ypp setl syntax=antlr3         " syntax for CFG
