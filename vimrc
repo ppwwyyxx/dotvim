@@ -24,7 +24,7 @@ use {'folke/tokyonight.nvim', lazy = false, opts = {
     c.ui_bg = '#24283b'
   end,
   on_highlights = function(hl, c)
-    for k in pairs(hl) do 
+    for k in pairs(hl) do
       -- Only keep the following, others are set by 'default' colorscheme.
       -- See https://github.com/folke/tokyonight.nvim/blob/main/lua/tokyonight/theme.lua
       if vim.startswith(k, "Cmp") or vim.startswith(k, "WhichKey") then goto continue end
@@ -34,7 +34,7 @@ use {'folke/tokyonight.nvim', lazy = false, opts = {
       if vim.startswith(k, "GitGutter") then
         hl[k]["bg"] = c.ui_bg; goto continue
       end
-      hl[k] = nil 
+      hl[k] = nil
       ::continue::
     end
     for _, k in ipairs({"Pmenu", "TreesitterContext", "TreesitterContextLineNumber", "SignColumn"}) do
@@ -63,8 +63,8 @@ use {'glepnir/dashboard-nvim', event = 'VimEnter', opts = {
           end
           require('telescope.builtin').find_files{
             layout_strategy = 'vertical',
-            find_command = { 
-              "rg", "--files", resolve('~/.vimrc'), resolve('~/.zshrc'), "--hidden", 
+            find_command = {
+              "rg", "--files", resolve('~/.vimrc'), resolve('~/.zshrc'), "--hidden",
               "--glob", "!pixmaps", "--glob", "!.git"
             }}
         end },
@@ -94,7 +94,7 @@ use {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = "BufReadPos
   dependencies = 'JoosepAlviste/nvim-ts-context-commentstring'
 }
 use {'nvim-treesitter/playground', cmd = 'TSHighlightCapturesUnderCursor'}
-use {'nvim-treesitter/nvim-treesitter-context', 
+use {'nvim-treesitter/nvim-treesitter-context',
      opts = { min_window_height = 20, max_lines = 3 },
      event = "BufReadPost" }
 use {'dstein64/vim-startuptime', cmd = 'StartupTime'}
@@ -108,11 +108,11 @@ use {'nvim-telescope/telescope.nvim', lazy = true, opts = {
   defaults = {
     prompt_prefix = '🔍',
     layout_strategy = 'flex',
-    layout_config = { 
-      width = 0.9, 
+    layout_config = {
+      width = 0.9,
       flex = { flip_columns = 120 },
       horizontal = { preview_width = 0.6 },
-      vertical = { preview_height = 0.3 } 
+      vertical = { preview_height = 0.3 }
     },
     path_display = { truncate = 2 },
     mappings = {
@@ -124,7 +124,7 @@ use {'nvim-telescope/telescope.nvim', lazy = true, opts = {
       }
     },
   }},
-  config = function(p, opts) 
+  config = function(p, opts)
     require('telescope').setup(opts)
     require('telescope').load_extension('fzf')
     require('telescope').load_extension('aerial')
@@ -143,6 +143,9 @@ use {'stevearc/aerial.nvim', opts = {
   nav = { autojump = true },
 }}
 use {'ii14/neorepl.nvim', commit = 'bc819bb42edca9c4a6b6e5d00f09f94a49c3b735', lazy = true }
+use {'NvChad/nvim-colorizer.lua', ft = {'css', 'html', 'vim'},
+     opts = { user_default_options = { names = false } } }
+
 
 -- Editing Tools:
 use {'rhysd/accelerated-jk', lazy = false }
@@ -171,11 +174,15 @@ use {'airblade/vim-gitgutter', event = 'VimEnter'}
 use {'wakatime/vim-wakatime', cond = vim.fn.filereadable(vim.fn.expand('$HOME/.wakatime.cfg')) == 1 }
 -- LSP:
 use {'neovim/nvim-lspconfig', lazy = true}
-use {'onsails/lspkind.nvim', config = function() 
-  require("lspkind").init({ symbol_map = { Class = "", Struct = "" } }) 
+use {'onsails/lspkind.nvim', config = function()
+  require("lspkind").init({ symbol_map = { Class = "", Struct = "", Copilot = " " } })
+  -- https://github.com/zbirenbaum/copilot-cmp#highlighting--icon
+  vim.api.nvim_set_hl(0, "CmpItemKindCopilot", {fg ="#6CC644"})
 end, event = "LspAttach" }
 
-use { 'github/copilot.vim', cmd = 'Copilot', config = function() vim.g.copilot_no_tab_map = true end }
+-- use { 'github/copilot.vim', cmd = 'Copilot', config = function() vim.g.copilot_no_tab_map = true end }
+use { "zbirenbaum/copilot.lua", opts = { suggestion = { enabled = false }, panel = { enabled = false } }}
+use { "zbirenbaum/copilot-cmp", config = function () require("copilot_cmp").setup() end }
 use 'hrsh7th/cmp-path'
 use 'hrsh7th/cmp-buffer'
 use { 'hrsh7th/cmp-nvim-lsp', dependencies = {'hrsh7th/cmp-vsnip', 'hrsh7th/vim-vsnip', 'hrsh7th/cmp-nvim-lsp-signature-help' }, event = "LspAttach" }
@@ -183,13 +190,13 @@ use { 'hrsh7th/cmp-nvim-lua', ft = {'lua', 'vim'}}
 use 'hrsh7th/cmp-cmdline'
 use { 'hrsh7th/nvim-cmp' }
 
-use {'folke/trouble.nvim', lazy = true, dependencies = 'nvim-tree/nvim-web-devicons', opts = {        
-  action_keys = {                                                                                     
-    open_split = { "<c-s>" }, -- open buffer in new split                                             
-    open_tab = {},                                                                                    
-  },                                                                                                  
-  auto_close = true, -- automatically close the list when you have no diagnostics                     
-  use_diagnostic_signs = true, -- enabling this will use the signs defined in your lsp client          
+use {'folke/trouble.nvim', lazy = true, dependencies = 'nvim-tree/nvim-web-devicons', opts = {
+  action_keys = {
+    open_split = { "<c-s>" }, -- open buffer in new split
+    open_tab = {},
+  },
+  auto_close = true, -- automatically close the list when you have no diagnostics
+  use_diagnostic_signs = true, -- enabling this will use the signs defined in your lsp client
 }, cmd = {'Trouble', 'TroubleToggle', 'TroubleClose'}}
 
 -- Syntax:
@@ -390,22 +397,24 @@ if has('nvim')
   options = {
     theme = theme,
     component_separators = { left = '', right = ''},
-    section_separators = { left = '', right = ''},
+    --section_separators = { left = '', right = ''},
+    section_separators = { left = "", right = "" },
   },
   sections = {
     lualine_a = {{'mode', fmt = function(str) return str:sub(1,1) end }},
     lualine_b = {'branch', {'diff', symbols = {added = ' ', modified = ' ', removed = ' '} } },
     lualine_c = {
-      {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = ''} },
+      {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = ''}, padding={left=0,right=1} },
       {'diagnostics', sources = {'nvim_diagnostic', 'ale'}},
     },
-    lualine_x = {'filetype'}, lualine_y = {}, lualine_z = {'location'}
+    lualine_x = {'filetype'}, lualine_y = {}, lualine_z = {{'location', padding = {left=0, right=1}} }
   },
-  inactive_sections = { 
+  inactive_sections = {
     lualine_c = {
       {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = ''} },
     },
     lualine_x = {'encoding', 'filetype'}, },
+  extensions = {'nvim-tree', 'trouble'}
 }
 END
 else
@@ -663,6 +672,7 @@ func! DeleteTrailingWhiteSpace()
   normal `Z
 endfunc
 command DeleteTrailingWhiteSpace call DeleteTrailingWhiteSpace()
+au BufWritePre * call DeleteTrailingWhiteSpace()
 
 " ---------------------------------------------------------------------
 " Log For Debugging Vimscript:
@@ -764,27 +774,36 @@ cmp.setup({
   mapping = cmp.mapping.preset.insert({
     ["<C-d>"] = cmp.mapping.scroll_docs(-4),
     ["<C-u>"] = cmp.mapping.scroll_docs(4),
-    ["<C-e>"] = cmp.mapping(function(fallback) 
+    ["<C-e>"] = cmp.mapping(function(fallback)
       cmp.mapping.close()
       fallback()
     end, {"i"}),
     ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
     ["<CR>"] = cmp.mapping.confirm({ select = false }),
-    ["<Tab>"] = cmp.mapping(cmp.mapping.select_next_item(), {"i", "c"}),
-    ["<M-Bslash>"] = cmp.mapping(function(fallback) 
-        -- Close cmp and suggest from copilot.
-        if cmp.visible() then cmp.close() end
-        vim.cmd [[Copilot enable]]
-        vim.fn['copilot#Suggest']()
-      end, {"i"}),
+
+    -- https://github.com/zbirenbaum/copilot-cmp#tab-completion-configuration-highly-recommended
+    ["<Tab>"] = vim.schedule_wrap(function(fallback)
+      local has_words_before = function()
+        if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then return false end
+        local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+        return col ~= 0 and vim.api.nvim_buf_get_text(0, line-1, 0, line-1, col, {})[1]:match("^%s*$") == nil
+      end
+      if cmp.visible() and has_words_before() then
+        cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+      else
+        fallback()
+      end
+    end),
+    --["<Tab>"] = cmp.mapping(cmp.mapping.select_next_item(), {"i", "c"}),
   }),
 
   sources = {
-    { name = "nvim_lsp" },
-    { name = 'nvim_lsp_signature_help' },
-    { name = "path" },
-    { name = "buffer", keyword_length = 5 },
-    { name = "nvim_lua" },
+    { name = "copilot", group_index = 2 },
+    { name = "nvim_lsp", group_index = 2 },
+    { name = 'nvim_lsp_signature_help', group_index=1 },
+    { name = "path", group_index = 3 },
+    { name = "buffer", keyword_length = 5, group_index = 3 },
+    { name = "nvim_lua", group_index = 3 },
   },
 
   window = {
@@ -816,6 +835,10 @@ cmp.setup.cmdline(':', {
   completion = { keyword_length = 3 },
   formatting = { fields = {'abbr'} },
   window = { completion = { border = "rounded" } },
+})
+
+cmp.setup.filetype({ 'text', 'help'}, {
+  sources = {{ name = 'path' }, { name = 'buffer'} }
 })
 EOF
 endif
@@ -943,6 +966,11 @@ au FileType make setl noexpandtab
 au FileType yaml setl foldmethod=indent foldlevel=99 fml=1
 au Filetype txt,crontab setl textwidth=500
 au FileType sh,zsh inoremap ` ``<Left>
+" https://github.com/martinvonz/jj/discussions/2413
+au BufRead *.jjdescription
+  \ syn match jjcommitComment "^JJ: .*$" contains=@NoSpell |
+  \ hi def link jjcommitComment Comment
+
 au BufWritePost *
       \ if getline(1) =~ "^#!/bin/[a-z]*sh" |
       \   exe "silent !chmod a+x <afile>" |
@@ -1051,6 +1079,8 @@ let g:gitgutter_sign_modified = ''
 let g:gitgutter_sign_added = ''
 let g:gitgutter_sign_removed = ''
 let g:gitgutter_sign_modified_removed = g:gitgutter_sign_modified
+command GitGutterDiffLast let g:gitgutter_diff_base = 'HEAD~1' | GitGutterEnable
+else
 endif
 " f]]
 " Window Plugins: f[[

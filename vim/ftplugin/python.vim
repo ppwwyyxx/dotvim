@@ -23,10 +23,11 @@ if executable('pyright')
 lua << END
   -- https://github.com/microsoft/pyright/blob/main/docs/settings.md
   -- https://github.com/microsoft/pyright/blob/main/docs/configuration.md
-	require'lspconfig'.pyright.setup{ 
+	require'lspconfig'.pyright.setup{
     settings = { python = { analysis = {
-      diagnosticSeverityOverrides = { 
-        reportPrivateImportUsage = 'none', analyzeUnannotatedFunctions = 'false', 
+      diagnosticMode = 'openFilesOnly',  -- save resource https://github.com/microsoft/pyright/issues/128
+      diagnosticSeverityOverrides = {
+        reportPrivateImportUsage = 'none', analyzeUnannotatedFunctions = 'false',
 
         reportOptionalMemberAccess = 'none', reportOptionalSubscript = 'none', reportOptionalCall = 'none',
         reportOptionalIterable = 'none', reportOptionalOperand = 'none', reportOptionalContextManager = 'none'
