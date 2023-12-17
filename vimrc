@@ -86,7 +86,7 @@ use 'nvim-lualine/lualine.nvim'
 use {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = "BufReadPost",
   opts = {
     -- Do not enable for comment
-    ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'rst', 'scss', 'typescript', 'vim', 'yaml' },
+    ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'rst', 'scss', 'typescript', 'vim' },
     highlight = { enable = true, },
     context_commentstring = { enable = true },
   },
@@ -348,7 +348,7 @@ if has('nvim')
   lua << EOF
   -- https://github.com/neovim/neovim/issues/14295#issuecomment-950037927
   --   looks weird in some terminals
-  local signs = { Error = " ", Warn = "", Hint = " ", Info = " " }
+  local signs = { Error = "", Warn = "", Hint = "", Info = " " }
   for type, icon in pairs(signs) do
     local hl = "DiagnosticSign" .. type
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
