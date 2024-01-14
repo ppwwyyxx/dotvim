@@ -166,12 +166,14 @@ use {'kana/vim-textobj-indent', dependencies = 'kana/vim-textobj-user'}
 
 -- Programming:
 use {'ruanyl/vim-gh-line', event = 'VimEnter'} -- delay init to pickup configs.
+use {'f-person/git-blame.nvim', opts = { enabled = false, date_format = '%r' }}
 use {'LaTeX-Box-Team/LaTeX-Box', ft = 'tex'}
 use {'derekwyatt/vim-fswitch', ft = {'cpp', 'c'}}
 use {'shime/vim-livedown', ft = 'markdown'}
 use 'neomake/neomake'
 use {'airblade/vim-gitgutter', event = 'VimEnter'}
 use {'wakatime/vim-wakatime', cond = vim.fn.filereadable(vim.fn.expand('$HOME/.wakatime.cfg')) == 1 }
+
 -- LSP:
 use {'neovim/nvim-lspconfig', lazy = true}
 use {'onsails/lspkind.nvim', config = function()
