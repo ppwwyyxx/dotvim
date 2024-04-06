@@ -89,6 +89,15 @@ use {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = "BufReadPos
     ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'rst', 'scss', 'typescript', 'vim' },
     highlight = { enable = true, },
     context_commentstring = { enable = true },
+    incremental_selection = {
+      enable = true,
+      keymaps = {
+        init_selection = "<C-space>",
+        node_incremental = "<C-space>",
+        scope_incremental = false,
+        node_decremental = "<bs>",
+      },
+    },
   },
   config = function(p, opts) require("nvim-treesitter.configs").setup(opts) end,
   dependencies = 'JoosepAlviste/nvim-ts-context-commentstring'
@@ -152,7 +161,6 @@ use {'rhysd/accelerated-jk', lazy = false }
 use {'yonchu/accelerated-smooth-scroll', lazy = false }
 use {'tsaleh/vim-align', cmd = {'Align', 'AlignCtrl'} }
 use 'tpope/vim-surround'
-use 'terryma/vim-expand-region'
 use {'phaazon/hop.nvim',
   opts = { keys = 'etovxqpdygfblzhckisuran', jump_on_sole_occurrence = false },
   keys = {{',w', ':HopWord<cr>', mode='n'}}
