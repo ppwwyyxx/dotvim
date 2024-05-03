@@ -388,6 +388,8 @@ set noshowmode
 
 if has('nvim')
   set cmdheight=0
+  au RecordingEnter * set cmdheight=1
+  au RecordingLeave * set cmdheight=0
   lua << END
   local theme = require'lualine.themes.powerline_dark'
   theme.inactive.c.fg = theme.normal.c.fg
@@ -415,7 +417,7 @@ if has('nvim')
     lualine_b = {'branch', {'diff', symbols = {added = ' ', modified = ' ', removed = ' '} } },
     lualine_c = {
       {'filename', shorting_target = 0, path = 1, fmt = filenamefmt, symbols = { modified = ''}, padding={left=0,right=1} },
-      {'diagnostics', sources = {'nvim_diagnostic', 'ale'}},
+      {'diagnostics', sources = {'nvim_diagnostic', 'ale'}, symbols = { warn = '⚠ '}},
     },
     lualine_x = {'filetype'}, lualine_y = {}, lualine_z = {{'location', padding = {left=0, right=1}} }
   },
