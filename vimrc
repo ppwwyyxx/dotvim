@@ -175,10 +175,8 @@ use {'kana/vim-textobj-indent', dependencies = 'kana/vim-textobj-user'}
 -- Programming:
 use {'ruanyl/vim-gh-line', event = 'VimEnter'} -- delay init to pickup configs.
 use {'f-person/git-blame.nvim', opts = { enabled = false, date_format = '%r' }}
-use {'LaTeX-Box-Team/LaTeX-Box', ft = 'tex'}
 use {'derekwyatt/vim-fswitch', ft = {'cpp', 'c'}}
 use {'shime/vim-livedown', ft = 'markdown'}
-use 'neomake/neomake'
 use {'airblade/vim-gitgutter', event = 'VimEnter'}
 use {'wakatime/vim-wakatime', cond = vim.fn.filereadable(vim.fn.expand('$HOME/.wakatime.cfg')) == 1 }
 
@@ -266,7 +264,6 @@ Plug 'preservim/nerdcommenter'
 " Programming:
 Plug 'ruanyl/vim-gh-line'
 Plug 'derekwyatt/vim-fswitch', {'for': [ 'cpp', 'c' ] }
-Plug 'neomake/neomake'
 Plug 'airblade/vim-gitgutter'
 Plug 'wakatime/vim-wakatime'
 " Syntax:
@@ -300,7 +297,6 @@ set ttyfast
 "set lazyredraw
 " --------------------------------------------------------------------- f]]
 " UI: f[[
-set background=light
 set title
 set titlelen=20
 set titlestring=%f
@@ -330,7 +326,7 @@ hi Matchmaker guibg=#444444
 hi Folded guibg=#444444 guifg=lightblue
 hi Search ctermfg=red ctermbg=cyan guibg=#8ca509
 hi MatchParen ctermbg=yellow ctermfg=black
-hi Visual ctermbg=81 ctermfg=black cterm=none guibg=#0a6886 guifg=NONE
+hi Visual ctermbg=81 ctermfg=black cterm=none guibg=#0a0886 guifg=NONE
 
 hi LineNr ctermfg=134 guifg=#d426ff guibg=#24283b
 hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=#65ec9b
