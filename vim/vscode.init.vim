@@ -70,8 +70,10 @@ inoremap <a-b> <Esc>bi
 func! ClearMyHighlight()
   " https://vi.stackexchange.com/questions/3148/what-is-the-functional-difference-between-nohlsearch-and-set-nohlsearch
   call clearmatches()
+  exec 'SearchReset'
   " Different from regular vim. otherwise buggy buffer in vscode
-  return ":let v:hlsearch=0\<CR>:silent! SearchReset\<CR>"
+  return ":let v:hlsearch=0\<CR>"
+  " return ":let v:hlsearch=0\<CR>:silent! SearchReset\<CR>"
 endfunc
 nnoremap <expr> <Leader>no ClearMyHighlight()
 

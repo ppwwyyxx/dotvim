@@ -83,12 +83,12 @@ use {'folke/which-key.nvim', branch = 'main'}
 use {'lambdalisue/suda.vim', cmd = 'SudaWrite'}
 use 'nvim-lualine/lualine.nvim'
 -- https://github.com/folke/lazy.nvim/issues/389
+vim.g.skip_ts_context_commentstring_module = true  -- https://github.com/JoosepAlviste/nvim-ts-context-commentstring
 use {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = "BufReadPost",
   opts = {
     -- Do not enable for comment
     ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'rst', 'scss', 'typescript', 'vim' },
     highlight = { enable = true, },
-    context_commentstring = { enable = true },
     incremental_selection = {
       enable = true,
       keymaps = {
@@ -106,7 +106,7 @@ use {'nvim-treesitter/playground', cmd = 'TSHighlightCapturesUnderCursor'}
 use {'nvim-treesitter/nvim-treesitter-context',
      opts = { min_window_height = 20, max_lines = 3 },
      event = "BufReadPost" }
-use {'dstein64/vim-startuptime', cmd = 'StartupTime'}
+use {'dstein64/vim-startuptime', cmd = 'StartupTime', commit = 'ac2cccb5be617672add1f4f3c0a55ce99ba34e01'}
 use 'vim-scripts/MultipleSearch'
 use 'ppwwyyxx/vim-PinyinSearch'
 
@@ -157,13 +157,14 @@ use {'NvChad/nvim-colorizer.lua', ft = {'css', 'html', 'vim'},
 
 
 -- Editing Tools:
-use {'rhysd/accelerated-jk', lazy = false }
-use {'yonchu/accelerated-smooth-scroll', lazy = false }
-use {'tsaleh/vim-align', cmd = {'Align', 'AlignCtrl'} }
+use {'rhysd/accelerated-jk', lazy = false, commit = '156c5158b72059404f6b8aaf15b59f87dd0aaa88'}
+use {'yonchu/accelerated-smooth-scroll', lazy = false, commit = '04944ea4831f5d31f776cb8cd627601ddb567fc2'}
+use {'tsaleh/vim-align', cmd = {'Align', 'AlignCtrl'}, commit = 'fa5fdeeea25269c3e83262c03dfa1ccd27dbd3c9' }
 use 'tpope/vim-surround'
-use {'phaazon/hop.nvim',
+use {'hadronized/hop.nvim',
   opts = { keys = 'etovxqpdygfblzhckisuran', jump_on_sole_occurrence = false },
-  keys = {{',w', ':HopWord<cr>', mode='n'}}
+  keys = {{',w', ':HopWord<cr>', mode='n'}},
+  commit = '1a1eceafe54b5081eae4cb91c723abd1d450f34b'
 }
 use {'ojroques/vim-oscyank', branch = 'main'}
 vim.g.matchmaker_enable_startup = 1 -- highlight words under cursor
@@ -176,7 +177,6 @@ use {'kana/vim-textobj-indent', dependencies = 'kana/vim-textobj-user'}
 use {'ruanyl/vim-gh-line', event = 'VimEnter'} -- delay init to pickup configs.
 use {'f-person/git-blame.nvim', opts = { enabled = false, date_format = '%r' }}
 use {'derekwyatt/vim-fswitch', ft = {'cpp', 'c'}}
-use {'shime/vim-livedown', ft = 'markdown'}
 use {'airblade/vim-gitgutter', event = 'VimEnter'}
 use {'wakatime/vim-wakatime', cond = vim.fn.filereadable(vim.fn.expand('$HOME/.wakatime.cfg')) == 1 }
 
@@ -189,8 +189,8 @@ use {'onsails/lspkind.nvim', config = function()
 end, event = "LspAttach" }
 
 -- use { 'github/copilot.vim', cmd = 'Copilot', config = function() vim.g.copilot_no_tab_map = true end }
-use { "zbirenbaum/copilot.lua", opts = { suggestion = { enabled = false }, panel = { enabled = false } }}
-use { "zbirenbaum/copilot-cmp", config = function () require("copilot_cmp").setup() end }
+use { 'zbirenbaum/copilot.lua', opts = { suggestion = { enabled = false }, panel = { enabled = false } }}
+use { 'zbirenbaum/copilot-cmp', config = function () require("copilot_cmp").setup() end }
 use 'hrsh7th/cmp-path'
 use 'hrsh7th/cmp-buffer'
 use { 'hrsh7th/cmp-nvim-lsp', dependencies = {'hrsh7th/cmp-vsnip', 'hrsh7th/vim-vsnip', 'hrsh7th/cmp-nvim-lsp-signature-help' }, event = "LspAttach" }
@@ -217,7 +217,6 @@ use {'maksimr/vim-jsbeautify', ft = {'html', 'javascript', 'css', 'json'}}
 use {'pangloss/vim-javascript', ft = 'javascript'}
 use {'groenewege/vim-less', ft = 'less'}
 use {'fs111/pydoc.vim', ft = 'python'}
-use 'ujihisa/rdoc.vim'
 use {'slim-template/vim-slim', ft = 'slim'}
 use {'wavded/vim-stylus', ft = 'stylus'}
 use {'jeroenbourgois/vim-actionscript', ft = 'actionscript'}
@@ -303,7 +302,13 @@ set titlestring=%f
 
 " First load default, then overwrite misc with tokyonight
 colo default
-if has("nvim") | set termguicolors | else
+if has("nvim")
+  set termguicolors
+  hi clear
+  if has("nvim-0.10")
+    colo vim
+  endif
+else
   " https://github.com/vim/vim/issues/993#issuecomment-255651605
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
@@ -326,19 +331,18 @@ hi Matchmaker guibg=#444444
 hi Folded guibg=#444444 guifg=lightblue
 hi Search ctermfg=red ctermbg=cyan guibg=#8ca509
 hi MatchParen ctermbg=yellow ctermfg=black
-hi Visual ctermbg=81 ctermfg=black cterm=none guibg=#0a0886 guifg=NONE
+hi Visual ctermbg=81 ctermfg=black cterm=NONE guibg=#0a0886 guifg=fg
 
 hi LineNr ctermfg=134 guifg=#d426ff guibg=#24283b
-hi VertSplit ctermbg=none ctermfg=55 cterm=none guifg=#65ec9b
+hi VertSplit ctermbg=NONE ctermfg=55 cterm=NONE guifg=#65ec9b
 hi PmenuSel guifg=lightgreen
 
 hi Comment ctermfg=blue guifg=#145ecc
 hi String ctermfg=13 guifg=#fd26f8
-hi Statement ctermfg=3 gui=none
-hi Type gui=none
-hi DiffAdd ctermbg=none ctermfg=LightBlue guifg=Green guibg=#2a2a2a
+hi Statement ctermfg=3 guifg=#ffff60
+hi DiffAdd ctermbg=NONE ctermfg=LightBlue guifg=Green guibg=#2a2a2a
 hi DiffDelete guibg=#5a5a5a
-hi DiffChange ctermbg=none ctermfg=yellow guifg=orange guibg=#2a2a2a
+hi DiffChange ctermbg=NONE ctermfg=yellow guifg=orange guibg=#2a2a2a
 hi DiffText ctermbg=grey ctermfg=red guifg=#df005f guibg=#0a0a0a
 hi gitcommitSummary guifg=white
 
