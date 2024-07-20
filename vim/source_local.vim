@@ -11,6 +11,6 @@ func! MyTryLocalVimrc(vimrc)
     endif
   endif
 endfunc
-call MyTryLocalVimrc(".vimrc.local")
-call MyTryLocalVimrc("../.vimrc.local")
-call MyTryLocalVimrc("../../.vimrc.local")
+"call MyTryLocalVimrc(".vimrc.local")
+"call MyTryLocalVimrc("../.vimrc.local")
+"call MyTryLocalVimrc("../../.vimrc.local")

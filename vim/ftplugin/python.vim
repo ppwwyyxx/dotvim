@@ -19,7 +19,7 @@ endif
 " let g:python_recommended_style = 0
 
 
-if executable('pyright') && ! exists('g:vscode')
+if has('nvim') && executable('pyright') && ! exists('g:vscode')
 lua << END
   -- https://github.com/microsoft/pyright/blob/main/docs/settings.md
   -- https://github.com/microsoft/pyright/blob/main/docs/configuration.md
