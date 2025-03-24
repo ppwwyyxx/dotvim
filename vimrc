@@ -87,7 +87,7 @@ vim.g.skip_ts_context_commentstring_module = true  -- https://github.com/JoosepA
 use {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = "BufReadPost",
   opts = {
     -- Do not enable for comment
-    ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'rst', 'scss', 'typescript', 'vim' },
+    ensure_installed = { 'bash', 'c', 'cmake', 'cpp', 'cuda', 'glsl', 'css', 'html', 'javascript', 'json', 'lua', 'make', 'markdown', 'ninja', 'proto', 'python', 'rst', 'scss', 'typescript', 'vim', 'vimdoc' },
     highlight = { enable = true, },
     incremental_selection = {
       enable = true,
