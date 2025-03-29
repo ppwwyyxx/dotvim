@@ -324,7 +324,9 @@ else
     cnoremap <C-S-v> <C-r>*
   endif
 endif
-set guioptions=aegi                " cleaner gui
+if !has('nvim')
+  set guioptions=aegi                " cleaner gui
+endif
 set t_Co=256
 au BufEnter * if &buftype == "quickfix" | syn match Error "error:" | endif
 hi Matchmaker guibg=#444444
@@ -526,8 +528,9 @@ endfunc
 " ---------------------------------------------------------------------
 " Clipboard:                           " + register may be wrong under xterm
 nnoremap Y y$
-set pastetoggle=<F12>                  " toggle paste insert mode
-au VimEnter * set pastetoggle=<F12>     " workaround for bug in neovim #2843
+if !has('nvim')
+  set pastetoggle=<F12>                  " toggle paste insert mode
+endif
 if has("gui_running") || exists('g:neovide')   " for gvim/neovide
   xnoremap <c-c> "+y
 else
